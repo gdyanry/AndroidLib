@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CircleImageView">
+        <attr name="civ_border_width" format="dimension" />
+        <attr name="civ_border_color" format="color" />
+        <attr name="civ_border_overlay" format="boolean" />
+        <attr name="civ_fill_color" format="color" />
+    </declare-styleable>
+    <declare-styleable name="ViewDragLayout">
+        <attr name="auto_back" format="boolean" />
+        <attr name="horizontal_inside" format="boolean" />
+        <attr name="vertical_inside" format="boolean" />
+    </declare-styleable>
+    <declare-styleable name="EditSelect">
+        <attr name="drop_mode">
+            <enum name="flower_parent" value="0" />
+            <enum name="wrap_content" value="1" />
+        </attr>
+    </declare-styleable>
+    <declare-styleable name="CustomImageView">
+        <attr name="civ_borderRadius" format="dimension" />
+        <attr name="civ_src" format="reference" />
+        <attr name="civ_type">
+            <enum name="circle" value="0" />
+            <enum name="round" value="1" />
+        </attr>
+    </declare-styleable>
+    <declare-styleable name="GridAutoLayout">
+        <attr name="columnNumber" format="integer"></attr>
+        <attr name="suggestItemWidth" format="dimension"></attr>
+        <attr name="itemWidth" format="dimension"></attr>
+        <attr name="paddingVertical" format="dimension"></attr>
+        <attr name="paddingHorizontal" format="dimension"></attr>
+        <attr name="minItemWidth" format="dimension"></attr>
+    </declare-styleable>
+
+</resources>
