@@ -1,7 +1,0 @@
-rootProject.name = 'AndroidLib'
-
-include ':CommonLib'
-project(':CommonLib').projectDir = new File('./../CommonLib')
-
-include ':PullToRefreshLib'
-project(':PullToRefreshLib').projectDir = new File('./../../UI/PullToRefreshLib')
