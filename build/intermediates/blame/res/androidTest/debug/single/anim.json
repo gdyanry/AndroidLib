@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/res/merged/androidTest/debug/anim/slide_out_left.xml",
+        "source": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/anim/slide_out_left.xml"
+    },
+    {
+        "merged": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/res/merged/androidTest/debug/anim/slide_in_right.xml",
+        "source": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/anim/slide_in_right.xml"
+    }
+]

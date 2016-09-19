@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/res/merged/androidTest/debug/layout/fragment_image_preview.xml",
+        "source": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/layout/fragment_image_preview.xml"
+    },
+    {
+        "merged": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/res/merged/androidTest/debug/layout/view_image_loading.xml",
+        "source": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/layout/view_image_loading.xml"
+    },
+    {
+        "merged": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/res/merged/androidTest/debug/layout/edit_select.xml",
+        "source": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/layout/edit_select.xml"
+    }
+]

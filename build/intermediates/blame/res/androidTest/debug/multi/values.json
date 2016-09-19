@@ -1,0 +1,294 @@
+[
+    {
+        "outputFile": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/incremental/mergeDebugAndroidTestResources/merged.dir/values/values.xml",
+        "map": [
+            {
+                "to": {
+                    "startLine": 14,
+                    "startColumn": 4,
+                    "startOffset": 1621,
+                    "endColumn": 74,
+                    "endOffset": 1691
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.3.0/res/values/values.xml",
+                    "position": {
+                        "startLine": 3,
+                        "startColumn": 4,
+                        "startOffset": 327,
+                        "endColumn": 74,
+                        "endOffset": 397
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 15,
+                    "startColumn": 4,
+                    "startOffset": 1696,
+                    "endColumn": 75,
+                    "endOffset": 1767
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.3.0/res/values/values.xml",
+                    "position": {
+                        "startLine": 4,
+                        "startColumn": 4,
+                        "startOffset": 402,
+                        "endColumn": 75,
+                        "endOffset": 473
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 16,
+                    "startColumn": 4,
+                    "startOffset": 1772,
+                    "endColumn": 71,
+                    "endOffset": 1839
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.3.0/res/values/values.xml",
+                    "position": {
+                        "startLine": 5,
+                        "startColumn": 4,
+                        "startOffset": 478,
+                        "endColumn": 71,
+                        "endOffset": 545
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 17,
+                    "startColumn": 4,
+                    "startOffset": 1844,
+                    "endColumn": 46,
+                    "endOffset": 1886
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 13,
+                        "startColumn": 4,
+                        "startOffset": 1349,
+                        "endColumn": 46,
+                        "endOffset": 1391
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 18,
+                    "startColumn": 4,
+                    "startOffset": 1891,
+                    "endColumn": 47,
+                    "endOffset": 1934
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 14,
+                        "startColumn": 4,
+                        "startOffset": 1396,
+                        "endColumn": 47,
+                        "endOffset": 1439
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 19,
+                    "startColumn": 4,
+                    "startOffset": 1939,
+                    "endColumn": 46,
+                    "endOffset": 1981
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 15,
+                        "startColumn": 4,
+                        "startOffset": 1444,
+                        "endColumn": 46,
+                        "endOffset": 1486
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 20,
+                    "startColumn": 4,
+                    "startOffset": 1986,
+                    "endColumn": 48,
+                    "endOffset": 2030
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 16,
+                        "startColumn": 4,
+                        "startOffset": 1491,
+                        "endColumn": 48,
+                        "endOffset": 1535
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 21,
+                    "startColumn": 4,
+                    "startOffset": 2035,
+                    "endColumn": 49,
+                    "endOffset": 2080
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 17,
+                        "startColumn": 4,
+                        "startOffset": 1540,
+                        "endColumn": 49,
+                        "endOffset": 1585
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 22,
+                    "startColumn": 4,
+                    "startOffset": 2085,
+                    "endColumn": 65,
+                    "endOffset": 2146
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.3.0/res/values/values.xml",
+                    "position": {
+                        "startLine": 6,
+                        "startColumn": 4,
+                        "startOffset": 550,
+                        "endColumn": 65,
+                        "endOffset": 611
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 23,
+                    "startColumn": 4,
+                    "startOffset": 2151,
+                    "endColumn": 48,
+                    "endOffset": 2195
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 18,
+                        "startColumn": 4,
+                        "startOffset": 1590,
+                        "endColumn": 48,
+                        "endOffset": 1634
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 24,
+                    "startColumn": 4,
+                    "startOffset": 2200,
+                    "endColumn": 46,
+                    "endOffset": 2242
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 19,
+                        "startColumn": 4,
+                        "startOffset": 1639,
+                        "endColumn": 46,
+                        "endOffset": 1681
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 25,
+                    "startColumn": 4,
+                    "startOffset": 2247,
+                    "endColumn": 44,
+                    "endOffset": 2287
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 20,
+                        "startColumn": 4,
+                        "startOffset": 1686,
+                        "endColumn": 44,
+                        "endOffset": 1726
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 26,
+                    "startColumn": 4,
+                    "startOffset": 2292,
+                    "endColumn": 47,
+                    "endOffset": 2335
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 21,
+                        "startColumn": 4,
+                        "startOffset": 1731,
+                        "endColumn": 47,
+                        "endOffset": 1774
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 27,
+                    "startColumn": 4,
+                    "startOffset": 2340,
+                    "endColumn": 26,
+                    "endOffset": 2362
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 22,
+                        "startColumn": 4,
+                        "startOffset": 1779,
+                        "endColumn": 26,
+                        "endOffset": 1801
+                    }
+                }
+            },
+            {
+                "to": {
+                    "startLine": 28,
+                    "startColumn": 4,
+                    "startOffset": 2367,
+                    "endLine": 36,
+                    "endColumn": 12,
+                    "endOffset": 2874
+                },
+                "from": {
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
+                    "position": {
+                        "startLine": 23,
+                        "startColumn": 4,
+                        "startOffset": 1806,
+                        "endLine": 31,
+                        "endColumn": 12,
+                        "endOffset": 2313
+                    }
+                }
+            }
+        ]
+    }
+]
