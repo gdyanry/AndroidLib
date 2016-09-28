@@ -6,8 +6,8 @@ package lib.android.model.request.cache;
 import java.util.LinkedList;
 import java.util.List;
 
-import lib.android.entity.enums.DataSource;
 import lib.android.util.CommonUtils;
+import lib.common.model.cache.http.DataSource;
 import lib.common.model.communication.base.RequestLiveListener;
 import lib.common.model.communication.base.RequestPack;
 

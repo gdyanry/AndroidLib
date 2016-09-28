@@ -5,6 +5,7 @@ package lib.android.view;
 
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
+
 import lib.android.entity.MainHandler;
 import lib.common.model.Singletons;
 

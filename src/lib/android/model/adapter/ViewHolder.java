@@ -3,14 +3,14 @@
  */
 package lib.android.model.adapter;
 
-import com.lib.android.R;
-
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.lib.android.R;
 
 /**
  * @author yanry

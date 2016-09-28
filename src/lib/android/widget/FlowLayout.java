@@ -1,14 +1,14 @@
 package lib.android.widget;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 流式布局
@@ -21,11 +21,18 @@ import android.view.ViewGroup;
 public class FlowLayout extends ViewGroup {
 
     private static final String TAG = "FlowLayout";
+    /**
+     * 存储所有的View，按行记录
+     */
+    private List<List<View>> mAllViews = new ArrayList<List<View>>();
+    /**
+     * 记录每一行的最大高度
+     */
+    private List<Integer> mLineHeight = new ArrayList<Integer>();
 
     public FlowLayout(Context context) {
         super(context);
     }
-
 
     public FlowLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -112,15 +119,6 @@ public class FlowLayout extends ViewGroup {
                 (modeHeight == MeasureSpec.EXACTLY) ? sizeHeight : height);
 
     }
-
-    /**
-     * 存储所有的View，按行记录
-     */
-    private List<List<View>> mAllViews = new ArrayList<List<View>>();
-    /**
-     * 记录每一行的最大高度
-     */
-    private List<Integer> mLineHeight = new ArrayList<Integer>();
 
     @SuppressLint("DrawAllocation")
     @Override

@@ -7,9 +7,10 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+
 import lib.android.model.bitmap.BitmapOption;
-import lib.android.model.bitmap.CacheKey;
 import lib.android.model.bitmap.BitmapThumb.Decoder;
+import lib.android.model.bitmap.CacheKey;
 import lib.common.model.resourceaccess.AccessHook;
 
 /**

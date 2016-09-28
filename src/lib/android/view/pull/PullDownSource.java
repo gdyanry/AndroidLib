@@ -3,13 +3,13 @@
  */
 package lib.android.view.pull;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.GridView;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class is to specify a view to be pulled and add {@link PullDownHook} to

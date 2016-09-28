@@ -7,6 +7,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
 import lib.android.model.dao.AndroidBaseDao;
 import lib.common.model.cache.CacheDataManager;
 
@@ -55,7 +56,7 @@ public class SqliteCacheDataManager extends CacheDataManager {
 	}
 
 	public void cleanExpireCache() {
-		String whereClause = String.format("%s<%s", TbCacheData.EXPIRE_TIME, System.currentTimeMillis());
+		String whereClause = String.format("%s<%s", TbCacheData.UPDATE_TIME, System.currentTimeMillis() - retentionMillis);
 		dao.delete(TbCacheData.class, whereClause, null);
 	}
 
@@ -73,10 +74,12 @@ public class SqliteCacheDataManager extends CacheDataManager {
 	protected String getLocalCache(String key) {
 		String[] columns = { TbCacheData.DATA };
 		Cursor cs = dao.query(TbCacheData.class, columns, whereClause, getWhereArgs(key), null);
+		String value = null;
 		if (cs.moveToNext()) {
-			return cs.getString(0);
+			value = cs.getString(0);
 		}
-		return null;
+		cs.close();
+		return value;
 	}
 
 	private String[] getWhereArgs(String key) {
@@ -88,7 +91,7 @@ public class SqliteCacheDataManager extends CacheDataManager {
 		ContentValues values = new ContentValues();
 		values.put(TbCacheData.KEY, key);
 		values.put(TbCacheData.DATA, data.toString());
-		values.put(TbCacheData.EXPIRE_TIME, System.currentTimeMillis() + retentionMillis);
+		values.put(TbCacheData.UPDATE_TIME, System.currentTimeMillis());
 		values.put(TbCacheData.IS_USER_RELATED, removeOnLogout);
 		dao.insert(TbCacheData.class, values, SQLiteDatabase.CONFLICT_REPLACE);
 	}

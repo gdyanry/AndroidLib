@@ -3,10 +3,6 @@
 */
 package lib.android.model.bitmap;
 
-import java.io.File;
-
-import com.lib.android.R;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -16,6 +12,11 @@ import android.os.Build;
 import android.os.Looper;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
+
+import com.lib.android.R;
+
+import java.io.File;
+
 import lib.android.entity.MainHandler;
 import lib.android.model.bitmap.access.BitmapAccess;
 import lib.android.util.CommonUtils;

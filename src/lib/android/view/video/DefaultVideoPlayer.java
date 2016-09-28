@@ -3,8 +3,6 @@
  */
 package lib.android.view.video;
 
-import java.util.Map;
-
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnBufferingUpdateListener;
@@ -14,6 +12,8 @@ import android.media.MediaPlayer.OnPreparedListener;
 import android.media.MediaPlayer.OnVideoSizeChangedListener;
 import android.net.Uri;
 import android.view.SurfaceHolder;
+
+import java.util.Map;
 
 /**
  * @author yanry
@@ -36,13 +36,13 @@ public class DefaultVideoPlayer implements VideoPlayer, OnBufferingUpdateListene
 	}
 
 	@Override
-	public void setAudioSessionId(int sessionId) {
-		mPlayer.setAudioSessionId(sessionId);
+	public int getAudioSessionId() {
+		return mPlayer.getAudioSessionId();
 	}
 
 	@Override
-	public int getAudioSessionId() {
-		return mPlayer.getAudioSessionId();
+	public void setAudioSessionId(int sessionId) {
+		mPlayer.setAudioSessionId(sessionId);
 	}
 
 	@Override

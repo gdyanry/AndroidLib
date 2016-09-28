@@ -11,13 +11,13 @@
                     "endOffset": 1691
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.3.0/res/values/values.xml",
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.1/res/values/values.xml",
                     "position": {
-                        "startLine": 3,
+                        "startLine": 5,
                         "startColumn": 4,
-                        "startOffset": 327,
+                        "startOffset": 500,
                         "endColumn": 74,
-                        "endOffset": 397
+                        "endOffset": 570
                     }
                 }
             },
@@ -26,46 +26,8 @@
                     "startLine": 15,
                     "startColumn": 4,
                     "startOffset": 1696,
-                    "endColumn": 75,
-                    "endOffset": 1767
-                },
-                "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.3.0/res/values/values.xml",
-                    "position": {
-                        "startLine": 4,
-                        "startColumn": 4,
-                        "startOffset": 402,
-                        "endColumn": 75,
-                        "endOffset": 473
-                    }
-                }
-            },
-            {
-                "to": {
-                    "startLine": 16,
-                    "startColumn": 4,
-                    "startOffset": 1772,
-                    "endColumn": 71,
-                    "endOffset": 1839
-                },
-                "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.3.0/res/values/values.xml",
-                    "position": {
-                        "startLine": 5,
-                        "startColumn": 4,
-                        "startOffset": 478,
-                        "endColumn": 71,
-                        "endOffset": 545
-                    }
-                }
-            },
-            {
-                "to": {
-                    "startLine": 17,
-                    "startColumn": 4,
-                    "startOffset": 1844,
                     "endColumn": 46,
-                    "endOffset": 1886
+                    "endOffset": 1738
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -80,11 +42,11 @@
             },
             {
                 "to": {
-                    "startLine": 18,
+                    "startLine": 16,
                     "startColumn": 4,
-                    "startOffset": 1891,
+                    "startOffset": 1743,
                     "endColumn": 47,
-                    "endOffset": 1934
+                    "endOffset": 1786
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -99,11 +61,11 @@
             },
             {
                 "to": {
-                    "startLine": 19,
+                    "startLine": 17,
                     "startColumn": 4,
-                    "startOffset": 1939,
+                    "startOffset": 1791,
                     "endColumn": 46,
-                    "endOffset": 1981
+                    "endOffset": 1833
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -118,11 +80,11 @@
             },
             {
                 "to": {
-                    "startLine": 20,
+                    "startLine": 18,
                     "startColumn": 4,
-                    "startOffset": 1986,
+                    "startOffset": 1838,
                     "endColumn": 48,
-                    "endOffset": 2030
+                    "endOffset": 1882
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -137,11 +99,11 @@
             },
             {
                 "to": {
-                    "startLine": 21,
+                    "startLine": 19,
                     "startColumn": 4,
-                    "startOffset": 2035,
+                    "startOffset": 1887,
                     "endColumn": 49,
-                    "endOffset": 2080
+                    "endOffset": 1932
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -156,30 +118,30 @@
             },
             {
                 "to": {
-                    "startLine": 22,
+                    "startLine": 20,
                     "startColumn": 4,
-                    "startOffset": 2085,
+                    "startOffset": 1937,
                     "endColumn": 65,
-                    "endOffset": 2146
+                    "endOffset": 1998
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.3.0/res/values/values.xml",
+                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.1/res/values/values.xml",
                     "position": {
-                        "startLine": 6,
+                        "startLine": 8,
                         "startColumn": 4,
-                        "startOffset": 550,
+                        "startOffset": 745,
                         "endColumn": 65,
-                        "endOffset": 611
+                        "endOffset": 806
                     }
                 }
             },
             {
                 "to": {
-                    "startLine": 23,
+                    "startLine": 21,
                     "startColumn": 4,
-                    "startOffset": 2151,
+                    "startOffset": 2003,
                     "endColumn": 48,
-                    "endOffset": 2195
+                    "endOffset": 2047
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -194,11 +156,11 @@
             },
             {
                 "to": {
-                    "startLine": 24,
+                    "startLine": 22,
                     "startColumn": 4,
-                    "startOffset": 2200,
+                    "startOffset": 2052,
                     "endColumn": 46,
-                    "endOffset": 2242
+                    "endOffset": 2094
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -213,11 +175,11 @@
             },
             {
                 "to": {
-                    "startLine": 25,
+                    "startLine": 23,
                     "startColumn": 4,
-                    "startOffset": 2247,
+                    "startOffset": 2099,
                     "endColumn": 44,
-                    "endOffset": 2287
+                    "endOffset": 2139
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -232,11 +194,11 @@
             },
             {
                 "to": {
-                    "startLine": 26,
+                    "startLine": 24,
                     "startColumn": 4,
-                    "startOffset": 2292,
+                    "startOffset": 2144,
                     "endColumn": 47,
-                    "endOffset": 2335
+                    "endOffset": 2187
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -251,11 +213,11 @@
             },
             {
                 "to": {
-                    "startLine": 27,
+                    "startLine": 25,
                     "startColumn": 4,
-                    "startOffset": 2340,
+                    "startOffset": 2192,
                     "endColumn": 26,
-                    "endOffset": 2362
+                    "endOffset": 2214
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",
@@ -270,12 +232,12 @@
             },
             {
                 "to": {
-                    "startLine": 28,
+                    "startLine": 26,
                     "startColumn": 4,
-                    "startOffset": 2367,
-                    "endLine": 36,
+                    "startOffset": 2219,
+                    "endLine": 34,
                     "endColumn": 12,
-                    "endOffset": 2874
+                    "endOffset": 2726
                 },
                 "from": {
                     "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/bundles/debug/res/values/values.xml",

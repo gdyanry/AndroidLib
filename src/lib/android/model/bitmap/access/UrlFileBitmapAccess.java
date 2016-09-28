@@ -3,11 +3,11 @@
  */
 package lib.android.model.bitmap.access;
 
-import java.io.File;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+
+import java.io.File;
 
 /**
  * @author yanry

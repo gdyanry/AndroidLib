@@ -3,8 +3,6 @@
  */
 package lib.android.widget;
 
-import com.lib.android.R;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -15,6 +13,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ViewFlipper;
+
+import com.lib.android.R;
 
 /**
  * An advertisement displayer. You can disable manual flip by calling

@@ -3,10 +3,10 @@
  */
 package lib.android.model.request.cache;
 
-import lib.android.entity.enums.DataSource;
 import lib.android.util.CommonUtils;
 import lib.common.model.cache.CacheDataHook;
 import lib.common.model.cache.CacheDataManager;
+import lib.common.model.cache.http.DataSource;
 import lib.common.model.communication.base.RequestDataHook;
 import lib.common.model.communication.base.RequestPack;
 import lib.common.model.communication.base.ResponseParser;

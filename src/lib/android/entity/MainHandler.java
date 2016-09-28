@@ -12,7 +12,6 @@ import android.os.Looper;
  * 2016年6月1日
  */
 public class MainHandler extends Handler {
-
 	public MainHandler() {
 		super(Looper.getMainLooper());
 	}

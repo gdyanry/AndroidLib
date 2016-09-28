@@ -4,6 +4,7 @@
 package lib.android.view.image.preview;
 
 import android.app.Activity;
+
 import uk.co.senab.photoview.PhotoView;
 
 /**

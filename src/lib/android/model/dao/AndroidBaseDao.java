@@ -1,6 +1,5 @@
 package lib.android.model.dao;
 
-import java.io.File;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,6 +7,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
+
+import java.io.File;
+
 import lib.common.model.dao.BaseDao;
 import lib.common.util.ConsoleUtil;
 
@@ -59,7 +61,7 @@ public abstract class AndroidBaseDao extends BaseDao {
 			openHelper.setWriteAheadLoggingEnabled(true);
 		}
 		dbFile = context.getDatabasePath(dbFileName);
-		ConsoleUtil.debug(getClass(), String.format("instantiate dao: %s, %s bytes", dbFileName, dbFile.length()));
+		ConsoleUtil.debug(String.format("instantiate dao: %s, %s bytes", dbFileName, dbFile.length()));
 	}
 
 	public SQLiteDatabase getDatabase(boolean writable) {

@@ -3,17 +3,19 @@
  */
 package lib.android.model.bitmap;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.text.Html.ImageGetter;
 import android.widget.TextView;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import lib.common.model.resourceaccess.AccessHook;
 import lib.common.model.resourceaccess.UrlFileAccess;
 

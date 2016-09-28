@@ -3,10 +3,11 @@
  */
 package lib.android.model;
 
-import java.io.File;
-
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+
+import java.io.File;
+
 import lib.android.util.CommonUtils;
 import lib.common.model.LoginHandler;
 

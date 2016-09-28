@@ -3,11 +3,11 @@
  */
 package lib.android.view.video;
 
-import java.util.Map;
-
 import android.content.Context;
 import android.net.Uri;
 import android.view.SurfaceHolder;
+
+import java.util.Map;
 
 /**
  * @author yanry
@@ -16,9 +16,9 @@ import android.view.SurfaceHolder;
  */
 public interface VideoPlayer {
 
-	void setAudioSessionId(int sessionId);
-	
 	int getAudioSessionId();
+
+	void setAudioSessionId(int sessionId);
 	
 	void setDataSource(Context context, Uri uri, Map<String, String> headers) throws Exception;
 	

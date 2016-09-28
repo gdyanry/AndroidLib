@@ -3,11 +3,6 @@
  */
 package lib.android.widget;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.lib.android.R;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v4.widget.ViewDragHelper;
@@ -16,6 +11,11 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import com.lib.android.R;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author yanry

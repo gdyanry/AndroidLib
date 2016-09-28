@@ -3,8 +3,6 @@
  */
 package lib.android.util;
 
-import java.io.File;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -21,6 +19,9 @@ import android.provider.MediaStore;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.TypedValue;
+
+import java.io.File;
+
 import lib.android.entity.MainHandler;
 import lib.common.model.Singletons;
 

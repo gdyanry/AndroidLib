@@ -3,6 +3,10 @@
  */
 package lib.android.model;
 
+import android.content.Context;
+import android.util.Log;
+import android.widget.Toast;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -10,22 +14,18 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.content.Context;
-import android.util.Log;
-import android.widget.Toast;
 import lib.android.util.CommonUtils;
-import lib.common.entity.InfoHandler;
+import lib.common.entity.SimpleInfoHandler;
 import lib.common.model.Singletons;
-import lib.common.util.StringUtil;
+import lib.common.util.ConsoleUtil;
 
 /**
  * @author yanry
  *
  * 2014年11月10日 上午9:20:38
  */
-public class AndroidInfoHandler implements InfoHandler, Runnable {
+public class AndroidInfoHandler extends SimpleInfoHandler implements Runnable {
 	private Context ctx;
-	private int level;
 	private Set<String> showingMsgs;
 	private long lockDuration;
 	private Map<String, Integer> msgsToShow;
@@ -35,20 +35,6 @@ public class AndroidInfoHandler implements InfoHandler, Runnable {
 		this.lockDuration = lockDuration;
 		showingMsgs = new HashSet<String>();
 		msgsToShow = new HashMap<String, Integer>();
-	}
-
-	@Override
-	public void handleException(Exception e) {
-		if (level <= LEVEL_EXCEPTION) {
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public void handleThrowable(Throwable e) {
-		if (level <= LEVEL_EXCEPTION) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override
@@ -76,22 +62,17 @@ public class AndroidInfoHandler implements InfoHandler, Runnable {
 	}
 
 	@Override
-	public void debug(Class<?> tag, String msg) {
-		if (level <= LEVEL_DEBUG) {
-			Log.d(StringUtil.getLogTag(tag), String.format("(%s)%s", Thread.currentThread().getName(), msg));
+	public void debug(String msg) {
+		if (getLevel() <= LEVEL_DEBUG) {
+			Log.d(getClass().getSimpleName(), ConsoleUtil.getLog(getClass(), msg));
 		}
 	}
 
 	@Override
-	public void error(Class<?> tag, String msg) {
-		if (level <= LEVEL_ERROR) {
-			Log.e(StringUtil.getLogTag(tag), String.format("(%s)%s", Thread.currentThread().getName(), msg));
+	public void error(String msg) {
+		if (getLevel() <= LEVEL_ERROR) {
+			Log.e(getClass().getSimpleName(), ConsoleUtil.getLog(getClass(), msg));
 		}
-	}
-
-	@Override
-	public void setLevel(int level) {
-		this.level = level;
 	}
 
 	@Override

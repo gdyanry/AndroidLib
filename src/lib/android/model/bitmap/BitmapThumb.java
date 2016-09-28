@@ -107,13 +107,13 @@ public class BitmapThumb {
 					if (BitmapUtil.checkMemory(opts, scale)) {
 						bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 					} else {
-						ConsoleUtil.error(getClass(), "not enough memory for bitmap rotaion");
+						ConsoleUtil.error("not enough memory for bitmap rotaion");
 					}
 				}
 			}
 		}
 		if (isDebug) {
-			ConsoleUtil.debug(getClass(),
+			ConsoleUtil.debug(
 					String.format("get thumb(%s*%s@%s): %sms", bitmap == null ? null : bitmap.getWidth(),
 							bitmap == null ? null : bitmap.getHeight(), scale, System.currentTimeMillis() - start));
 		}
@@ -132,7 +132,7 @@ public class BitmapThumb {
 				baos.reset();// 重置baos即清空baos
 				bitmap.compress(format, options, baos);// 这里压缩options%，把压缩后的数据存放到baos中
 				if (isDebug) {
-					ConsoleUtil.debug(getClass(), String.format("compress: %s%%, %sbytes, %sms", options, baos.size(),
+					ConsoleUtil.debug(String.format("compress: %s%%, %sbytes, %sms", options, baos.size(),
 							System.currentTimeMillis() - start));
 				}
 			}

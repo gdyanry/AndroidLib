@@ -4,6 +4,7 @@
 package lib.android.model;
 
 import android.widget.EditText;
+
 import lib.common.model.StringMatcher;
 
 /**

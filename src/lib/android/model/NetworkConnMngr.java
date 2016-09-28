@@ -3,15 +3,16 @@
  */
 package lib.android.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import lib.common.util.ConsoleUtil;
 
 /**
@@ -36,7 +37,7 @@ public class NetworkConnMngr extends BroadcastReceiver {
 		ctx.registerReceiver(this, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
-	public void init() {
+	public synchronized void init() {
 		currentNetwork = null;
 		updateCurrentNetwork();
 	}
@@ -49,7 +50,7 @@ public class NetworkConnMngr extends BroadcastReceiver {
 				boolean same = currentNetwork != null && ni.getType() == currentNetwork.getType();
 				currentNetwork = ni;
 				if (!same) {
-					ConsoleUtil.debug(getClass(), "onConnected: " + ni.getTypeName());
+					ConsoleUtil.debug("onConnected: " + ni.getTypeName());
 					// dispatch callback
 					for (ConnectivityListener l : listeners) {
 						l.onConnected(ni.getTypeName());
@@ -60,7 +61,7 @@ public class NetworkConnMngr extends BroadcastReceiver {
 		}
 		// no connected network
 		currentNetwork = null;
-		ConsoleUtil.debug(getClass(), "lost connection!");
+		ConsoleUtil.debug("lost connection!");
 		for (ConnectivityListener l : listeners) {
 			l.onDisconnect();
 		}

@@ -3,8 +3,6 @@
  */
 package lib.android.widget;
 
-import com.lib.android.R;
-
 import android.R.color;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -21,6 +19,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+
+import com.lib.android.R;
 
 /**
  * @author yanry

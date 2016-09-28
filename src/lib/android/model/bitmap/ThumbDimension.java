@@ -3,11 +3,12 @@
  */
 package lib.android.model.bitmap;
 
-import java.security.InvalidParameterException;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
+
+import java.security.InvalidParameterException;
+
 import lib.android.model.bitmap.BitmapThumb.Decoder;
 import lib.android.util.BitmapUtil;
 import lib.common.entity.CheckedOutOfMemoryException;
@@ -30,6 +31,14 @@ public class ThumbDimension {
 		this.type = FitType.RoundNear;
 	}
 
+	public int getValue() {
+		return value;
+	}
+
+	public FitType getType() {
+		return type;
+	}
+
 	/**
 	 * 生成缩略图时，默认采用{@link FitType#RoundNear}类型，即通过{@link Options#inSampleSize}
 	 * 来设定缩放比例，而且会先把运算得到的比例值向下转换为2的指数次幂，比如3变成2，7变成4，20变成16，再进行缩放。
@@ -37,7 +46,7 @@ public class ThumbDimension {
 	 * 则可以把类型指定为{@link FitType#RoundFar}；如果你希望得到的缩略图切确等于给定宽高，则使用类型
 	 * {@link FitType#Exact}，但是此类型会先使用{@link FitType#RoundNear}
 	 * 生成一张较大缩略图，再进行矩阵变换得到切确宽高的{@link Bitmap}，性能较差，如非必要都不应该使用此类型。
-	 * 
+	 *
 	 * @param type
 	 * @return
 	 */
@@ -47,14 +56,6 @@ public class ThumbDimension {
 		}
 		this.type = type;
 		return this;
-	}
-
-	public int getValue() {
-		return value;
-	}
-
-	public FitType getType() {
-		return type;
 	}
 
 	public double getScale(int originDimen) {

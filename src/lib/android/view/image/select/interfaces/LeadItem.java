@@ -4,6 +4,7 @@
 package lib.android.view.image.select.interfaces;
 
 import android.view.View;
+
 import lib.android.model.adapter.ViewHolder;
 
 /**

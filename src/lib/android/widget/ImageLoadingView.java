@@ -3,8 +3,6 @@
  */
 package lib.android.widget;
 
-import com.lib.android.R;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
@@ -13,6 +11,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ViewSwitcher;
+
+import com.lib.android.R;
 
 /**
  * @author yanry

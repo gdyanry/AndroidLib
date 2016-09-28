@@ -16,8 +16,6 @@
 
 package lib.android.view.video;
 
-import java.util.Map;
-
 import android.content.Context;
 import android.media.AudioManager;
 import android.net.Uri;
@@ -27,6 +25,9 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
+
+import java.util.Map;
+
 import lib.common.util.ConsoleUtil;
 
 /**
@@ -48,10 +49,6 @@ import lib.common.util.ConsoleUtil;
  * change from its previously returned value when the VideoView is restored.
  */
 public abstract class VideoSurfaceView extends SurfaceView implements MediaPlayerControl, Callback {
-	// settable by the client
-	private Uri mUri;
-	private Map<String, String> mHeaders;
-
 	// all possible internal states
 	private static final int STATE_ERROR = -1;
 	private static final int STATE_IDLE = 0;
@@ -60,7 +57,9 @@ public abstract class VideoSurfaceView extends SurfaceView implements MediaPlaye
 	private static final int STATE_PLAYING = 3;
 	private static final int STATE_PAUSED = 4;
 	private static final int STATE_PLAYBACK_COMPLETED = 5;
-
+	// settable by the client
+	private Uri mUri;
+	private Map<String, String> mHeaders;
 	// mCurrentState is a VideoView object's current state.
 	// mTargetState is the state that a method caller intends to reach.
 	// For instance, regardless the VideoView object's current state,
@@ -233,8 +232,8 @@ public abstract class VideoSurfaceView extends SurfaceView implements MediaPlaye
 	public void setScreenOnWhilePlaying(boolean screenOn) {
 		if (mScreenOnWhilePlaying != screenOn) {
             if (screenOn && mSurfaceHolder == null) {
-                ConsoleUtil.debug(getClass(), "setScreenOnWhilePlaying(true) is ineffective without a SurfaceHolder");
-            }
+				ConsoleUtil.debug("setScreenOnWhilePlaying(true) is ineffective without a SurfaceHolder");
+			}
             mScreenOnWhilePlaying = screenOn;
             updateSurfaceScreenOn();
         }

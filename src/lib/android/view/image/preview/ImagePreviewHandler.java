@@ -3,8 +3,6 @@
  */
 package lib.android.view.image.preview;
 
-import com.lib.android.R;
-
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -15,6 +13,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+
+import com.lib.android.R;
+
 import lib.android.model.bitmap.BitmapLoader;
 import lib.android.model.bitmap.LoadHook;
 import uk.co.senab.photoview.PhotoView;
@@ -32,12 +33,12 @@ public abstract class ImagePreviewHandler implements OnPageChangeListener {
 	private HackyViewPager vp;
 	private FragmentManager fm;
 
-	public void setData(PreviewImageData data) {
-		this.data = data;
-	}
-
 	public PreviewImageData getData() {
 		return data;
+	}
+
+	public void setData(PreviewImageData data) {
+		this.data = data;
 	}
 
 	public int getCurrentPosition() {

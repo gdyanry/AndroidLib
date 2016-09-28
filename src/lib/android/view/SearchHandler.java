@@ -3,9 +3,6 @@
  */
 package lib.android.view;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -19,6 +16,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
+
+import java.util.LinkedList;
+import java.util.List;
+
 import lib.common.model.json.JSONArray;
 
 /**

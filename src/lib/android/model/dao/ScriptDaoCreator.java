@@ -3,11 +3,11 @@
  */
 package lib.android.model.dao;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
 import android.content.ContextWrapper;
 import android.database.sqlite.SQLiteDatabase;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 /**
  * Database will be created by executing sql statement from a script file in the

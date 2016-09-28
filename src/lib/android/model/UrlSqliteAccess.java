@@ -6,6 +6,7 @@ package lib.android.model;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+
 import lib.android.model.dao.AndroidBaseDao;
 import lib.common.model.resourceaccess.UrlBytesAccess;
 import lib.common.model.resourceaccess.UrlOption;

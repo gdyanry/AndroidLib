@@ -15,8 +15,6 @@
  */
 package lib.android.widget;
 
-import com.lib.android.R;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -36,6 +34,8 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.DrawableRes;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+
+import com.lib.android.R;
 
 public class CircleImageView extends ImageView {
 

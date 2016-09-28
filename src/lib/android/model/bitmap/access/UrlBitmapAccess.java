@@ -3,10 +3,11 @@
  */
 package lib.android.model.bitmap.access;
 
-import java.io.File;
-
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory.Options;
+
+import java.io.File;
+
 import lib.android.model.bitmap.BitmapOption;
 import lib.android.model.bitmap.BitmapThumb.Decoder;
 import lib.android.model.bitmap.CacheKey;
@@ -40,20 +41,25 @@ public abstract class UrlBitmapAccess<M> extends BitmapAccess<String> {
 	protected abstract Bitmap getBitmap(M medium, Options opts);
 	
 	protected abstract boolean isConnected();
-	
+
+	@Override
+	protected Decoder getDecoder(CacheKey<String> key, BitmapOption option, AccessHook<Bitmap> hook) {
+		return new UrlDecoder(key, option, hook);
+	}
+
 	private class UrlDecoder implements Decoder, AccessHook<M> {
 		private Bitmap bmp;
 		private Options opts;
 		private CacheKey<String> key;
 		private BitmapOption option;
 		private AccessHook<Bitmap> hook;
-		
+
 		UrlDecoder(CacheKey<String> key, BitmapOption option, AccessHook<Bitmap> hook) {
 			this.key = key;
 			this.option = option;
 			this.hook = hook;
 		}
-		
+
 		@Override
 		public Bitmap decode(Options opts) throws Exception {
 			this.opts = opts;
@@ -62,7 +68,7 @@ public abstract class UrlBitmapAccess<M> extends BitmapAccess<String> {
 			}
 			return bmp;
 		}
-		
+
 		@Override
 		public boolean onStartGenerate(M cachedValue) {
 			bmp = getBitmap(cachedValue, opts);
@@ -76,21 +82,16 @@ public abstract class UrlBitmapAccess<M> extends BitmapAccess<String> {
 			}
 			return true;
 		}
-		
+
 		@Override
 		public void onGenerateException(Exception e) {
 			hook.onGenerateException(e);
 		}
-		
+
 		@Override
 		public boolean onStartCache(M generatedValue) {
 			bmp = getBitmap(generatedValue, opts);
 			return bmp != null;
 		}
-	}
-
-	@Override
-	protected Decoder getDecoder(CacheKey<String> key, BitmapOption option, AccessHook<Bitmap> hook) {
-		return new UrlDecoder(key, option, hook);
 	}
 }

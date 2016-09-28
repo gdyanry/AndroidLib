@@ -5,10 +5,11 @@ package lib.android.model.bitmap.access;
 
 import android.graphics.Bitmap;
 import android.util.LruCache;
+
 import lib.android.model.bitmap.BitmapOption;
 import lib.android.model.bitmap.BitmapThumb;
-import lib.android.model.bitmap.CacheKey;
 import lib.android.model.bitmap.BitmapThumb.Decoder;
+import lib.android.model.bitmap.CacheKey;
 import lib.common.model.resourceaccess.AccessHook;
 import lib.common.model.resourceaccess.CacheResourceAccess;
 

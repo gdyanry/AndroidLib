@@ -1,7 +1,5 @@
 package lib.android.widget;
 
-import com.lib.android.R;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -19,6 +17,8 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.ImageView;
 
+import com.lib.android.R;
+
 /**
  * 自定义view 简单实现圆形和圆角的图片效果
  * 
@@ -28,13 +28,12 @@ import android.widget.ImageView;
  */
 public class CustomImageView extends ImageView {
 
+	public static final int TYPE_CIRCLE = 0;
+	public static final int TYPE_ROUND = 1;
 	/**
 	 * TYPE_CIRCLE / TYPE_ROUND
 	 */
 	private int mType;
-	public static final int TYPE_CIRCLE = 0;
-	public static final int TYPE_ROUND = 1;
-
 	/**
 	 * 图片
 	 */

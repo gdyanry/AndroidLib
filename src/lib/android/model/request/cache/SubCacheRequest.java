@@ -3,8 +3,8 @@
  */
 package lib.android.model.request.cache;
 
-import lib.android.entity.enums.DataSource;
 import lib.common.model.cache.CacheDataManager;
+import lib.common.model.cache.http.DataSource;
 
 /**
  * @author yanry

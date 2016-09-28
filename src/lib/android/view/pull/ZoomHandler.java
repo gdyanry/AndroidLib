@@ -5,6 +5,7 @@ package lib.android.view.pull;
 
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
+
 import lib.android.view.pull.shrink.DecelerateShrinkController;
 import lib.android.view.pull.shrink.ShrinkController;
 

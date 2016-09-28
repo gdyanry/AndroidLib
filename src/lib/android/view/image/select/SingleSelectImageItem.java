@@ -3,12 +3,13 @@
  */
 package lib.android.view.image.select;
 
-import java.io.File;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.view.View;
+
+import java.io.File;
+
 import lib.android.util.CommonUtils;
 import lib.android.view.image.select.ImageCrop.OnCropResultListener;
 import lib.android.view.image.select.interfaces.ImageItem;

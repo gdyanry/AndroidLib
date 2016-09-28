@@ -13,8 +13,6 @@
     <declare-styleable name="RecyclerView"><attr format="string" name="layoutManager"/><attr name="android:orientation"/><attr format="integer" name="spanCount"/><attr format="boolean" name="reverseLayout"/><attr format="boolean" name="stackFromEnd"/></declare-styleable>
     <declare-styleable name="ViewDragLayout"><attr format="boolean" name="auto_back"/><attr format="boolean" name="horizontal_inside"/><attr format="boolean" name="vertical_inside"/></declare-styleable>
     <dimen name="item_touch_helper_max_drag_scroll_per_frame">20dp</dimen>
-    <dimen name="item_touch_helper_swipe_escape_max_velocity">800dp</dimen>
-    <dimen name="item_touch_helper_swipe_escape_velocity">120dp</dimen>
     <dimen name="text_size_large">24sp</dimen>
     <dimen name="text_size_medium">20sp</dimen>
     <dimen name="text_size_small">16sp</dimen>

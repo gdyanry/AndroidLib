@@ -17,7 +17,7 @@ public class TbCacheData extends AndroidBaseDao.Table {
 	public static String _ID;
 	public static String KEY;
 	public static String DATA;
-	public static String EXPIRE_TIME;
+	public static String UPDATE_TIME;
 	public static String IS_USER_RELATED;
 	
 	public TbCacheData(AndroidBaseDao dao) {
@@ -29,7 +29,7 @@ public class TbCacheData extends AndroidBaseDao.Table {
 		columnDefinition.put(_ID, AndroidBaseDao.INT_PK_AI);
 		columnDefinition.put(KEY, "text unique on conflict replace");
 		columnDefinition.put(DATA, "text not null");
-		columnDefinition.put(EXPIRE_TIME, "bigint not null default 0");
+		columnDefinition.put(UPDATE_TIME, "bigint not null default 0");
 		columnDefinition.put(IS_USER_RELATED, "bit not null default 0");
 	}
 

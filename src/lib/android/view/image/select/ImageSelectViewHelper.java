@@ -3,9 +3,6 @@
  */
 package lib.android.view.image.select;
 
-import java.io.File;
-import java.util.List;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -16,6 +13,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
+
+import java.io.File;
+import java.util.List;
+
 import lib.android.model.adapter.CommonAdapter;
 import lib.android.model.adapter.ViewHolder;
 import lib.android.util.CommonUtils;

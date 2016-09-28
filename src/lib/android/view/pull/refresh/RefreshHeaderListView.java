@@ -5,6 +5,7 @@ package lib.android.view.pull.refresh;
 
 import android.view.View;
 import android.widget.ListView;
+
 import lib.android.view.pull.PullDownAdapterView;
 import lib.android.view.pull.PullDownSource;
 import lib.android.view.pull.shrink.DecelerateShrinkController;

@@ -3,10 +3,11 @@
  */
 package lib.android.view.image.select;
 
-import java.io.File;
-
 import android.app.Activity;
 import android.view.View;
+
+import java.io.File;
+
 import lib.android.util.CommonUtils;
 import lib.android.view.image.select.interfaces.LeadItem;
 

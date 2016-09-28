@@ -3,9 +3,9 @@
  */
 package lib.android.view.image.select;
 
-import java.io.File;
-
 import android.net.Uri;
+
+import java.io.File;
 
 /**
  * @author yanry

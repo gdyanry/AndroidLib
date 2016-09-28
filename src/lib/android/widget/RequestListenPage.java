@@ -7,6 +7,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ViewSwitcher;
+
 import lib.android.entity.enums.RequestState;
 import lib.android.model.request.AndroidRequestLiveListener;
 import lib.common.model.communication.base.RequestLiveListener;

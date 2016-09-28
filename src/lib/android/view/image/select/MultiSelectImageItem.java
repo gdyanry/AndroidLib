@@ -3,11 +3,12 @@
  */
 package lib.android.view.image.select;
 
+import android.content.Intent;
+import android.view.View;
+
 import java.io.File;
 import java.util.List;
 
-import android.content.Intent;
-import android.view.View;
 import lib.android.view.image.select.interfaces.ImageItem;
 
 /**

@@ -3,8 +3,8 @@
  */
 package lib.android.model.request.cache.list;
 
-import lib.android.entity.enums.DataSource;
 import lib.android.model.request.cache.MainCacheRequest;
+import lib.common.model.cache.http.DataSource;
 import lib.common.model.communication.base.RequestPack;
 import lib.common.model.json.JSONArray;
 import lib.common.model.json.JSONObject;

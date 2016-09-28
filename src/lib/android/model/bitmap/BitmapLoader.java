@@ -3,11 +3,6 @@
  */
 package lib.android.model.bitmap;
 
-import java.io.File;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
-
 import android.content.ContentResolver;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,6 +11,12 @@ import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.util.LruCache;
 import android.widget.TextView;
+
+import java.io.File;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadPoolExecutor;
+
 import lib.android.model.NetworkConnMngr;
 import lib.android.model.NetworkConnMngr.ConnectivityListener;
 import lib.android.model.bitmap.access.FileBitmapAccess;
@@ -41,18 +42,18 @@ import lib.common.util.FileUtil;
  *         2016年5月7日
  */
 public class BitmapLoader implements ConnectivityListener {
-	private LruCache<Object, Bitmap> cache;
-	private ThreadPoolExecutor executor;
-	private UrlFileAccess htmlImageAccess;
 	FileBitmapAccess fileAccess;
 	UriBitmapAccess uriAccess;
 	UrlFileBitmapAccess urlFileAccess;
 	UrlBlobBitmapAccess urlBlobAccess;
 	ResBitmapAccess resAccess;
 	TimerObjectPool<BitmapRequest> requestPool;
+	boolean isDebug;
+	private LruCache<Object, Bitmap> cache;
+	private ThreadPoolExecutor executor;
+	private UrlFileAccess htmlImageAccess;
 	private Level2BlobAccess lv2BlobAccess;
 	private Level2FileAccess lv2FileAccess;
-	boolean isDebug;
 
 	/**
 	 * 

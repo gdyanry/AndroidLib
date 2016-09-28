@@ -3,13 +3,13 @@
  */
 package lib.android.view.pull.shrink;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * This class handles the relationship of time and space of some object that shrink to 0 from a given offset.

@@ -3,11 +3,12 @@
  */
 package lib.android.util;
 
-import java.io.IOException;
-
 import android.graphics.BitmapFactory.Options;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+
+import java.io.IOException;
+
 import lib.common.entity.CheckedOutOfMemoryException;
 import lib.common.util.ConsoleUtil;
 
@@ -36,7 +37,7 @@ public class BitmapUtil {
 				break;
 			}
 			if (degrees != 0) {
-				ConsoleUtil.debug(BitmapUtil.class, String.format("rotate %s degrees: %s", degrees, srcPath));
+				ConsoleUtil.debug(String.format("rotate %s degrees: %s", degrees, srcPath));
 				Matrix matrix = new Matrix();
 				matrix.postRotate(degrees);
 				return matrix;

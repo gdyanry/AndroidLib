@@ -7,6 +7,7 @@ import android.animation.ValueAnimator;
 import android.animation.ValueAnimator.AnimatorUpdateListener;
 import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
+
 import lib.android.view.pull.DragAndShrink;
 import lib.android.view.pull.loadmore.LoadMore;
 import lib.android.view.pull.shrink.DecelerateShrinkController;

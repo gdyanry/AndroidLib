@@ -3,12 +3,6 @@
  */
 package lib.android.widget;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import com.almeros.android.multitouch.MoveGestureDetector;
-import com.almeros.android.multitouch.MoveGestureDetector.OnMoveGestureListener;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,12 +13,24 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.almeros.android.multitouch.MoveGestureDetector;
+import com.almeros.android.multitouch.MoveGestureDetector.OnMoveGestureListener;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * @author yanry
  *
  *         2015年11月27日
  */
 public class LargeImageView extends View {
+	private static final BitmapFactory.Options options = new BitmapFactory.Options();
+
+	static {
+		options.inPreferredConfig = Bitmap.Config.RGB_565;
+	}
+
 	private BitmapRegionDecoder mDecoder;
 	/**
 	 * 图片的宽度和高度
@@ -34,13 +40,30 @@ public class LargeImageView extends View {
 	 * 绘制的区域
 	 */
 	private volatile Rect mRect = new Rect();
-
 	private MoveGestureDetector mDetector;
 
-	private static final BitmapFactory.Options options = new BitmapFactory.Options();
+	public LargeImageView(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		mDetector = new MoveGestureDetector(getContext(), new SimpleMoveGestureDetector() {
+			@Override
+			public boolean onMove(MoveGestureDetector detector) {
+				int moveX = (int) detector.getFocusX();
+				int moveY = (int) detector.getFocusY();
 
-	static {
-		options.inPreferredConfig = Bitmap.Config.RGB_565;
+				if (mImageWidth > getWidth()) {
+					mRect.offset(-moveX, 0);
+					checkWidth();
+					invalidate();
+				}
+				if (mImageHeight > getHeight()) {
+					mRect.offset(0, -moveY);
+					checkHeight();
+					invalidate();
+				}
+
+				return true;
+			}
+		});
 	}
 
 	public void setInputStream(InputStream is) throws IOException {
@@ -78,30 +101,6 @@ public class LargeImageView extends View {
 			mRect.top = 0;
 			mRect.bottom = getHeight();
 		}
-	}
-
-	public LargeImageView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		mDetector = new MoveGestureDetector(getContext(), new SimpleMoveGestureDetector() {
-			@Override
-			public boolean onMove(MoveGestureDetector detector) {
-				int moveX = (int) detector.getFocusX();
-				int moveY = (int) detector.getFocusY();
-
-				if (mImageWidth > getWidth()) {
-					mRect.offset(-moveX, 0);
-					checkWidth();
-					invalidate();
-				}
-				if (mImageHeight > getHeight()) {
-					mRect.offset(0, -moveY);
-					checkHeight();
-					invalidate();
-				}
-
-				return true;
-			}
-		});
 	}
 	
 	@Override

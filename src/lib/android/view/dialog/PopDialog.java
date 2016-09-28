@@ -3,10 +3,10 @@
  */
 package lib.android.view.dialog;
 
+import android.app.Activity;
+
 import java.util.LinkedList;
 import java.util.List;
-
-import android.app.Activity;
 
 /**
  * @author yanry

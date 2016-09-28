@@ -202,13 +202,11 @@ containing a value of this type.
     }
     public static final class dimen {
         public static final int item_touch_helper_max_drag_scroll_per_frame=0x7f040000;
-        public static final int item_touch_helper_swipe_escape_max_velocity=0x7f040001;
-        public static final int item_touch_helper_swipe_escape_velocity=0x7f040002;
-        public static final int text_size_large=0x7f040003;
-        public static final int text_size_medium=0x7f040004;
-        public static final int text_size_small=0x7f040005;
-        public static final int text_size_small_x=0x7f040006;
-        public static final int text_size_small_xx=0x7f040007;
+        public static final int text_size_large=0x7f040001;
+        public static final int text_size_medium=0x7f040002;
+        public static final int text_size_small=0x7f040003;
+        public static final int text_size_small_x=0x7f040004;
+        public static final int text_size_small_xx=0x7f040005;
     }
     public static final class id {
         public static final int circle=0x7f050004;
