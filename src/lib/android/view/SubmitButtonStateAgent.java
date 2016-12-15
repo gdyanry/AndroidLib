@@ -8,7 +8,7 @@ import android.text.TextWatcher;
 import android.widget.EditText;
 
 /**
- * Submit button is switched to enable state only when no input field is empty.
+ * Submit button is switched to enable data_state only when no input field is empty.
  * @author yanry
  *
  *         2016年3月7日

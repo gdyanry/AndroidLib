@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
+        "outputFile": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\build\\intermediates\\incremental\\mergeDebugResources\\merged.dir\\values\\values.xml",
         "map": [
             {
                 "to": {
@@ -11,7 +11,7 @@
                     "endOffset": 1691
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.1/res/values/values.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\build\\intermediates\\exploded-aar\\com.android.support\\recyclerview-v7\\23.1.1\\res\\values\\values.xml",
                     "position": {
                         "startLine": 5,
                         "startColumn": 4,
@@ -30,13 +30,13 @@
                     "endOffset": 1738
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/dimens.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\dimens.xml",
                     "position": {
                         "startLine": 7,
                         "startColumn": 4,
-                        "startOffset": 250,
+                        "startOffset": 257,
                         "endColumn": 46,
-                        "endOffset": 292
+                        "endOffset": 299
                     }
                 }
             },
@@ -49,13 +49,13 @@
                     "endOffset": 1786
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/dimens.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\dimens.xml",
                     "position": {
                         "startLine": 6,
                         "startColumn": 4,
-                        "startOffset": 202,
+                        "startOffset": 208,
                         "endColumn": 47,
-                        "endOffset": 245
+                        "endOffset": 251
                     }
                 }
             },
@@ -68,13 +68,13 @@
                     "endOffset": 1833
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/dimens.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\dimens.xml",
                     "position": {
                         "startLine": 5,
                         "startColumn": 4,
-                        "startOffset": 155,
+                        "startOffset": 160,
                         "endColumn": 46,
-                        "endOffset": 197
+                        "endOffset": 202
                     }
                 }
             },
@@ -87,13 +87,13 @@
                     "endOffset": 1882
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/dimens.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\dimens.xml",
                     "position": {
                         "startLine": 4,
                         "startColumn": 4,
-                        "startOffset": 106,
+                        "startOffset": 110,
                         "endColumn": 48,
-                        "endOffset": 150
+                        "endOffset": 154
                     }
                 }
             },
@@ -106,13 +106,13 @@
                     "endOffset": 1932
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/dimens.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\dimens.xml",
                     "position": {
                         "startLine": 3,
                         "startColumn": 4,
-                        "startOffset": 56,
+                        "startOffset": 59,
                         "endColumn": 49,
-                        "endOffset": 101
+                        "endOffset": 104
                     }
                 }
             },
@@ -125,7 +125,7 @@
                     "endOffset": 1998
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.1.1/res/values/values.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\build\\intermediates\\exploded-aar\\com.android.support\\recyclerview-v7\\23.1.1\\res\\values\\values.xml",
                     "position": {
                         "startLine": 8,
                         "startColumn": 4,
@@ -144,13 +144,13 @@
                     "endOffset": 2047
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/ids.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\ids.xml",
                     "position": {
                         "startLine": 3,
                         "startColumn": 4,
-                        "startOffset": 115,
+                        "startOffset": 118,
                         "endColumn": 48,
-                        "endOffset": 159
+                        "endOffset": 162
                     }
                 }
             },
@@ -163,13 +163,13 @@
                     "endOffset": 2094
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/ids.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\ids.xml",
                     "position": {
                         "startLine": 5,
                         "startColumn": 4,
-                        "startOffset": 210,
+                        "startOffset": 215,
                         "endColumn": 47,
-                        "endOffset": 253
+                        "endOffset": 258
                     }
                 }
             },
@@ -182,13 +182,13 @@
                     "endOffset": 2139
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/ids.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\ids.xml",
                     "position": {
                         "startLine": 4,
                         "startColumn": 4,
-                        "startOffset": 164,
+                        "startOffset": 168,
                         "endColumn": 45,
-                        "endOffset": 205
+                        "endOffset": 209
                     }
                 }
             },
@@ -201,13 +201,13 @@
                     "endOffset": 2187
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/strings.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\strings.xml",
                     "position": {
                         "startLine": 2,
                         "startColumn": 4,
-                        "startOffset": 17,
+                        "startOffset": 19,
                         "endColumn": 47,
-                        "endOffset": 60
+                        "endOffset": 62
                     }
                 }
             },
@@ -220,13 +220,13 @@
                     "endOffset": 2214
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/strings.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\strings.xml",
                     "position": {
                         "startLine": 3,
                         "startColumn": 4,
-                        "startOffset": 65,
+                        "startOffset": 68,
                         "endColumn": 34,
-                        "endOffset": 95
+                        "endOffset": 98
                     }
                 }
             },
@@ -240,14 +240,14 @@
                     "endOffset": 2726
                 },
                 "from": {
-                    "file": "/Users/yanrongyu/StudioProjects/Meijiabang-android-new/AndroidLib/res/values/styles.xml",
+                    "file": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\values\\styles.xml",
                     "position": {
                         "startLine": 2,
                         "startColumn": 4,
-                        "startOffset": 76,
+                        "startOffset": 78,
                         "endLine": 10,
                         "endColumn": 12,
-                        "endOffset": 583
+                        "endOffset": 593
                     }
                 }
             }

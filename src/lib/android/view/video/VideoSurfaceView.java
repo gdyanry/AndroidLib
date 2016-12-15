@@ -37,8 +37,8 @@ import lib.common.util.ConsoleUtil;
  * provides various display options such as scaling and tinting.
  * <p>
  *
- * <em>Note: VideoView does not retain its full state when going into the
- * background.</em> In particular, it does not restore the current play state,
+ * <em>Note: VideoView does not retain its full data_state when going into the
+ * background.</em> In particular, it does not restore the current play data_state,
  * play position, selected tracks, or any subtitle tracks added via
  * {@link #addSubtitleSource addSubtitleSource()}. Applications should save and
  * restore these on their own in
@@ -60,10 +60,10 @@ public abstract class VideoSurfaceView extends SurfaceView implements MediaPlaye
 	// settable by the client
 	private Uri mUri;
 	private Map<String, String> mHeaders;
-	// mCurrentState is a VideoView object's current state.
-	// mTargetState is the state that a method caller intends to reach.
-	// For instance, regardless the VideoView object's current state,
-	// calling pause() intends to bring the object to a target state
+	// mCurrentState is a VideoView object's current data_state.
+	// mTargetState is the data_state that a method caller intends to reach.
+	// For instance, regardless the VideoView object's current data_state,
+	// calling pause() intends to bring the object to a target data_state
 	// of STATE_PAUSED.
 	private int mCurrentState = STATE_IDLE;
 	private int mTargetState = STATE_IDLE;
@@ -175,7 +175,7 @@ public abstract class VideoSurfaceView extends SurfaceView implements MediaPlaye
 			// not ready for playback just yet, will try again later
 			return;
 		}
-		// we shouldn't clear the target state, because somebody might have
+		// we shouldn't clear the target data_state, because somebody might have
 		// called start() previously
 		release(false);
 
@@ -197,8 +197,8 @@ public abstract class VideoSurfaceView extends SurfaceView implements MediaPlaye
 			onStartLoading();
 			setScreenOnWhilePlaying(true);
 
-			// we don't set the target state here either, but preserve the
-			// target state that was there before.
+			// we don't set the target data_state here either, but preserve the
+			// target data_state that was there before.
 			mCurrentState = STATE_PREPARING;
 			attachMediaController();
 		} catch (Exception ex) {
@@ -424,7 +424,7 @@ public abstract class VideoSurfaceView extends SurfaceView implements MediaPlaye
 	}
 
 	/*
-	 * release the media player in any state
+	 * release the media player in any data_state
 	 */
 	private void release(boolean cleartargetstate) {
 		if (mVideoPlayer != null) {

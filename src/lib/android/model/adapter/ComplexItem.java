@@ -38,7 +38,7 @@ public abstract class ComplexItem<T> implements Runnable {
 	}
 	
 	/**
-	 * Invoke this in the state-change-callback methods if you have set callback on this item.
+	 * Invoke this in the data_state-change-callback methods if you have set callback on this item.
 	 */
 	public void notifyStateChange() {
 		CommonUtils.runOnUiThread(this);

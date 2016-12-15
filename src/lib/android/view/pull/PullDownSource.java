@@ -62,7 +62,7 @@ public abstract class PullDownSource implements OnTouchListener {
 					}
 					return true;
 				} else {
-					// turn off pulling state
+					// turn off pulling data_state
 					for (PullDownHook h : hooks) {
 						h.onPullingDown(0);
 					}
