@@ -29,6 +29,7 @@ public class AndroidInfoHandler extends SimpleInfoHandler implements Runnable {
 	private Set<String> showingMsgs;
 	private long lockDuration;
 	private Map<String, Integer> msgsToShow;
+	private Toast toast;
 	
 	public AndroidInfoHandler(Context ctx, long lockDuration) {
 		this.ctx = ctx;
@@ -48,16 +49,22 @@ public class AndroidInfoHandler extends SimpleInfoHandler implements Runnable {
 	}
 	
 	private synchronized void show(final String msg, int duration) {
-		if (showingMsgs.add(msg)) {
+		if (lockDuration > 0) {
+			if (showingMsgs.add(msg)) {
+				msgsToShow.put(msg, duration);
+				CommonUtils.runOnUiThread(this);
+				Singletons.get(Timer.class).schedule(new TimerTask() {
+
+					@Override
+					public void run() {
+						showingMsgs.remove(msg);
+					}
+				}, lockDuration);
+			}
+		} else {
+			msgsToShow.clear();
 			msgsToShow.put(msg, duration);
 			CommonUtils.runOnUiThread(this);
-			Singletons.get(Timer.class).schedule(new TimerTask() {
-				
-				@Override
-				public void run() {
-					showingMsgs.remove(msg);
-				}
-			}, lockDuration);
 		}
 	}
 
@@ -77,10 +84,20 @@ public class AndroidInfoHandler extends SimpleInfoHandler implements Runnable {
 
 	@Override
 	public synchronized void run() {
-		for (String k : msgsToShow.keySet()) {
-			Toast.makeText(ctx, k, msgsToShow.get(k)).show();
+		if (lockDuration > 0) {
+			for (String k : msgsToShow.keySet()) {
+				Toast.makeText(ctx, k, msgsToShow.get(k)).show();
+			}
+			msgsToShow.clear();
+		} else {
+			if (toast != null) {
+				toast.cancel();
+			}
+			for (String k : msgsToShow.keySet()) {
+				toast = Toast.makeText(ctx, k, msgsToShow.get(k));
+				toast.show();
+			}
 		}
-		msgsToShow.clear();
 	}
 
 }
