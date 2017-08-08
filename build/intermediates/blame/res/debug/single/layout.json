@@ -1,14 +1,14 @@
 [
     {
-        "merged": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\layout\\fragment_image_preview.xml",
-        "source": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\layout\\fragment_image_preview.xml"
+        "merged": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\layout\\edit_select.xml",
+        "source": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\res\\layout\\edit_select.xml"
     },
     {
-        "merged": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\layout\\edit_select.xml",
-        "source": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\layout\\edit_select.xml"
+        "merged": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\layout\\fragment_image_preview.xml",
+        "source": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\res\\layout\\fragment_image_preview.xml"
     },
     {
-        "merged": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\layout\\view_image_loading.xml",
-        "source": "C:\\Users\\rongyu.yan\\project\\OnePiece\\AndroidLib\\res\\layout\\view_image_loading.xml"
+        "merged": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\layout\\view_image_loading.xml",
+        "source": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\res\\layout\\view_image_loading.xml"
     }
 ]
