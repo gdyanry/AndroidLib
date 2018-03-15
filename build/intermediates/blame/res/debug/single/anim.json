@@ -1,10 +1,10 @@
 [
     {
-        "merged": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\anim\\slide_in_right.xml",
-        "source": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\res\\anim\\slide_in_right.xml"
+        "merged": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\anim\\slide_out_left.xml",
+        "source": "E:\\MyApplication\\AndroidLib\\res\\anim\\slide_out_left.xml"
     },
     {
-        "merged": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\anim\\slide_out_left.xml",
-        "source": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\res\\anim\\slide_out_left.xml"
+        "merged": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\res\\merged\\debug\\anim\\slide_in_right.xml",
+        "source": "E:\\MyApplication\\AndroidLib\\res\\anim\\slide_in_right.xml"
     }
 ]

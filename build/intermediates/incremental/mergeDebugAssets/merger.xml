@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="E:\androidstudio_workspace\OnePiece\AndroidLib\assets"/><source path="E:\androidstudio_workspace\OnePiece\AndroidLib\build\generated\assets\shaders\debug"/></dataSet><dataSet config="debug"><source path="E:\androidstudio_workspace\OnePiece\AndroidLib\build-types\debug\assets"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="E:\MyApplication\AndroidLib\assets"/><source path="E:\MyApplication\AndroidLib\build\generated\assets\shaders\debug"/></dataSet><dataSet config="debug"><source path="E:\MyApplication\AndroidLib\build-types\debug\assets"/></dataSet></merger>

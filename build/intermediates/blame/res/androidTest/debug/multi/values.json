@@ -1,6 +1,6 @@
 [
     {
-        "outputFile": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
+        "outputFile": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\incremental\\mergeDebugAndroidTestResources\\merged.dir\\values\\values.xml",
         "map": [
             {
                 "to": {
@@ -11,7 +11,7 @@
                     "endOffset": 1691
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\exploded-aar\\com.android.support\\recyclerview-v7\\23.1.1\\res\\values\\values.xml",
+                    "file": "C:\\Users\\rongyu.yan\\.android\\build-cache\\cf1570d5e8c2185750c4d31a3f17298feb5b72ad\\output\\res\\values\\values.xml",
                     "position": {
                         "startLine": 5,
                         "startColumn": 4,
@@ -30,7 +30,7 @@
                     "endOffset": 1738
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 13,
                         "startColumn": 4,
@@ -49,7 +49,7 @@
                     "endOffset": 1786
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 14,
                         "startColumn": 4,
@@ -68,7 +68,7 @@
                     "endOffset": 1833
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 15,
                         "startColumn": 4,
@@ -87,7 +87,7 @@
                     "endOffset": 1882
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 16,
                         "startColumn": 4,
@@ -106,7 +106,7 @@
                     "endOffset": 1932
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 17,
                         "startColumn": 4,
@@ -125,7 +125,7 @@
                     "endOffset": 1998
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\exploded-aar\\com.android.support\\recyclerview-v7\\23.1.1\\res\\values\\values.xml",
+                    "file": "C:\\Users\\rongyu.yan\\.android\\build-cache\\cf1570d5e8c2185750c4d31a3f17298feb5b72ad\\output\\res\\values\\values.xml",
                     "position": {
                         "startLine": 8,
                         "startColumn": 4,
@@ -144,7 +144,7 @@
                     "endOffset": 2047
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 18,
                         "startColumn": 4,
@@ -163,7 +163,7 @@
                     "endOffset": 2094
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 19,
                         "startColumn": 4,
@@ -182,7 +182,7 @@
                     "endOffset": 2139
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 20,
                         "startColumn": 4,
@@ -201,7 +201,7 @@
                     "endOffset": 2187
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 21,
                         "startColumn": 4,
@@ -220,7 +220,7 @@
                     "endOffset": 2214
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 22,
                         "startColumn": 4,
@@ -240,7 +240,7 @@
                     "endOffset": 2726
                 },
                 "from": {
-                    "file": "E:\\androidstudio_workspace\\OnePiece\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
+                    "file": "E:\\MyApplication\\AndroidLib\\build\\intermediates\\bundles\\debug\\res\\values\\values.xml",
                     "position": {
                         "startLine": 23,
                         "startColumn": 4,

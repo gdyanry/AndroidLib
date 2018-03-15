@@ -1,2 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="E:\androidstudio_workspace\OnePiece\AndroidLib\src\main\shaders"/></dataSet><dataSet config="debug"><source path="E:\androidstudio_workspace\OnePiece\AndroidLib\build-types\debug\shaders"/></dataSet></merger>
+<merger version="3"><dataSet config="main"><source path="E:\MyApplication\AndroidLib\src\main\shaders"/></dataSet><dataSet config="debug"><source path="E:\MyApplication\AndroidLib\build-types\debug\shaders"/></dataSet></merger>
