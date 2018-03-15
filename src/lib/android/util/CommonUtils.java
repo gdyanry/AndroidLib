@@ -23,6 +23,7 @@ import android.util.TypedValue;
 import java.io.File;
 
 import lib.android.entity.MainHandler;
+import lib.android.interfaces.BooleanSupplier;
 import lib.common.model.Singletons;
 
 /**
@@ -109,6 +110,17 @@ public class CommonUtils {
 			return getActivity(((ContextWrapper) context).getBaseContext());
 		} else {
 			return null;
+		}
+	}
+
+	public static void retryOnFail(int tryTimes, long interval, BooleanSupplier action, Runnable onFail) {
+		if (!action.get()) {
+			if (--tryTimes > 0) {
+				int finalTryTimes = tryTimes;
+				Singletons.get(MainHandler.class).postDelayed(() -> retryOnFail(finalTryTimes, interval, action, onFail), interval);
+			} else {
+				onFail.run();
+			}
 		}
 	}
 }

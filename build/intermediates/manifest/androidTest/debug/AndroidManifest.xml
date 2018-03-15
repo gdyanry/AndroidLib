@@ -13,6 +13,8 @@
         android:label="Tests for com.lib.android.test"
         android:targetPackage="com.lib.android.test" />
 
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+
     <application>
         <uses-library android:name="android.test.runner" />
     </application>
