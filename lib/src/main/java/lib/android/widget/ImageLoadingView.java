@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.ViewSwitcher;
 
-import com.lib.android.R;
+import lib.android.R;
 
 /**
  * @author yanry

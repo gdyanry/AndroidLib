@@ -17,7 +17,7 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.ImageView;
 
-import com.lib.android.R;
+import lib.android.R;
 
 /**
  * 自定义view 简单实现圆形和圆角的图片效果

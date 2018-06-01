@@ -14,7 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ViewFlipper;
 
-import com.lib.android.R;
+import lib.android.R;
 
 /**
  * An advertisement displayer. You can disable manual flip by calling

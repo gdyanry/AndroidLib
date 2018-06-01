@@ -20,7 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 
-import com.lib.android.R;
+import lib.android.R;
 
 /**
  * @author yanry

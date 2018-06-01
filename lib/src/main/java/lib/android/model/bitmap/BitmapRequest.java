@@ -13,7 +13,7 @@ import android.os.Looper;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
-import com.lib.android.R;
+import lib.android.R;
 
 import java.io.File;
 

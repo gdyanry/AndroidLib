@@ -9,7 +9,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.lib.android.R;
+import lib.android.R;
 
 import lib.android.util.CommonUtils;
 import lib.common.model.GridCalculator;

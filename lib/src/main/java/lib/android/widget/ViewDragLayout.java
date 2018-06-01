@@ -12,7 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import com.lib.android.R;
+import lib.android.R;
 
 import java.util.HashMap;
 import java.util.Map;

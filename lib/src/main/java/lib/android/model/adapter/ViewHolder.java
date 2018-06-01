@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.lib.android.R;
+import lib.android.R;
 
 /**
  * @author yanry

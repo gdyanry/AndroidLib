@@ -1,18 +1,18 @@
 package lib.android.model;
 
-import com.phicomm.speaker.interfaces.BooleanSupplier;
-import com.phicomm.speaker.util.LogUtils;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 import lib.android.entity.MainHandler;
+import lib.android.interfaces.BooleanSupplier;
+import lib.common.interfaces.Loggable;
+import lib.common.model.Singletons;
 
 /**
  * @author rongyu.yan
  * @date 2018/1/9
  */
 
-public abstract class PendingAction implements Runnable {
+public abstract class PendingAction implements Runnable, Loggable {
     private AtomicInteger atomicInteger;
     private int mark;
 
@@ -26,13 +26,13 @@ public abstract class PendingAction implements Runnable {
 
     public synchronized void setup(long timeout) {
         if (mark == atomicInteger.get()) {
-            LogUtils.yanry("setup fail, action is pending currently!");
+            log("setup fail, action is pending currently!");
         } else {
             mark = atomicInteger.incrementAndGet();
             MainHandler mainHandler = Singletons.get(MainHandler.class);
             mainHandler.removeCallbacks(this);
             mainHandler.postDelayed(this, timeout);
-            LogUtils.yanry("[%s]setup: %s.", mark, timeout);
+            log("[%s]setup: %s.", mark, timeout);
         }
     }
 
@@ -41,7 +41,7 @@ public abstract class PendingAction implements Runnable {
         if (mark == atomicInteger.get() && (ifStop == null || ifStop.get() && tempNum == atomicInteger.get())) {
             atomicInteger.incrementAndGet();
             Singletons.get(MainHandler.class).removeCallbacks(this);
-            LogUtils.yanry("[%s]finish.", mark);
+            log("[%s]finish.", mark);
             onFinish(false);
         }
     }
@@ -51,7 +51,7 @@ public abstract class PendingAction implements Runnable {
     @Override
     public synchronized void run() {
         atomicInteger.incrementAndGet();
-        LogUtils.yanry("[%s]timeout.", mark);
+        log("[%s]timeout.", mark);
         onFinish(true);
     }
 }

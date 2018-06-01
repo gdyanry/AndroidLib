@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import lib.android.model.PendingAction;
 import lib.android.util.CommonUtils;
+import lib.common.interfaces.Loggable;
 
 /**
  * @author rongyu.yan
@@ -34,7 +35,7 @@ import lib.android.util.CommonUtils;
  */
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-public abstract class BleClient extends BluetoothGattCallback implements BluetoothAdapter.LeScanCallback {
+public abstract class BleClient extends BluetoothGattCallback implements BluetoothAdapter.LeScanCallback, Loggable {
     private static final long ACTION_TIMEOUT = 8000;
     private static final int RETRY_TIMES_ON_FAIL = 5;
     private static final long RETRY_INTERVAL = 300;
@@ -186,6 +187,11 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
                     if (isTimeout) {
                         onConnectionError();
                     }
+                }
+
+                @Override
+                public void log(String msg, Object... args) {
+                    BleClient.this.log(msg, args);
                 }
             };
             pendingActions.put(characteristic, pendingAction);
@@ -399,5 +405,4 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
      */
     protected abstract void onConnectionError();
 
-    protected abstract void log(String msg, Object... args);
 }
