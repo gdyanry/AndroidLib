@@ -71,14 +71,14 @@ public class AndroidInfoHandler extends SimpleInfoHandler implements Runnable {
 	@Override
 	public void debug(String msg) {
 		if (getLevel() <= LEVEL_DEBUG) {
-			Log.d(getClass().getSimpleName(), ConsoleUtil.getLog(getClass(), msg));
+			Log.d(getClass().getSimpleName(), ConsoleUtil.getLog(1, msg));
 		}
 	}
 
 	@Override
 	public void error(String msg) {
 		if (getLevel() <= LEVEL_ERROR) {
-			Log.e(getClass().getSimpleName(), ConsoleUtil.getLog(getClass(), msg));
+			Log.e(getClass().getSimpleName(), ConsoleUtil.getLog(1, msg));
 		}
 	}
 

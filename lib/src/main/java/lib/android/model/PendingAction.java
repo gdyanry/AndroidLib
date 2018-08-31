@@ -26,13 +26,13 @@ public abstract class PendingAction implements Runnable, Loggable {
 
     public synchronized void setup(long timeout) {
         if (mark == atomicInteger.get()) {
-            log("setup fail, action is pending currently!");
+            debug("setup fail, action is pending currently!");
         } else {
             mark = atomicInteger.incrementAndGet();
             MainHandler mainHandler = Singletons.get(MainHandler.class);
             mainHandler.removeCallbacks(this);
             mainHandler.postDelayed(this, timeout);
-            log("[%s]setup: %s.", mark, timeout);
+            debug("[%s]setup: %s.", mark, timeout);
         }
     }
 
@@ -41,7 +41,7 @@ public abstract class PendingAction implements Runnable, Loggable {
         if (mark == atomicInteger.get() && (ifStop == null || ifStop.get() && tempNum == atomicInteger.get())) {
             atomicInteger.incrementAndGet();
             Singletons.get(MainHandler.class).removeCallbacks(this);
-            log("[%s]finish.", mark);
+            debug("[%s]finish.", mark);
             onFinish(false);
         }
     }
@@ -51,7 +51,7 @@ public abstract class PendingAction implements Runnable, Loggable {
     @Override
     public synchronized void run() {
         atomicInteger.incrementAndGet();
-        log("[%s]timeout.", mark);
+        debug("[%s]timeout.", mark);
         onFinish(true);
     }
 }

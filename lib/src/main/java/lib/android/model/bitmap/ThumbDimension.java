@@ -105,7 +105,7 @@ public class ThumbDimension {
 				if (BitmapUtil.checkMemory(opts, scale)) {
 					bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 				} else {
-					ConsoleUtil.error(getClass(), "not enough memory for bitmap translation");
+					ConsoleUtil.error("not enough memory for bitmap translation");
 				}
 			}
 		}

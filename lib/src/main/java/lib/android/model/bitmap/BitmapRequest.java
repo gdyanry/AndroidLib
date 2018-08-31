@@ -295,7 +295,7 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
 			return true;
 		}
 		if (loader.isDebug) {
-			ConsoleUtil.error(getClass(), String.format("%s: %s (%s)", errPrefix, msg, src));
+			ConsoleUtil.error(String.format("%s: %s (%s)", errPrefix, msg, src));
 		}
 		return false;
 	}
@@ -350,7 +350,7 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
 		errorRes = 0;
 		download = null;
 		useNearScale = false;
-		loader.requestPool.restore(this);
+		loader.requestPool.recycle(this);
 	}
 
 	@Override

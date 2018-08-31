@@ -245,7 +245,7 @@ public class BitmapLoader implements ConnectivityListener {
 	}
 
 	public BitmapRequest getRequest(Object src) {
-		return requestPool.take().from(src);
+		return requestPool.obtain().from(src);
 	}
 
 	public void loadHtmlImage(String source, TextView tv, Drawable defaultDrawable) {
