@@ -13,7 +13,7 @@
         <attr name="vertical_inside" format="boolean" />
     </declare-styleable>
     <declare-styleable name="EditSelect">
-        <attr name="drop_mode">
+        <attr name="drop_mode" format="enum">
             <enum name="flower_parent" value="0" />
             <enum name="wrap_content" value="1" />
         </attr>
@@ -21,7 +21,7 @@
     <declare-styleable name="CustomImageView">
         <attr name="civ_borderRadius" format="dimension" />
         <attr name="civ_src" format="reference" />
-        <attr name="civ_type">
+        <attr name="civ_type" format="enum">
             <enum name="circle" value="0" />
             <enum name="round" value="1" />
         </attr>
