@@ -11,18 +11,18 @@ import lib.common.model.cache.ResizableLruCache;
  * 2016年6月12日
  */
 public abstract class ComplexJsonItemAdapter extends JsonArrayAdapter {
-	private ResizableLruCache<Object, ComplexItem<Object>> map;
+	private ResizableLruCache<Object, ComplexItem<Object, ViewHolder>> map;
 	
 	public ComplexJsonItemAdapter() {
-		map = new ResizableLruCache<Object, ComplexItem<Object>>(getCount() + 1) {
+		map = new ResizableLruCache<Object, ComplexItem<Object, ViewHolder>>(getCount() + 1) {
 			@Override
-			protected ComplexItem<Object> create(Object key) {
+			protected ComplexItem<Object, ViewHolder> create(Object key) {
 				return createComplexItem(key);
 			}
 		};
 	}
 	
-	public ResizableLruCache<Object, ComplexItem<Object>> getCache() {
+	public ResizableLruCache<Object, ComplexItem<Object, ViewHolder>> getCache() {
 		return map;
 	}
 
@@ -37,5 +37,5 @@ public abstract class ComplexJsonItemAdapter extends JsonArrayAdapter {
 		super.notifyDataSetChanged();
 	}
 	
-	protected abstract ComplexItem<Object> createComplexItem(Object itemData);
+	protected abstract ComplexItem<Object, ViewHolder> createComplexItem(Object itemData);
 }

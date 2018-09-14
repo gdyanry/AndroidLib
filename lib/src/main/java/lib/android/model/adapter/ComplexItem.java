@@ -10,8 +10,8 @@ import lib.android.util.CommonUtils;
  *
  * 2016年5月21日
  */
-public abstract class ComplexItem<T> implements Runnable {
-	private ViewHolder holder;
+public abstract class ComplexItem<T, H extends PositionHolder> implements Runnable {
+	private H holder;
 	private int position;
 	private T data;
 	
@@ -23,7 +23,7 @@ public abstract class ComplexItem<T> implements Runnable {
 		return data;
 	}
 	
-	public ViewHolder getLastViewHolder() {
+	public H getLastViewHolder() {
 		return holder;
 	}
 	
@@ -31,7 +31,7 @@ public abstract class ComplexItem<T> implements Runnable {
 		return position;
 	}
 
-	public void display(ViewHolder holder) {
+	public void display(H holder) {
 		this.holder = holder;
 		this.position = holder.getPosition();
 		display(holder, data, false);
@@ -48,7 +48,7 @@ public abstract class ComplexItem<T> implements Runnable {
 		return holder != null && holder.getPosition() == position;
 	}
 	
-	protected abstract void display(ViewHolder holder, T data, boolean fromNotify);
+	protected abstract void display(H holder, T data, boolean fromNotify);
 	
 	@Override
 	public void run() {

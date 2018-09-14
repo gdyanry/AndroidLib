@@ -16,11 +16,9 @@ import android.widget.TextView;
  */
 public class RecyclerViewHolder extends ViewHolder implements PositionHolder {
 	private SparseArray<View> views;
-	private View itemView;
 
 	public RecyclerViewHolder(View itemView) {
 		super(itemView);
-		this.itemView = itemView;
 		views = new SparseArray<View>();
 	}
 

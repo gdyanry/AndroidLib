@@ -11,18 +11,18 @@ import lib.common.model.cache.ResizableLruCache;
  * 2016年5月21日
  */
 public abstract class ComplexItemAdapter<T> extends ListAdapter<T> {
-	private ResizableLruCache<T, ComplexItem<T>> map;
+	private ResizableLruCache<T, ComplexItem<T, ViewHolder>> map;
 	
 	public ComplexItemAdapter() {
-		map = new ResizableLruCache<T, ComplexItem<T>>(getCount() + 1) {
+		map = new ResizableLruCache<T, ComplexItem<T, ViewHolder>>(getCount() + 1) {
 			@Override
-			protected ComplexItem<T> create(T key) {
+			protected ComplexItem<T, ViewHolder> create(T key) {
 				return createComplexItem(key);
 			}
 		};
 	}
 	
-	public ResizableLruCache<T, ComplexItem<T>> getCache() {
+	public ResizableLruCache<T, ComplexItem<T, ViewHolder>> getCache() {
 		return map;
 	}
 
@@ -37,5 +37,5 @@ public abstract class ComplexItemAdapter<T> extends ListAdapter<T> {
 		super.notifyDataSetChanged();
 	}
 
-	protected abstract ComplexItem<T> createComplexItem(T itemData);
+	protected abstract ComplexItem<T, ViewHolder> createComplexItem(T itemData);
 }
