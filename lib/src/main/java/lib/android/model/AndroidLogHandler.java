@@ -12,7 +12,7 @@ public class AndroidLogHandler extends LogHandler {
     }
 
     @Override
-    protected void handleLog(LogLevel logLevel, String tag, String log) {
+    protected void handleLog(LogLevel logLevel, Object tag, String log) {
         int priority = 0;
         switch (logLevel) {
             case Verbose:
@@ -31,6 +31,11 @@ public class AndroidLogHandler extends LogHandler {
                 priority = Log.ERROR;
                 break;
         }
-        Log.println(priority, tag, log);
+        Log.println(priority, tag.toString(), log);
+    }
+
+    @Override
+    protected void catches(Object tag, Exception e) {
+        Log.wtf(tag.toString(), e);
     }
 }

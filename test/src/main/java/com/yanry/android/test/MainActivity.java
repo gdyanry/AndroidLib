@@ -9,7 +9,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        MyLog.get().d("on create.");
-        runOnUiThread(() -> System.out.println("hehe"));
+        MyLog.get().e("on create.");
+        runOnUiThread(() -> MyLog.get().d("hehe"));
     }
 }
