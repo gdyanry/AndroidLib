@@ -27,7 +27,7 @@ import java.util.UUID;
 
 import lib.android.model.PendingAction;
 import lib.android.util.CommonUtils;
-import lib.common.interfaces.Loggable;
+import lib.common.model.log.Logger;
 
 /**
  * @author rongyu.yan
@@ -35,7 +35,7 @@ import lib.common.interfaces.Loggable;
  */
 
 @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
-public abstract class BleClient extends BluetoothGattCallback implements BluetoothAdapter.LeScanCallback, Loggable {
+public abstract class BleClient extends BluetoothGattCallback implements BluetoothAdapter.LeScanCallback {
     private static final long ACTION_TIMEOUT = 8000;
     private static final int RETRY_TIMES_ON_FAIL = 5;
     private static final long RETRY_INTERVAL = 300;
@@ -91,7 +91,7 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
 
     public boolean startScanning() {
         if (adapter.startLeScan(this)) {
-            debug("start BLE scanning...");
+            Logger.getDefault().d("start BLE scanning...");
             onScanStateChange(true);
             return true;
         }
@@ -100,7 +100,7 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
 
     public void stopScanning() {
         adapter.stopLeScan(BleClient.this);
-        debug("stop BLE scanning.");
+        Logger.getDefault().d("stop BLE scanning.");
         onScanStateChange(false);
     }
 
@@ -108,7 +108,7 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
         if (adapter != null) {
             outputStreams.clear();
             inputStreams.clear();
-            debug("Trying to create a new connection.");
+            Logger.getDefault().d("Trying to create a new connection.");
             // We want to directly connect to the device, so we are setting the autoConnect parameter to false.
             gatt = new BleConnectionCompat(context).connectGatt(device, false, this);
             return gatt != null;
@@ -118,27 +118,27 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
 
     public void sendData(UUID serviceId, UUID characteristicId, String data) {
         if (gatt == null) {
-            error("gatt is null.");
+            Logger.getDefault().e("gatt is null.");
             onConnectionError();
         } else {
             BluetoothGattService service = gatt.getService(serviceId);
             if (service == null) {
-                error("get service fail: %s", serviceId);
+                Logger.getDefault().e("get service fail: %s", serviceId);
                 onConnectionError();
             } else {
                 BluetoothGattCharacteristic characteristic = service.getCharacteristic(characteristicId);
                 if (characteristic == null) {
-                    error("get characteristic fail: %s", characteristicId);
+                    Logger.getDefault().e("get characteristic fail: %s", characteristicId);
                     onConnectionError();
                 } else if (gatt.setCharacteristicNotification(characteristic, true)) {
                     if (data == null) {
-                        debug("trying to read characteristic: %s.", characteristic.getUuid());
+                        Logger.getDefault().d("trying to read characteristic: %s.", characteristic.getUuid());
                         CommonUtils.retryOnFail(RETRY_TIMES_ON_FAIL, RETRY_INTERVAL, () -> handleCharacteristic(gatt, characteristic, true), () -> {
-                            error("read characteristic fail.");
+                            Logger.getDefault().e("read characteristic fail.");
                             onConnectionError();
                         });
                     } else {
-                        debug("sending data (%s): %s", characteristicId.toString().substring(0, 3), data);
+                        Logger.getDefault().d("sending data (%s): %s", characteristicId.toString().substring(0, 3), data);
                         try {
                             ByteArrayInputStream inputStream = new ByteArrayInputStream(data.getBytes(Config.CHARSET));
                             synchronized (characteristicId) {
@@ -152,11 +152,11 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
                                 writeCharacteristic(gatt, characteristic);
                             }
                         } catch (UnsupportedEncodingException e) {
-                            e.printStackTrace();
+                            Logger.getDefault().catches(e);
                         }
                     }
                 } else {
-                    error("set characteristic notification fail.");
+                    Logger.getDefault().e("set characteristic notification fail.");
                     onConnectionError();
                 }
             }
@@ -165,7 +165,7 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
 
     private void writeCharacteristic(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
         CommonUtils.retryOnFail(RETRY_TIMES_ON_FAIL, RETRY_INTERVAL, () -> handleCharacteristic(gatt, characteristic, false), () -> {
-            error("write characteristic fail.");
+            Logger.getDefault().e("write characteristic fail.");
             onConnectionError();
         });
     }
@@ -182,16 +182,6 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
         PendingAction pendingAction = pendingActions.get(characteristic);
         if (pendingAction == null) {
             pendingAction = new PendingAction() {
-                @Override
-                public void debug(String s, Object... objects) {
-                    BleClient.this.debug(s, objects);
-                }
-
-                @Override
-                public void error(String s, Object... objects) {
-                    BleClient.this.error(s, objects);
-                }
-
                 @Override
                 protected void onFinish(boolean isTimeout) {
                     if (isTimeout) {
@@ -212,7 +202,7 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
      */
     public void disconnect() {
         if (gatt != null) {
-            debug("disconnect gatt.");
+            Logger.getDefault().d("disconnect gatt.");
             gatt.disconnect();
         }
     }
@@ -242,7 +232,7 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
         outputStreams.clear();
         pendingActions.clear();
         if (gatt != null) {
-            debug("close gatt.");
+            Logger.getDefault().d("close gatt.");
             gatt.disconnect();
             gatt.close();
             gatt = null;
@@ -253,16 +243,16 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
     public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
         switch (newState) {
             case BluetoothProfile.STATE_CONNECTED:
-                debug("bluetooth is connected.");
+                Logger.getDefault().d("bluetooth is connected.");
                 BleClient.this.onConnectionStateChange(ConnectionState.Connected);
                 // Attempts to discover services after successful connection.
-                debug("Attempting to start service discovery:" + gatt.discoverServices());
+                Logger.getDefault().d("Attempting to start service discovery:" + gatt.discoverServices());
                 break;
             case BluetoothProfile.STATE_CONNECTING:
                 BleClient.this.onConnectionStateChange(ConnectionState.Connecting);
                 break;
             case BluetoothProfile.STATE_DISCONNECTED:
-                debug("bluetooth is disconnected.");
+                Logger.getDefault().d("bluetooth is disconnected.");
                 closeGatt();
                 BleClient.this.onConnectionStateChange(ConnectionState.Disconnected);
                 break;
@@ -278,10 +268,10 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
     public void onServicesDiscovered(BluetoothGatt gatt, int status) {
         if (status == BluetoothGatt.GATT_SUCCESS) {
             List<BluetoothGattService> services = gatt.getServices();
-            debug("discover %s services.", services.size());
+            Logger.getDefault().d("discover %s services.", services.size());
             BleClient.this.onDiscoverServices(services);
         } else {
-            error("discover services fail: %s.", status);
+            Logger.getDefault().e("discover services fail: %s.", status);
             onConnectionError();
         }
     }
@@ -292,11 +282,11 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
         if (pendingAction.isPending()) {
             pendingAction.knock(null);
             if (status != BluetoothGatt.GATT_SUCCESS) {
-                error("read characteristic(%s) fail: %s.", characteristic.getUuid(), status);
+                Logger.getDefault().e("read characteristic(%s) fail: %s.", characteristic.getUuid(), status);
                 onConnectionError();
             }
         } else {
-            error("receive read characteristic result beyond timeout: %s!", status);
+            Logger.getDefault().e("receive read characteristic result beyond timeout: %s!", status);
         }
     }
 
@@ -332,11 +322,11 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
                     }
                 }
             } else {
-                error("write characteristic(%s) fail: %s.", characteristic.getUuid(), status);
+                Logger.getDefault().e("write characteristic(%s) fail: %s.", characteristic.getUuid(), status);
                 onConnectionError();
             }
         } else {
-            error("receive write characteristic result beyond timeout: %s!", status);
+            Logger.getDefault().e("receive write characteristic result beyond timeout: %s!", status);
         }
     }
 
@@ -345,7 +335,7 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
         if (gatt == BleClient.this.gatt) {
             byte[] value = characteristic.getValue();
             UUID uuid = characteristic.getUuid();
-            debug("receive %s: %s", uuid.toString().substring(0, 3), Arrays.toString(value));
+            Logger.getDefault().v("receive %s: %s", uuid.toString().substring(0, 3), Arrays.toString(value));
             if (Arrays.equals(value, Config.START_SIGNAL)) {
                 outputStreams.put(uuid, new ByteArrayOutputStream());
             } else if (outputStreams.containsKey(uuid)) {
@@ -354,7 +344,7 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
                 if (value[0] == 0) {
                     try {
                         String data = outputStream.toString(Config.CHARSET);
-                        debug("receive data: " + data);
+                        Logger.getDefault().d("receive data: " + data);
                         onReceiveData(uuid, data);
                     } catch (UnsupportedEncodingException e) {
                         e.printStackTrace();

@@ -22,6 +22,7 @@ import lib.android.model.bitmap.access.BitmapAccess;
 import lib.android.util.CommonUtils;
 import lib.android.util.ViewUtil;
 import lib.common.model.Singletons;
+import lib.common.model.log.Logger;
 import lib.common.model.resourceaccess.AccessHook;
 import lib.common.util.ConsoleUtil;
 
@@ -207,9 +208,6 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
 			if (useNearScale) {
 				bt.useNearScale();
 			}
-			if (loader.isDebug) {
-				bt.debug();
-			}
 			return true;
 		}
 		return false;
@@ -294,9 +292,7 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
 		if (msg == null) {
 			return true;
 		}
-		if (loader.isDebug) {
-			ConsoleUtil.error(String.format("%s: %s (%s)", errPrefix, msg, src));
-		}
+		Logger.getDefault().e("%s: %s (%s)", errPrefix, msg, src);
 		return false;
 	}
 
