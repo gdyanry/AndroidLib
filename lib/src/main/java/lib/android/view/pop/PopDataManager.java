@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import lib.android.entity.MainHandler;
+import lib.android.util.CommonUtils;
 import lib.common.model.Singletons;
 import lib.common.model.log.Logger;
 
@@ -65,6 +66,7 @@ public class PopDataManager {
                         Singletons.get(MainHandler.class).removeCallbacks(currentTask);
                         Logger.getDefault().v("dismiss on expelled: %s", currentTask.data);
                         currentTask.handler.dismiss();
+                        currentTask.onDismiss(true);
                         currentTask = null;
                     }
                 }
@@ -98,13 +100,11 @@ public class PopDataManager {
     }
 
     private void doShow(ShowTask task) {
-        MainHandler handler = Singletons.get(MainHandler.class);
-        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
+        CommonUtils.runOnUiThread(() -> {
             task.handler.show(task.context, task.data);
-        } else {
-            handler.post(() -> task.handler.show(task.context, task.data));
-        }
-        handler.postDelayed(task, task.duration);
+            task.onShow();
+        });
+        Singletons.get(MainHandler.class).postDelayed(task, task.duration);
         currentTask = task;
     }
 
@@ -128,6 +128,7 @@ public class PopDataManager {
         if (currentTask.handler.isShowing()) {
             Logger.getDefault().v("dismiss on cancelled: %s", currentTask.data);
             currentTask.handler.dismiss();
+            currentTask.onDismiss(true);
         }
         currentTask = null;
     }

@@ -2,6 +2,7 @@ package lib.android.view.pop;
 
 import android.content.Context;
 
+import lib.android.interfaces.BooleanConsumer;
 import lib.android.interfaces.Filter;
 import lib.common.model.log.Logger;
 
@@ -30,6 +31,10 @@ public abstract class ShowTask implements Runnable {
         return new Builder();
     }
 
+    public Object getTypeId() {
+        return typeId;
+    }
+
     public Context getContext() {
         return context;
     }
@@ -42,10 +47,6 @@ public abstract class ShowTask implements Runnable {
         return duration;
     }
 
-    public DataViewHandler getHandler() {
-        return handler;
-    }
-
     @Override
     public void run() {
         // dismiss
@@ -53,6 +54,7 @@ public abstract class ShowTask implements Runnable {
             manager.currentTask = null;
             Logger.getDefault().v("dismiss on timeout: %s", data);
             handler.dismiss();
+            onDismiss(true);
             manager.loop();
         }
     }
@@ -65,6 +67,10 @@ public abstract class ShowTask implements Runnable {
 
     protected abstract boolean expelWaitingTask(ShowTask task);
 
+    protected abstract void onShow();
+
+    protected abstract void onDismiss(boolean isFromInternal);
+
     /**
      * 默认构造的ShowTask不拒绝从队列被清除或者被替换显示，如果当前有正在显示的数据界面，则加入队列尾部等待。
      */
@@ -75,6 +81,8 @@ public abstract class ShowTask implements Runnable {
         private boolean rejectExpelled;
         private boolean rejectDismissed;
         private Filter<ShowTask> ifExpel;
+        private Runnable onShow;
+        private BooleanConsumer onDismiss;
 
         private Builder() {
             duration = Integer.MAX_VALUE;
@@ -120,6 +128,16 @@ public abstract class ShowTask implements Runnable {
             return this;
         }
 
+        public Builder onShow(Runnable onShow) {
+            this.onShow = onShow;
+            return this;
+        }
+
+        public Builder onDismiss(BooleanConsumer onDismiss) {
+            this.onDismiss = onDismiss;
+            return this;
+        }
+
         public ShowTask build(Context context, Object data) {
             return new ShowTask(typeId == null ? data : typeId, context, data, duration) {
                 @Override
@@ -143,6 +161,20 @@ public abstract class ShowTask implements Runnable {
                         return ifExpel.accept(task);
                     }
                     return false;
+                }
+
+                @Override
+                protected void onShow() {
+                    if (onShow != null) {
+                        onShow.run();
+                    }
+                }
+
+                @Override
+                protected void onDismiss(boolean isFromInternal) {
+                    if (onDismiss != null) {
+                        onDismiss.accept(isFromInternal);
+                    }
                 }
             };
         }

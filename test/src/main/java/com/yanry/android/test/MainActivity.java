@@ -1,16 +1,16 @@
 package com.yanry.android.test;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.RadioGroup;
 
 import lib.android.model.AndroidLogHandler;
-import lib.android.view.pop.handler.ToastHandler;
 import lib.android.view.pop.DataViewHandler;
 import lib.android.view.pop.PopDataManager;
 import lib.android.view.pop.ShowTask;
+import lib.android.view.pop.handler.ToastHandler;
 import lib.common.model.log.LogLevel;
 import lib.common.model.log.Logger;
 import lib.common.model.log.SimpleFormatterBuilder;
@@ -76,11 +76,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     protected boolean expelWaitingTask(ShowTask task) {
                         return cbExpelExistingTask.isChecked();
                     }
+
+                    @Override
+                    protected void onShow() {
+                        Logger.getDefault().v(getData().toString());
+                    }
+
+                    @Override
+                    protected void onDismiss(boolean isFromInternal) {
+                        Logger.getDefault().v(getData().toString());
+                    }
                 };
                 manager.show(task);
                 break;
             case R.id.btn_builder:
-                ShowTask.Builder builder = ShowTask.getBuilder();
+                ShowTask.Builder builder = ShowTask.getBuilder().onShow(() -> Logger.getDefault().v("onShow"))
+                        .onDismiss(value -> Logger.getDefault().v("onDismiss: %s", value));
                 switch (radioGroup.getCheckedRadioButtonId()) {
                     case R.id.show_immediately:
                         builder.showImmediately();
