@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 manager.show(task);
                 break;
             case R.id.btn_builder:
-                ShowTask.Builder builder = ShowTask.builder();
+                ShowTask.Builder builder = ShowTask.getBuilder();
                 switch (radioGroup.getCheckedRadioButtonId()) {
                     case R.id.show_immediately:
                         builder.showImmediately();

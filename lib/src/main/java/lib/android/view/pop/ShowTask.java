@@ -26,7 +26,7 @@ public abstract class ShowTask implements Runnable {
         this.duration = duration;
     }
 
-    public static Builder builder() {
+    public static Builder getBuilder() {
         return new Builder();
     }
 
