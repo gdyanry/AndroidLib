@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lib.android.view.image.select;
+package lib.android.view.image;
 
 import android.app.Activity;
 import android.view.View;
@@ -9,7 +9,7 @@ import android.view.View;
 import java.io.File;
 
 import lib.android.util.CommonUtils;
-import lib.android.view.image.select.interfaces.LeadItem;
+import lib.android.view.image.interfaces.LeadItem;
 
 /**
  * @author yanry

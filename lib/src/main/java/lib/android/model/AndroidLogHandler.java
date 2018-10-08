@@ -31,7 +31,7 @@ public class AndroidLogHandler extends LogHandler {
                 priority = Log.ERROR;
                 break;
         }
-        Log.println(priority, tag.toString(), log);
+        Log.println(priority, tag == null ? "tag:default" : tag.toString(), log);
     }
 
     @Override

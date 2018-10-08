@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 /**
  * 使用setMovementMethod(TextViewFixTouchConsume.LocalLinkMovementMethod.
- * getInstance())给TextView增加点击效果，又不让其占用Item的点击焦点。类似微博的@ 、表情、链接等。
+ * createInstance())给TextView增加点击效果，又不让其占用Item的点击焦点。类似微博的@ 、表情、链接等。
  * 
  * @author yanry
  *

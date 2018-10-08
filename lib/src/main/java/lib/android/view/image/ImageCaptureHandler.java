@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lib.android.view.image.select;
+package lib.android.view.image;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -10,15 +10,14 @@ import android.graphics.Bitmap;
 import java.io.File;
 
 import lib.android.util.CommonUtils;
-import lib.android.view.image.select.ImageCrop.OnCropResultListener;
-import lib.android.view.image.select.interfaces.OnActivityResultListener;
+import lib.android.view.image.interfaces.OnActivityResultListener;
 
 /**
  * @author yanry
  *
  *         2016年1月16日
  */
-public abstract class ImageCaptureHandler extends AbstractCropHelper implements OnActivityResultListener, OnCropResultListener {
+public abstract class ImageCaptureHandler extends AbstractCropHelper implements OnActivityResultListener, ImageCrop.OnCropResultListener {
 	private File captureOut;
 	private File cropOut;
 	private ImageCrop crop;

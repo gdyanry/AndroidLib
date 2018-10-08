@@ -1,18 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
+    <RadioGroup
+        android:id="@+id/rg_strategy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/show_immediately"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ShowImmediately" />
+
+        <RadioButton
+            android:id="@+id/insert_head"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="InsertHead" />
+
+        <RadioButton
+            android:id="@+id/append_tail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AppendTail" />
+    </RadioGroup>
+
+    <CheckBox
+        android:id="@+id/reject_expelled"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="rejectExpelled" />
 
-</android.support.constraint.ConstraintLayout>
+    <CheckBox
+        android:id="@+id/reject_dismissed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="rejectDismissed" />
+
+    <CheckBox
+        android:id="@+id/expel_existing_task"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="expelWaitingTask" />
+
+    <Button
+        android:id="@+id/btn_show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SHOW" />
+
+    <Button
+        android:id="@+id/btn_builder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="USE BUILDER" />
+</LinearLayout>

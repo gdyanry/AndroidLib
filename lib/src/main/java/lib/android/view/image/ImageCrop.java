@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lib.android.view.image.select;
+package lib.android.view.image;
 
 import android.app.Activity;
 import android.content.Intent;

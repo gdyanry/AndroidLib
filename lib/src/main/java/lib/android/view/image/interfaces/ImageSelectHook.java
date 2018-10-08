@@ -1,12 +1,12 @@
 /**
  * 
  */
-package lib.android.view.image.select.interfaces;
+package lib.android.view.image.interfaces;
 
 import java.io.File;
 import java.util.List;
 
-import lib.android.view.image.select.ImageCrop;
+import lib.android.view.image.ImageCrop;
 
 /**
  * @author yanry

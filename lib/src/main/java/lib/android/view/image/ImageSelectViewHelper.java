@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lib.android.view.image.select;
+package lib.android.view.image;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -20,9 +20,9 @@ import java.util.List;
 import lib.android.model.adapter.CommonAdapter;
 import lib.android.model.adapter.ViewHolder;
 import lib.android.util.CommonUtils;
-import lib.android.view.image.select.interfaces.ImageItem;
-import lib.android.view.image.select.interfaces.LeadItem;
-import lib.android.view.image.select.interfaces.OnActivityResultListener;
+import lib.android.view.image.interfaces.ImageItem;
+import lib.android.view.image.interfaces.LeadItem;
+import lib.android.view.image.interfaces.OnActivityResultListener;
 
 /**
  * @author yanry

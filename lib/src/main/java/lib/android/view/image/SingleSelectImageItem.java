@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lib.android.view.image.select;
+package lib.android.view.image;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,15 +11,14 @@ import android.view.View;
 import java.io.File;
 
 import lib.android.util.CommonUtils;
-import lib.android.view.image.select.ImageCrop.OnCropResultListener;
-import lib.android.view.image.select.interfaces.ImageItem;
+import lib.android.view.image.interfaces.ImageItem;
 
 /**
  * @author yanry
  *
  *         2016年1月21日
  */
-public abstract class SingleSelectImageItem extends AbstractCropHelper implements ImageItem, OnCropResultListener {
+public abstract class SingleSelectImageItem extends AbstractCropHelper implements ImageItem, ImageCrop.OnCropResultListener {
 	private ImageCrop crop;
 	private File cropFile;
 	private Activity activity;

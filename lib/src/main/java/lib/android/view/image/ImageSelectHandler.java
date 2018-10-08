@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lib.android.view.image.select;
+package lib.android.view.image;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lib.android.view.image.select.interfaces.ImageSelectHook;
+import lib.android.view.image.interfaces.ImageSelectHook;
 
 /**
  * @author yanry
