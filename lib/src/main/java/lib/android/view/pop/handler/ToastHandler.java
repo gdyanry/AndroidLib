@@ -5,7 +5,7 @@ import android.widget.Toast;
 
 import lib.android.view.pop.DataViewHandler;
 
-public class ToastHandler extends DataViewHandler<Toast> {
+public class ToastHandler<D> extends DataViewHandler<D, Toast> {
 
     /**
      * 使用自定义Toast需要重写此方法。
@@ -14,17 +14,17 @@ public class ToastHandler extends DataViewHandler<Toast> {
      * @param data
      * @return
      */
-    protected Toast createToast(Context context, Object data) {
+    protected Toast createToast(Context context, D data) {
         return Toast.makeText(context, data.toString(), Toast.LENGTH_LONG);
     }
 
     @Override
-    protected boolean accept(Object data) {
-        return data instanceof CharSequence;
+    protected boolean accept(Object typeId) {
+        return typeId == ToastHandler.class;
     }
 
     @Override
-    protected Toast showData(Toast currentInstance, Context context, Object data) {
+    protected Toast showData(Toast currentInstance, Context context, D data) {
         if (currentInstance != null) {
             currentInstance.cancel();
         }

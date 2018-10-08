@@ -33,14 +33,14 @@ public class PopDataManager {
         task.manager = this;
         // 寻找匹配的Handler
         for (DataViewHandler handler : dataViewHandlers) {
-            if (handler.accept(task.data)) {
-                Logger.getDefault().v("find handler %s for data: %s", handler, task.data);
+            if (handler.accept(task.typeId)) {
+                Logger.getDefault().v("find handler %s for type: %s", handler, task.typeId);
                 task.handler = handler;
                 break;
             }
         }
         if (task.handler == null) {
-            Logger.getDefault().e("no handler found for data: %s", task.data);
+            Logger.getDefault().e("no handler found for type: %s", task.typeId);
             return;
         }
         // 清理队列

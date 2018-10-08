@@ -4,10 +4,10 @@ import android.content.Context;
 
 import lib.android.view.pop.DataViewHandler;
 
-public abstract class ReusableViewHandler<V> extends DataViewHandler<V> {
+public abstract class ReusableViewHandler<D, V> extends DataViewHandler<D, V> {
 
     @Override
-    protected final V showData(V currentInstance, Context context, Object data) {
+    protected final V showData(V currentInstance, Context context, D data) {
         if (currentInstance == null) {
             currentInstance = createInstance(context);
         }
@@ -22,7 +22,7 @@ public abstract class ReusableViewHandler<V> extends DataViewHandler<V> {
 
     protected abstract V createInstance(Context context);
 
-    protected abstract void setData(V instance, Object data);
+    protected abstract void setData(V instance, D data);
 
     protected abstract void showView(V instance);
 }

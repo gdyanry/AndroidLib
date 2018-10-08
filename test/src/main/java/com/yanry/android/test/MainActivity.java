@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cbRejectExpelled = findViewById(R.id.reject_expelled);
         cbRejectDismissed = findViewById(R.id.reject_dismissed);
         cbExpelExistingTask = findViewById(R.id.expel_existing_task);
-        DataViewHandler handler = new ToastHandler();
+        DataViewHandler handler = new ToastHandler<>();
         manager = new PopDataManager();
         manager.registerHandler(handler);
         findViewById(R.id.btn_show).setOnClickListener(this);
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_show:
-                ShowTask task = new ShowTask(this, String.valueOf(counter++), 3500) {
+                ShowTask task = new ShowTask(ToastHandler.class, this, counter++, 3500) {
                     @Override
                     protected int getStrategy() {
                         switch (radioGroup.getCheckedRadioButtonId()) {
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (cbExpelExistingTask.isChecked()) {
                     builder.expelWaitingTasks();
                 }
-                manager.show(builder.build(this, String.valueOf(counter++), 3500));
+                manager.show(builder.duration(3500).type(ToastHandler.class).build(this, counter++));
                 break;
         }
     }

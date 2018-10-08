@@ -4,10 +4,10 @@ import android.content.Context;
 
 /**
  * 为特定数据显示特定界面。
- *
+ * @param <D>
  * @param <V>
  */
-public abstract class DataViewHandler<V> {
+public abstract class DataViewHandler<D, V> {
     PopDataManager manager;
     protected V popInstance;
 
@@ -21,7 +21,7 @@ public abstract class DataViewHandler<V> {
     }
 
     final void show(Context context, Object data) {
-        popInstance = showData(popInstance, context, data);
+        popInstance = showData(popInstance, context, (D) data);
     }
 
     final void dismiss() {
@@ -38,7 +38,7 @@ public abstract class DataViewHandler<V> {
         return false;
     }
 
-    protected abstract boolean accept(Object data);
+    protected abstract boolean accept(Object typeId);
 
     /**
      * @param currentInstance may be null.
@@ -46,7 +46,7 @@ public abstract class DataViewHandler<V> {
      * @param data
      * @return
      */
-    protected abstract V showData(V currentInstance, Context context, Object data);
+    protected abstract V showData(V currentInstance, Context context, D data);
 
     protected abstract void dismiss(V popInstance);
 

@@ -12,13 +12,15 @@ public abstract class ShowTask implements Runnable {
     protected static final int STRATEGY_INSERT_HEAD = 1;
     protected static final int STRATEGY_SHOW_IMMEDIATELY = 2;
 
+    Object typeId;
     Context context;
     Object data;
     long duration;
     DataViewHandler handler;
     PopDataManager manager;
 
-    public ShowTask(Context context, Object data, long duration) {
+    public ShowTask(Object typeId, Context context, Object data, long duration) {
+        this.typeId = typeId;
         this.context = context;
         this.data = data;
         this.duration = duration;
@@ -67,12 +69,25 @@ public abstract class ShowTask implements Runnable {
      * 默认构造的ShowTask不拒绝从队列被清除或者被替换显示，如果当前有正在显示的数据界面，则加入队列尾部等待。
      */
     public static class Builder {
+        private Object typeId;
+        private long duration;
         private int strategy;
         private boolean rejectExpelled;
         private boolean rejectDismissed;
         private Filter<ShowTask> ifExpel;
 
         private Builder() {
+            duration = Integer.MAX_VALUE;
+        }
+
+        public Builder type(Object typeId) {
+            this.typeId = typeId;
+            return this;
+        }
+
+        public Builder duration(long duration) {
+            this.duration = duration;
+            return this;
         }
 
         public Builder insertHead() {
@@ -105,8 +120,8 @@ public abstract class ShowTask implements Runnable {
             return this;
         }
 
-        public ShowTask build(Context context, Object data, long duration) {
-            return new ShowTask(context, data, duration) {
+        public ShowTask build(Context context, Object data) {
+            return new ShowTask(typeId == null ? data : typeId, context, data, duration) {
                 @Override
                 protected int getStrategy() {
                     return strategy;
