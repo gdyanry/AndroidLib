@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 import lib.android.entity.MainHandler;
 import lib.android.util.CommonUtils;
+import lib.android.view.pop.handler.ToastHandler;
 import lib.common.model.Singletons;
 import lib.common.model.log.Logger;
 
@@ -22,6 +23,7 @@ public class PopDataManager {
     public PopDataManager() {
         queue = new LinkedList<>();
         dataViewHandlers = new LinkedList<>();
+        registerHandler(new ToastHandler());
     }
 
     public void registerHandler(DataViewHandler handler) {

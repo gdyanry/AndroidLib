@@ -5,6 +5,7 @@ import android.content.Context;
 import lib.android.entity.MainHandler;
 import lib.android.interfaces.BooleanConsumer;
 import lib.android.interfaces.Filter;
+import lib.android.view.pop.handler.ToastHandler;
 import lib.common.model.Singletons;
 import lib.common.model.log.Logger;
 
@@ -110,6 +111,11 @@ public abstract class ShowTask implements Runnable {
 
         public Builder type(Object typeId) {
             this.typeId = typeId;
+            return this;
+        }
+
+        public Builder toast() {
+            this.typeId = ToastHandler.class;
             return this;
         }
 

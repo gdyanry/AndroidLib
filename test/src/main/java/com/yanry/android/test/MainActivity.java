@@ -33,9 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cbRejectExpelled = findViewById(R.id.reject_expelled);
         cbRejectDismissed = findViewById(R.id.reject_dismissed);
         cbExpelExistingTask = findViewById(R.id.expel_existing_task);
-        DataViewHandler handler = new ToastHandler<>();
         manager = new PopDataManager();
-        manager.registerHandler(handler);
         findViewById(R.id.btn_show).setOnClickListener(this);
         findViewById(R.id.btn_builder).setOnClickListener(this);
     }
