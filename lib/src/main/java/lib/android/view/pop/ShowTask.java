@@ -22,6 +22,13 @@ public abstract class ShowTask implements Runnable {
     DataViewHandler handler;
     PopDataManager manager;
 
+    /**
+     *
+     * @param typeId
+     * @param context
+     * @param data
+     * @param duration 该数据的显示时间，若为0则一直显示。
+     */
     public ShowTask(Object typeId, Context context, Object data, long duration) {
         this.typeId = typeId;
         this.context = context;
@@ -99,7 +106,6 @@ public abstract class ShowTask implements Runnable {
         private BooleanConsumer onDismiss;
 
         private Builder() {
-            duration = Integer.MAX_VALUE;
         }
 
         public Builder type(Object typeId) {

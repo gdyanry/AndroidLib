@@ -105,7 +105,9 @@ public class PopDataManager {
             task.handler.show(task.context, task.data);
             task.onShow();
         });
-        Singletons.get(MainHandler.class).postDelayed(task, task.duration);
+        if (task.duration > 0) {
+            Singletons.get(MainHandler.class).postDelayed(task, task.duration);
+        }
         currentTask = task;
     }
 
