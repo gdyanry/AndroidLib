@@ -1,7 +1,6 @@
 package lib.android.view.pop;
 
 import android.content.Context;
-import android.os.Looper;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -88,6 +87,8 @@ public class PopDataManager {
         if (ifShow) {
             Logger.getDefault().v("show directly: %s", task.data);
             doShow(task);
+        } else if (currentTask == null) {
+            loop();
         }
     }
 
@@ -124,13 +125,15 @@ public class PopDataManager {
     }
 
     private void dismissCurrent() {
-        Singletons.get(MainHandler.class).removeCallbacks(currentTask);
-        if (currentTask.handler.isShowing()) {
-            Logger.getDefault().v("dismiss on cancelled: %s", currentTask.data);
-            currentTask.handler.dismiss();
-            currentTask.onDismiss(true);
+        if (currentTask != null) {
+            Singletons.get(MainHandler.class).removeCallbacks(currentTask);
+            if (currentTask.handler.isShowing()) {
+                Logger.getDefault().v("dismiss on cancelled: %s", currentTask.data);
+                currentTask.handler.dismiss();
+                currentTask.onDismiss(true);
+            }
+            currentTask = null;
         }
-        currentTask = null;
     }
 
     /**
@@ -140,7 +143,7 @@ public class PopDataManager {
      */
     public void cancelAll(boolean dismissCurrent) {
         queue.clear();
-        if (dismissCurrent && currentTask != null) {
+        if (dismissCurrent) {
             dismissCurrent();
         }
     }

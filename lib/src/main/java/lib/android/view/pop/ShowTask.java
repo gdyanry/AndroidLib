@@ -2,8 +2,10 @@ package lib.android.view.pop;
 
 import android.content.Context;
 
+import lib.android.entity.MainHandler;
 import lib.android.interfaces.BooleanConsumer;
 import lib.android.interfaces.Filter;
+import lib.common.model.Singletons;
 import lib.common.model.log.Logger;
 
 /**
@@ -31,6 +33,24 @@ public abstract class ShowTask implements Runnable {
         return new Builder();
     }
 
+    public void dismiss() {
+        Singletons.get(MainHandler.class).removeCallbacks(this);
+        if (doDismiss()) {
+            Logger.getDefault().v("manually dismiss: %s", data);
+        }
+    }
+
+    private boolean doDismiss() {
+        if (manager.currentTask == this) {
+            manager.currentTask = null;
+            handler.dismiss();
+            onDismiss(true);
+            manager.loop();
+            return true;
+        }
+        return false;
+    }
+
     public Object getTypeId() {
         return typeId;
     }
@@ -49,14 +69,8 @@ public abstract class ShowTask implements Runnable {
 
     @Override
     public void run() {
-        // dismiss
-        if (manager.currentTask == this) {
-            manager.currentTask = null;
-            Logger.getDefault().v("dismiss on timeout: %s", data);
-            handler.dismiss();
-            onDismiss(true);
-            manager.loop();
-        }
+        Logger.getDefault().v("dismiss on timeout: %s", data);
+        doDismiss();
     }
 
     protected abstract int getStrategy();
