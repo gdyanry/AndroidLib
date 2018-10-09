@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_show:
-                ShowTask task = new ShowTask(ToastHandler.class, this, counter++, 3500) {
+                ShowTask task = new ShowTask(ToastHandler.class, this, counter++, 0) {
                     @Override
                     protected int getStrategy() {
                         switch (radioGroup.getCheckedRadioButtonId()) {
@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (cbExpelExistingTask.isChecked()) {
                     builder.expelWaitingTasks();
                 }
-                manager.show(builder.duration(3500).type(ToastHandler.class).build(this, counter++));
+                manager.show(builder.toast().build(this, counter++));
                 break;
         }
     }

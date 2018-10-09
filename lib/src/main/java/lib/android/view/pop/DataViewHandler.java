@@ -17,6 +17,7 @@ public abstract class DataViewHandler<D, V> {
     public void notifyDismiss() {
         if (manager != null && manager.currentTask != null && manager.currentTask.handler == this) {
             manager.currentTask.onDismiss(false);
+            manager.currentTask = null;
             manager.loop();
         }
     }
