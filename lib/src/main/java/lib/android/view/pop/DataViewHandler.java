@@ -2,6 +2,8 @@ package lib.android.view.pop;
 
 import android.content.Context;
 
+import lib.common.model.log.Logger;
+
 /**
  * 为特定数据显示特定界面。
  * @param <D>
@@ -16,6 +18,7 @@ public abstract class DataViewHandler<D, V> {
      */
     public void notifyDismiss() {
         if (manager != null && manager.currentTask != null && manager.currentTask.handler == this) {
+            Logger.getDefault().v(manager.currentTask.data);
             manager.currentTask.onDismiss(false);
             manager.currentTask = null;
             manager.loop();

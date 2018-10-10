@@ -7,8 +7,17 @@ import lib.common.model.log.LogHandler;
 import lib.common.model.log.LogLevel;
 
 public class AndroidLogHandler extends LogHandler {
+    public static final String DEFAULT_TAG = "tag:default";
+    private static final int MAX_LEN = 4000;
+    private boolean splitLongLine;
+
     public AndroidLogHandler(LogFormatter formatter, LogLevel level) {
+        this(formatter, level, false);
+    }
+
+    public AndroidLogHandler(LogFormatter formatter, LogLevel level, boolean splitLongLine) {
         super(formatter, level);
+        this.splitLongLine = splitLongLine;
     }
 
     @Override
@@ -31,7 +40,17 @@ public class AndroidLogHandler extends LogHandler {
                 priority = Log.ERROR;
                 break;
         }
-        Log.println(priority, tag == null ? "tag:default" : tag.toString(), log);
+        String strTag = tag == null ? DEFAULT_TAG : tag.toString();
+        if (splitLongLine) {
+            int length = log.length();
+            for (int i = 0; i < length; ) {
+                int endIndex = Math.min(i + MAX_LEN, length - i);
+                Log.println(priority, strTag, log.substring(i, endIndex));
+                i = endIndex;
+            }
+        } else {
+            Log.println(priority, strTag, log);
+        }
     }
 
     @Override
