@@ -7,6 +7,7 @@ import lib.android.interfaces.BooleanConsumer;
 import lib.android.interfaces.Filter;
 import lib.android.view.pop.handler.ToastHandler;
 import lib.common.model.Singletons;
+import lib.common.model.cache.TimerObjectPool;
 import lib.common.model.log.Logger;
 
 /**
@@ -15,6 +16,7 @@ import lib.common.model.log.Logger;
 public abstract class ShowTask implements Runnable {
     protected static final int STRATEGY_INSERT_HEAD = 1;
     protected static final int STRATEGY_SHOW_IMMEDIATELY = 2;
+    private static Pool pool = new Pool();
 
     Object typeId;
     Context context;
@@ -38,7 +40,7 @@ public abstract class ShowTask implements Runnable {
     }
 
     public static Builder getBuilder() {
-        return new Builder();
+        return pool.borrow();
     }
 
     public void dismiss() {
@@ -165,7 +167,7 @@ public abstract class ShowTask implements Runnable {
         }
 
         public ShowTask build(Context context, Object data) {
-            return new ShowTask(typeId == null ? data : typeId, context, data, duration) {
+            ShowTask showTask = new ShowTask(typeId == null ? data : typeId, context, data, duration) {
                 @Override
                 protected int getStrategy() {
                     return strategy;
@@ -203,6 +205,41 @@ public abstract class ShowTask implements Runnable {
                     }
                 }
             };
+            pool.giveBack(this);
+            return showTask;
+        }
+    }
+
+    private static class Pool extends TimerObjectPool<Builder> {
+        public Pool() {
+            super(120);
+        }
+
+        @Override
+        protected Builder createInstance() {
+            return new Builder();
+        }
+
+        @Override
+        protected void onReturn(Builder builder) {
+            builder.typeId = null;
+            builder.onShow = null;
+            builder.onDismiss = null;
+            builder.duration = 0;
+            builder.rejectDismissed = false;
+            builder.rejectExpelled = false;
+            builder.strategy = 0;
+            builder.ifExpel = null;
+        }
+
+        @Override
+        protected void onDiscard(Builder builder) {
+
+        }
+
+        @Override
+        protected void onCleared(int i) {
+            Logger.getDefault().v("builder pool size: %s", i);
         }
     }
 }
