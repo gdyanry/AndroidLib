@@ -21,11 +21,11 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
-    buildToolsVersion '28.0.2'
+    buildToolsVersion '28.0.3'
 }
 
 dependencies {
     compileOnly 'com.android.support:appcompat-v7:27.1.1'
-    api 'com.github.gdyanry:CommonLib:v0.1810.90'
+    api 'com.github.gdyanry:CommonLib:v0.1810.112'
     compileOnly 'com.android.support:recyclerview-v7:27.1.1'
 }

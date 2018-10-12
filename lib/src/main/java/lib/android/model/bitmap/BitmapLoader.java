@@ -88,12 +88,23 @@ public class BitmapLoader implements ConnectivityListener {
         requestPool = new TimerObjectPool<BitmapRequest>(120) {
 
             @Override
-            protected void release(BitmapRequest obj) {
+            protected BitmapRequest createInstance() {
+                return new BitmapRequest(BitmapLoader.this);
             }
 
             @Override
-            protected BitmapRequest generate() {
-                return new BitmapRequest(BitmapLoader.this);
+            protected void onReturn(BitmapRequest bitmapRequest) {
+
+            }
+
+            @Override
+            protected void onDiscard(BitmapRequest bitmapRequest) {
+
+            }
+
+            @Override
+            protected void onCleared(int i) {
+
             }
         };
     }
@@ -234,7 +245,7 @@ public class BitmapLoader implements ConnectivityListener {
     }
 
     public BitmapRequest getRequest(Object src) {
-        return requestPool.obtain().from(src);
+        return requestPool.borrow().from(src);
     }
 
     public void loadHtmlImage(String source, TextView tv, Drawable defaultDrawable) {

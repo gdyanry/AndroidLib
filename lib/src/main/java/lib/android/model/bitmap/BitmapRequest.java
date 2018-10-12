@@ -346,7 +346,7 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
 		errorRes = 0;
 		download = null;
 		useNearScale = false;
-		loader.requestPool.recycle(this);
+		loader.requestPool.giveBack(this);
 	}
 
 	@Override
