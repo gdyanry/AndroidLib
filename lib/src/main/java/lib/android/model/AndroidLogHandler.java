@@ -11,10 +11,6 @@ public class AndroidLogHandler extends LogHandler {
     private static final int MAX_LEN = 4000;
     private boolean splitLongLine;
 
-    public AndroidLogHandler(LogFormatter formatter, LogLevel level) {
-        this(formatter, level, false);
-    }
-
     public AndroidLogHandler(LogFormatter formatter, LogLevel level, boolean splitLongLine) {
         super(formatter, level);
         this.splitLongLine = splitLongLine;
@@ -44,7 +40,7 @@ public class AndroidLogHandler extends LogHandler {
         if (splitLongLine) {
             int length = log.length();
             for (int i = 0; i < length; ) {
-                int endIndex = Math.min(i + MAX_LEN, length - i);
+                int endIndex = Math.min(i + MAX_LEN, length);
                 Log.println(priority, strTag, log.substring(i, endIndex));
                 i = endIndex;
             }

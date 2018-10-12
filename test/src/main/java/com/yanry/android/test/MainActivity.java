@@ -10,8 +10,6 @@ import lib.android.model.AndroidLogHandler;
 import lib.android.view.pop.PopDataManager;
 import lib.android.view.pop.ShowTask;
 import lib.android.view.pop.handler.ToastHandler;
-import lib.common.model.log.LogFormatter;
-import lib.common.model.log.LogLevel;
 import lib.common.model.log.Logger;
 import lib.common.model.log.SimpleFormatterBuilder;
 
@@ -27,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatterBuilder().method().build(), null));
+        Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatterBuilder().method().build(), null, true));
 
         radioGroup = findViewById(R.id.rg_strategy);
         cbRejectExpelled = findViewById(R.id.reject_expelled);
