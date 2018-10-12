@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    signingConfigs {
-        release {
-            keyAlias 'releasekey'
-            keyPassword 'oneszott'
-            storeFile file('F:/projects/AndroidLib/test/key.jks')
-            storePassword 'oneszott'
-        }
-    }
+//    signingConfigs {
+//        release {
+//            keyAlias 'releasekey'
+//            keyPassword 'oneszott'
+//            storeFile file('F:/projects/AndroidLib/test/key.jks')
+//            storePassword 'oneszott'
+//        }
+//    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.yanry.android.test"
@@ -20,16 +20,16 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
-    buildTypes {
-        release {
-            zipAlignEnabled true
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            debuggable true
-            signingConfig signingConfigs.release
-            proguardFile 'F:/projects/AndroidLib/test/proguard-rules.pro'
-        }
-    }
+//    buildTypes {
+//        release {
+//            zipAlignEnabled true
+//            minifyEnabled true
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            debuggable true
+//            signingConfig signingConfigs.release
+//            proguardFile 'F:/projects/AndroidLib/test/proguard-rules.pro'
+//        }
+//    }
     buildToolsVersion '28.0.3'
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
