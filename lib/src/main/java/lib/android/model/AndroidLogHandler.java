@@ -8,7 +8,7 @@ import lib.common.model.log.LogLevel;
 
 public class AndroidLogHandler extends LogHandler {
     public static final String DEFAULT_TAG = "tag:default";
-    private static final int MAX_LEN = 4000;
+    private static final int MAX_LEN = 2500;
     private boolean splitLongLine;
 
     public AndroidLogHandler(LogFormatter formatter, LogLevel level, boolean splitLongLine) {
