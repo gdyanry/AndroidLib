@@ -21,6 +21,7 @@ public class ToastHandler extends DataViewHandler<Object, Toast> implements Runn
         }
         Toast toast = Toast.makeText(context, data.toString(), Toast.LENGTH_LONG);
         toast.show();
+        Singletons.get(MainHandler.class).removeCallbacks(this);
         Singletons.get(MainHandler.class).postDelayed(this, 3500);
         return toast;
     }

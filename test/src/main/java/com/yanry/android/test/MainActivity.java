@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatterBuilder().method().build(), null, true));
+        Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatterBuilder().method(3).build(), null, true));
 
         radioGroup = findViewById(R.id.rg_strategy);
         cbRejectExpelled = findViewById(R.id.reject_expelled);

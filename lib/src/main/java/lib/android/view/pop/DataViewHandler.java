@@ -25,11 +25,17 @@ public abstract class DataViewHandler<D, V> {
         }
     }
 
+    public void dismiss() {
+        if (manager != null && manager.currentTask != null && manager.currentTask.handler == this) {
+            manager.currentTask.dismiss();
+        }
+    }
+
     final void show(Context context, Object data) {
         popInstance = showData(popInstance, context, (D) data);
     }
 
-    final void dismiss() {
+    final void internalDismiss() {
         if (popInstance != null) {
             dismiss(popInstance);
         }
