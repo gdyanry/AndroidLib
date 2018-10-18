@@ -11,7 +11,7 @@ import lib.common.model.log.Logger;
  */
 public abstract class DataViewHandler<D, V> {
     PopDataManager manager;
-    protected V popInstance;
+    private V popInstance;
 
     /**
      * 此数据界面被提前关闭（非超时，比如由用户按返回键触发）时需要调用此方法通知显示队列中等待的数据，否则队列中下一条数据要等到前一条数据超时时间后才会显示。
