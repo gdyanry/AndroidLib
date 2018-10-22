@@ -27,7 +27,7 @@ import lib.android.model.bitmap.access.UriBitmapAccess;
 import lib.android.model.bitmap.access.UrlBlobBitmapAccess;
 import lib.android.model.bitmap.access.UrlFileBitmapAccess;
 import lib.android.model.dao.AndroidBaseDao;
-import lib.common.model.cache.TimerObjectPool;
+import lib.common.model.cache.TimedObjectPool;
 import lib.common.model.resourceaccess.AccessHook;
 import lib.common.model.resourceaccess.CacheResourceAccess;
 import lib.common.model.resourceaccess.FileHashMapper;
@@ -47,7 +47,7 @@ public class BitmapLoader implements ConnectivityListener {
     UrlFileBitmapAccess urlFileAccess;
     UrlBlobBitmapAccess urlBlobAccess;
     ResBitmapAccess resAccess;
-    TimerObjectPool<BitmapRequest> requestPool;
+    TimedObjectPool<BitmapRequest> requestPool;
     private LruCache<Object, Bitmap> cache;
     private ThreadPoolExecutor executor;
     private UrlFileAccess htmlImageAccess;
@@ -85,7 +85,7 @@ public class BitmapLoader implements ConnectivityListener {
                 return BitmapLoader.this.cache;
             }
         };
-        requestPool = new TimerObjectPool<BitmapRequest>(120) {
+        requestPool = new TimedObjectPool<BitmapRequest>(120) {
 
             @Override
             protected BitmapRequest createInstance() {

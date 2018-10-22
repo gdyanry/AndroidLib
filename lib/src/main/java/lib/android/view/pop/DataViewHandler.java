@@ -49,7 +49,7 @@ public abstract class DataViewHandler<D, V> {
         return false;
     }
 
-    protected abstract boolean accept(Object typeId);
+    protected abstract boolean accept(Object handlerIndicator);
 
     /**
      * @param currentInstance may be null.

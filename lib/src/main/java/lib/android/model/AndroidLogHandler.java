@@ -17,7 +17,7 @@ public class AndroidLogHandler extends LogHandler {
     }
 
     @Override
-    protected void handleLog(LogLevel logLevel, Object tag, String log) {
+    protected void handleLog(LogLevel logLevel, Object tag, String log, int messageStart, int messageEnd) {
         int priority = 0;
         switch (logLevel) {
             case Verbose:

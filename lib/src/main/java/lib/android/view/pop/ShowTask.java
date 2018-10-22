@@ -2,11 +2,10 @@ package lib.android.view.pop;
 
 import android.content.Context;
 
-import lib.android.entity.MainHandler;
 import lib.android.interfaces.BooleanConsumer;
 import lib.android.interfaces.Filter;
+import lib.android.util.CommonUtils;
 import lib.android.view.pop.handler.ToastHandler;
-import lib.common.model.Singletons;
 import lib.common.model.log.Logger;
 
 /**
@@ -16,7 +15,7 @@ public abstract class ShowTask implements Runnable {
     protected static final int STRATEGY_INSERT_HEAD = 1;
     protected static final int STRATEGY_SHOW_IMMEDIATELY = 2;
 
-    Object typeId;
+    Object handlerIndicator;
     Context context;
     Object data;
     long duration;
@@ -24,15 +23,26 @@ public abstract class ShowTask implements Runnable {
     PopDataManager manager;
 
     /**
-     * @param typeId
+     * @param handlerIndicator
      * @param context
      * @param data
      * @param duration 该数据的显示时间，若为0则一直显示。
      */
-    public ShowTask(Object typeId, Context context, Object data, long duration) {
-        this.typeId = typeId;
+    public ShowTask(Object handlerIndicator, Context context, Object data, long duration) {
+        this.handlerIndicator = handlerIndicator;
         this.context = context;
         this.data = data;
+        this.duration = duration;
+    }
+
+    /**
+     * @param handlerIndicator
+     * @param context
+     * @param duration         该数据的显示时间，若为0则一直显示。
+     */
+    public ShowTask(Object handlerIndicator, Context context, long duration) {
+        this.handlerIndicator = handlerIndicator;
+        this.context = context;
         this.duration = duration;
     }
 
@@ -41,7 +51,7 @@ public abstract class ShowTask implements Runnable {
     }
 
     public void dismiss() {
-        Singletons.get(MainHandler.class).removeCallbacks(this);
+        CommonUtils.cancelPendingTimeout(this);
         if (doDismiss()) {
             Logger.getDefault().v("manually dismiss: %s", data);
         }
@@ -58,8 +68,8 @@ public abstract class ShowTask implements Runnable {
         return false;
     }
 
-    public Object getTypeId() {
-        return typeId;
+    public Object getHandlerIndicator() {
+        return handlerIndicator;
     }
 
     public Context getContext() {

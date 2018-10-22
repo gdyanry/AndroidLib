@@ -123,4 +123,14 @@ public class CommonUtils {
 			}
 		}
 	}
+
+    public static void scheduleTimeout(Runnable task, long delay) {
+        MainHandler mainHandler = Singletons.get(MainHandler.class);
+        mainHandler.removeCallbacks(task);
+        mainHandler.postDelayed(task, delay);
+    }
+
+    public static void cancelPendingTimeout(Runnable task) {
+        Singletons.get(MainHandler.class).removeCallbacks(task);
+    }
 }

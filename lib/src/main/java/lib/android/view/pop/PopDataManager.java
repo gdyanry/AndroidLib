@@ -5,10 +5,8 @@ import android.content.Context;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import lib.android.entity.MainHandler;
 import lib.android.util.CommonUtils;
 import lib.android.view.pop.handler.ToastHandler;
-import lib.common.model.Singletons;
 import lib.common.model.log.Logger;
 
 /**
@@ -35,14 +33,14 @@ public class PopDataManager {
         task.manager = this;
         // 寻找匹配的Handler
         for (DataViewHandler handler : dataViewHandlers) {
-            if (handler.accept(task.typeId)) {
-                Logger.getDefault().v("find handler %s for type: %s", handler, task.typeId);
+            if (handler.accept(task.handlerIndicator)) {
+                Logger.getDefault().v("find handler %s for type: %s", handler, task.handlerIndicator);
                 task.handler = handler;
                 break;
             }
         }
         if (task.handler == null) {
-            Logger.getDefault().e("no handler found for type: %s", task.typeId);
+            Logger.getDefault().w("no handler found for type: %s", task.handlerIndicator);
             return;
         }
         // 清理队列
@@ -64,7 +62,7 @@ public class PopDataManager {
                         queue.addFirst(task);
                     } else if (currentTask.handler != task.handler) {
                         // handler不相同时才dismiss，否则只需要更换显示的数据就可以了
-                        Singletons.get(MainHandler.class).removeCallbacks(currentTask);
+                        CommonUtils.cancelPendingTimeout(currentTask);
                         Logger.getDefault().v("dismiss on expelled: %s", currentTask.data);
                         currentTask.handler.internalDismiss();
                         currentTask.onDismiss(true);
@@ -108,7 +106,7 @@ public class PopDataManager {
             task.onShow();
         });
         if (task.duration > 0) {
-            Singletons.get(MainHandler.class).postDelayed(task, task.duration);
+            CommonUtils.scheduleTimeout(task, task.duration);
         }
         currentTask = task;
     }
@@ -130,7 +128,7 @@ public class PopDataManager {
 
     private void dismissCurrent() {
         if (currentTask != null) {
-            Singletons.get(MainHandler.class).removeCallbacks(currentTask);
+            CommonUtils.cancelPendingTimeout(currentTask);
             if (currentTask.handler.isShowing()) {
                 Logger.getDefault().v("dismiss on cancelled: %s", currentTask.data);
                 currentTask.handler.internalDismiss();

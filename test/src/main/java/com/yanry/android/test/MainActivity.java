@@ -11,7 +11,7 @@ import lib.android.view.pop.PopDataManager;
 import lib.android.view.pop.ShowTask;
 import lib.android.view.pop.handler.ToastHandler;
 import lib.common.model.log.Logger;
-import lib.common.model.log.SimpleFormatterBuilder;
+import lib.common.model.log.SimpleFormatter;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private int counter;
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatterBuilder().method(3).build(), null, true));
+        Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatter().method(3), null, true));
 
         radioGroup = findViewById(R.id.rg_strategy);
         cbRejectExpelled = findViewById(R.id.reject_expelled);
