@@ -26,7 +26,7 @@ public abstract class ShowTask implements Runnable {
      * @param handlerIndicator
      * @param context
      * @param data
-     * @param duration 该数据的显示时间，若为0则一直显示。
+     * @param duration         该数据的显示时间，若为0则一直显示。
      */
     public ShowTask(Object handlerIndicator, Context context, Object data, long duration) {
         this.handlerIndicator = handlerIndicator;
@@ -36,14 +36,14 @@ public abstract class ShowTask implements Runnable {
     }
 
     /**
-     * @param handlerIndicator
      * @param context
-     * @param duration         该数据的显示时间，若为0则一直显示。
+     * @param duration 该数据的显示时间，若为0则一直显示。
      */
-    public ShowTask(Object handlerIndicator, Context context, long duration) {
-        this.handlerIndicator = handlerIndicator;
+    public ShowTask(Context context, long duration) {
         this.context = context;
         this.duration = duration;
+        this.handlerIndicator = this;
+        this.data = this;
     }
 
     public static Builder getBuilder() {
