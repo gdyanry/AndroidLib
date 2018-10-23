@@ -14,7 +14,7 @@ public abstract class FloatViewHandler<D> extends ReusableViewHandler<D, View> {
             windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
             layoutParams = getLayoutParams();
         }
-        return getContentView();
+        return getContentView(context);
     }
 
     @Override
@@ -34,5 +34,5 @@ public abstract class FloatViewHandler<D> extends ReusableViewHandler<D, View> {
 
     protected abstract WindowManager.LayoutParams getLayoutParams();
 
-    protected abstract View getContentView();
+    protected abstract View getContentView(Context context);
 }
