@@ -60,8 +60,8 @@ public abstract class ShowTask implements Runnable {
     private boolean doDismiss() {
         if (manager.currentTask == this) {
             manager.currentTask = null;
-            handler.internalDismiss();
             onDismiss(true);
+            handler.internalDismiss();
             manager.loop();
             return true;
         }
