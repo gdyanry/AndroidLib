@@ -64,8 +64,8 @@ public class PopDataManager {
                         // handler不相同时才dismiss，否则只需要更换显示的数据就可以了
                         CommonUtils.cancelPendingTimeout(currentTask);
                         Logger.getDefault().v("dismiss on expelled: %s", currentTask.data);
-                        currentTask.handler.internalDismiss();
                         currentTask.onDismiss(true);
+                        currentTask.handler.internalDismiss();
                         currentTask = null;
                     }
                 }
@@ -131,8 +131,8 @@ public class PopDataManager {
             CommonUtils.cancelPendingTimeout(currentTask);
             if (currentTask.handler.isShowing()) {
                 Logger.getDefault().v("dismiss on cancelled: %s", currentTask.data);
-                currentTask.handler.internalDismiss();
                 currentTask.onDismiss(true);
+                currentTask.handler.internalDismiss();
             }
             currentTask = null;
         }
