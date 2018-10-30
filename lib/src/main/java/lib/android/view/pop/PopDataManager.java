@@ -102,8 +102,8 @@ public class PopDataManager {
 
     private void doShow(ShowTask task) {
         CommonUtils.runOnUiThread(() -> {
-            task.handler.show(task.context, task.data);
             task.onShow();
+            task.handler.show(task.context, task.data);
         });
         if (task.duration > 0) {
             CommonUtils.scheduleTimeout(task, task.duration);

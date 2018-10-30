@@ -12,6 +12,7 @@ import lib.common.model.log.Logger;
  * 要显示的数据。一般推荐使用Builder来创建对象（简单），当需要动态配置显示策略时才直接使用构造函数并实现抽象方法创建对象（灵活）。
  */
 public abstract class ShowTask implements Runnable {
+    protected static final int STRATEGY_APPEND_TAIL = 0;
     protected static final int STRATEGY_INSERT_HEAD = 1;
     protected static final int STRATEGY_SHOW_IMMEDIATELY = 2;
 
