@@ -13,19 +13,19 @@ import android.widget.TextView;
  *
  *         2016年1月13日
  */
-public class SpannableText {
+public class SimpleSpannable {
 	private SpannableStringBuilder ssb;
 
-	public SpannableText() {
+	public SimpleSpannable() {
 		ssb = new SpannableStringBuilder();
 	}
 
-	public SpannableText append(CharSequence plainText) {
+	public SimpleSpannable append(CharSequence plainText) {
 		ssb.append(plainText);
 		return this;
 	}
 
-	public SpannableText append(CharSequence text, Object span) {
+	public SimpleSpannable append(CharSequence text, Object span) {
 		if (text.length() > 0) {
 			int start = ssb.length();
 			ssb.append(text);

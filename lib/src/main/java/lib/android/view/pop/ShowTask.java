@@ -1,6 +1,10 @@
 package lib.android.view.pop;
 
 import android.content.Context;
+import android.support.annotation.IntDef;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import lib.android.interfaces.BooleanConsumer;
 import lib.android.interfaces.Filter;
@@ -12,9 +16,9 @@ import lib.common.model.log.Logger;
  * 要显示的数据。一般推荐使用Builder来创建对象（简单），当需要动态配置显示策略时才直接使用构造函数并实现抽象方法创建对象（灵活）。
  */
 public abstract class ShowTask implements Runnable {
-    protected static final int STRATEGY_APPEND_TAIL = 0;
-    protected static final int STRATEGY_INSERT_HEAD = 1;
-    protected static final int STRATEGY_SHOW_IMMEDIATELY = 2;
+    public static final int STRATEGY_APPEND_TAIL = 0;
+    public static final int STRATEGY_INSERT_HEAD = 1;
+    public static final int STRATEGY_SHOW_IMMEDIATELY = 2;
 
     Object handlerIndicator;
     Context context;
@@ -87,10 +91,11 @@ public abstract class ShowTask implements Runnable {
 
     @Override
     public void run() {
-        Logger.getDefault().v("dismiss on timeout: %s", data);
+        Logger.getDefault().vv("dismiss on timeout: ", data);
         doDismiss();
     }
 
+    @Strategy
     protected abstract int getStrategy();
 
     protected abstract boolean rejectExpelled();
@@ -215,5 +220,10 @@ public abstract class ShowTask implements Runnable {
             };
             return showTask;
         }
+    }
+
+    @IntDef({STRATEGY_APPEND_TAIL, STRATEGY_INSERT_HEAD, STRATEGY_SHOW_IMMEDIATELY})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Strategy {
     }
 }

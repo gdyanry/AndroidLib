@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             case R.id.insert_head:
                                 return STRATEGY_INSERT_HEAD;
                         }
-                        return 0;
+                        return STRATEGY_APPEND_TAIL;
                     }
 
                     @Override
