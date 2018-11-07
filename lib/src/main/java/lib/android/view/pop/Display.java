@@ -14,7 +14,7 @@ public abstract class Display<D, V> {
     PopScheduler scheduler;
     private V popInstance;
 
-    public ShowRequest getShowingTask() {
+    public ShowTask getShowingTask() {
         if (scheduler != null && scheduler.current != null && scheduler.current.display == this) {
             return scheduler.current;
         }

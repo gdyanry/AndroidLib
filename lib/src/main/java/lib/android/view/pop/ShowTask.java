@@ -16,7 +16,7 @@ import lib.common.model.log.Logger;
 /**
  * 要显示的数据。一般推荐使用Builder来创建对象（简单），当需要动态配置显示策略时才直接使用构造函数并实现抽象方法创建对象（灵活）。
  */
-public abstract class ShowRequest implements Runnable {
+public abstract class ShowTask implements Runnable {
     public static final int STRATEGY_APPEND_TAIL = 0;
     public static final int STRATEGY_INSERT_HEAD = 1;
     public static final int STRATEGY_SHOW_IMMEDIATELY = 2;
@@ -32,15 +32,16 @@ public abstract class ShowRequest implements Runnable {
     Display display;
     PopScheduler scheduler;
 
-    /**
-     * @param displayIndicator
-     * @param context
-     * @param data
-     */
-    public ShowRequest(Object displayIndicator, Context context, Object data) {
+    public ShowTask(Object displayIndicator, Context context, Object data) {
         this.displayIndicator = displayIndicator;
         this.context = context;
         this.data = data;
+    }
+
+    public ShowTask(Context context) {
+        this.context = context;
+        this.displayIndicator = this;
+        this.data = this;
     }
 
     public static Builder getBuilder() {
@@ -65,12 +66,12 @@ public abstract class ShowRequest implements Runnable {
         return false;
     }
 
-    public ShowRequest setDuration(long duration) {
+    public ShowTask setDuration(long duration) {
         this.duration = duration;
         return this;
     }
 
-    public ShowRequest setTag(Object tag) {
+    public ShowTask setTag(Object tag) {
         this.tag = tag;
         return this;
     }
@@ -88,7 +89,7 @@ public abstract class ShowRequest implements Runnable {
 
     protected abstract boolean rejectDismissed();
 
-    protected abstract boolean expelWaitingTask(ShowRequest request);
+    protected abstract boolean expelWaitingTask(ShowTask request);
 
     protected abstract void onShow();
 
@@ -102,8 +103,8 @@ public abstract class ShowRequest implements Runnable {
         private int strategy;
         private boolean rejectExpelled;
         private boolean rejectDismissed;
-        private Filter<ShowRequest> ifExpel;
-        private Consumer<ShowRequest> onShow;
+        private Filter<ShowTask> ifExpel;
+        private Consumer<ShowTask> onShow;
         private BooleanConsumer onDismiss;
 
         private Builder() {
@@ -144,12 +145,12 @@ public abstract class ShowRequest implements Runnable {
             return this;
         }
 
-        public Builder expelWaitingTasks(Filter<ShowRequest> ifExpel) {
+        public Builder expelWaitingTasks(Filter<ShowTask> ifExpel) {
             this.ifExpel = ifExpel;
             return this;
         }
 
-        public Builder onShow(Consumer<ShowRequest> onShow) {
+        public Builder onShow(Consumer<ShowTask> onShow) {
             this.onShow = onShow;
             return this;
         }
@@ -159,8 +160,8 @@ public abstract class ShowRequest implements Runnable {
             return this;
         }
 
-        public ShowRequest build(Context context, Object data) {
-            ShowRequest request = new ShowRequest(displayIndicator == null ? data : displayIndicator, context, data) {
+        public ShowTask build(Context context, Object data) {
+            ShowTask request = new ShowTask(displayIndicator == null ? data : displayIndicator, context, data) {
                 @Override
                 protected int getStrategy() {
                     return strategy;
@@ -177,7 +178,7 @@ public abstract class ShowRequest implements Runnable {
                 }
 
                 @Override
-                protected boolean expelWaitingTask(ShowRequest request) {
+                protected boolean expelWaitingTask(ShowTask request) {
                     if (ifExpel != null) {
                         return ifExpel.accept(request);
                     }

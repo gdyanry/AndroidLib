@@ -9,7 +9,7 @@ import android.widget.RadioGroup;
 
 import lib.android.model.AndroidLogHandler;
 import lib.android.view.pop.PopScheduler;
-import lib.android.view.pop.ShowRequest;
+import lib.android.view.pop.ShowTask;
 import lib.common.model.log.Logger;
 import lib.common.model.log.SimpleFormatter;
 
@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final int data = counter++;
         switch (v.getId()) {
             case R.id.btn_show:
-                ShowRequest task = new ShowRequest(data, this, data) {
+                ShowTask task = new ShowTask(data, this, data) {
                     @Override
                     protected int getStrategy() {
                         switch (rgStrategy.getCheckedRadioButtonId()) {
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
 
                     @Override
-                    protected boolean expelWaitingTask(ShowRequest request) {
+                    protected boolean expelWaitingTask(ShowTask request) {
                         return cbExpelExistingTask.isChecked();
                     }
 
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 manager.show(task.setTag(this).setDuration(4000));
                 break;
             case R.id.btn_builder:
-                ShowRequest.Builder builder = ShowRequest.getBuilder().onShow(request -> Logger.getDefault().vv("onShow: ", data))
+                ShowTask.Builder builder = ShowTask.getBuilder().onShow(request -> Logger.getDefault().vv("onShow: ", data))
                         .onDismiss(isInternal -> Logger.getDefault().vv("onDismiss: ", data, ", is internal: ", isInternal));
                 switch (rgStrategy.getCheckedRadioButtonId()) {
                     case R.id.show_immediately:

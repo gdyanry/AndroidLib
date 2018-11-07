@@ -16,10 +16,10 @@ import lib.common.model.log.Logger;
  * 当前有数据正在显示的情况下，新来的数据可以采取替换当前数据界面或进入等待队列等策略，而被替换的数据也可以相应采取接受或拒绝等策略。
  */
 public class PopScheduler {
-    private static LinkedList<ShowRequest> queue = new LinkedList<>();
+    private static LinkedList<ShowTask> queue = new LinkedList<>();
     private static HashMap<PopScheduler, HashSet<PopScheduler>> conflictedSchedulers = new HashMap<>();
     private static HashMap<Object, PopScheduler> instances = new HashMap<>();
-    ShowRequest current;
+    ShowTask current;
     private LinkedList<Display> displays;
 
     private PopScheduler() {
@@ -54,9 +54,9 @@ public class PopScheduler {
     }
 
     static void loop() {
-        Iterator<ShowRequest> iterator = queue.iterator();
+        Iterator<ShowTask> iterator = queue.iterator();
         while (iterator.hasNext()) {
-            ShowRequest next = iterator.next();
+            ShowTask next = iterator.next();
             if (next.scheduler.getSchedulerOfDisplayingRequest() == null) {
                 iterator.remove();
                 Logger.getDefault().vv("loop and show: ", next.data);
@@ -65,7 +65,7 @@ public class PopScheduler {
         }
     }
 
-    private static void doShow(ShowRequest task) {
+    private static void doShow(ShowTask task) {
         CommonUtils.runOnUiThread(() -> {
             task.onShow();
             task.display.show(task.context, task.data);
@@ -78,9 +78,9 @@ public class PopScheduler {
 
     public static void cancelByTag(Object tag) {
         // 清理队列
-        Iterator<ShowRequest> it = queue.iterator();
+        Iterator<ShowTask> it = queue.iterator();
         while (it.hasNext()) {
-            ShowRequest request = it.next();
+            ShowTask request = it.next();
             if (request.tag == tag) {
                 it.remove();
                 CommonUtils.cancelPendingTimeout(request);
@@ -117,7 +117,7 @@ public class PopScheduler {
         }
     }
 
-    public void show(ShowRequest request) {
+    public void show(ShowTask request) {
         request.scheduler = this;
         // 寻找匹配的Handler
         for (Display handler : displays) {
@@ -132,9 +132,9 @@ public class PopScheduler {
             return;
         }
         // 清理队列
-        Iterator<ShowRequest> it = queue.iterator();
+        Iterator<ShowTask> it = queue.iterator();
         while (it.hasNext()) {
-            ShowRequest next = it.next();
+            ShowTask next = it.next();
             if (request.scheduler == this && request.expelWaitingTask(next) && !next.rejectExpelled()) {
                 it.remove();
                 CommonUtils.cancelPendingTimeout(next);
@@ -142,13 +142,13 @@ public class PopScheduler {
             }
         }
         // 处理当前正在显示的task
-        ShowRequest current = null;
+        ShowTask current = null;
         PopScheduler scheduler = getSchedulerOfDisplayingRequest();
         if (scheduler != null) {
             current = scheduler.current;
         }
         switch (request.getStrategy()) {
-            case ShowRequest.STRATEGY_SHOW_IMMEDIATELY:
+            case ShowTask.STRATEGY_SHOW_IMMEDIATELY:
                 if (current != null && current.display.isShowing()) {
                     if (current.rejectDismissed()) {
                         // 当前正在显示的task不肯dismiss，只能放到队首等待
@@ -164,7 +164,7 @@ public class PopScheduler {
                     }
                 }
                 break;
-            case ShowRequest.STRATEGY_INSERT_HEAD:
+            case ShowTask.STRATEGY_INSERT_HEAD:
                 if (current != null && current.display.isShowing()) {
                     Logger.getDefault().vv("insert head: ", request.data);
                     queue.addFirst(request);
@@ -186,9 +186,9 @@ public class PopScheduler {
         }
     }
 
-    private ShowRequest getNextToShow() {
+    private ShowTask getNextToShow() {
         HashSet<PopScheduler> schedulers = conflictedSchedulers.get(this);
-        for (ShowRequest request : queue) {
+        for (ShowTask request : queue) {
             if (request.scheduler == this || schedulers != null && schedulers.contains(request.scheduler)) {
                 return request;
             }
