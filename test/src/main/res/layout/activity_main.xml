@@ -7,6 +7,32 @@
     tools:context=".MainActivity">
 
     <RadioGroup
+        android:id="@+id/rg_tag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/tag_a"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="A" />
+
+        <RadioButton
+            android:id="@+id/tag_b"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="B" />
+
+        <RadioButton
+            android:id="@+id/tag_c"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="C" />
+    </RadioGroup>
+
+    <RadioGroup
         android:id="@+id/rg_strategy"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,6 +54,7 @@
             android:id="@+id/append_tail"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:checked="true"
             android:text="AppendTail" />
     </RadioGroup>
 

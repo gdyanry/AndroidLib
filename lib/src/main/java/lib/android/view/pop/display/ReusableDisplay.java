@@ -1,10 +1,10 @@
-package lib.android.view.pop.handler;
+package lib.android.view.pop.display;
 
 import android.content.Context;
 
-import lib.android.view.pop.DataViewHandler;
+import lib.android.view.pop.Display;
 
-public abstract class ReusableViewHandler<D, V> extends DataViewHandler<D, V> {
+public abstract class ReusableDisplay<D, V> extends Display<D, V> {
 
     @Override
     protected final V showData(V currentInstance, Context context, D data) {

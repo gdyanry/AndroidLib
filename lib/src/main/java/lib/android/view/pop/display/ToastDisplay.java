@@ -1,16 +1,16 @@
-package lib.android.view.pop.handler;
+package lib.android.view.pop.display;
 
 import android.content.Context;
 import android.widget.Toast;
 
 import lib.android.util.CommonUtils;
-import lib.android.view.pop.DataViewHandler;
+import lib.android.view.pop.Display;
 
-public class ToastHandler extends DataViewHandler<Object, Toast> implements Runnable {
+public class ToastDisplay extends Display<Object, Toast> implements Runnable {
 
     @Override
     protected boolean accept(Object typeId) {
-        return typeId == ToastHandler.class;
+        return typeId == ToastDisplay.class;
     }
 
     @Override

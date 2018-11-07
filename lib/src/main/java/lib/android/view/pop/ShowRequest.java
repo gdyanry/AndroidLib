@@ -9,46 +9,37 @@ import java.lang.annotation.RetentionPolicy;
 import lib.android.interfaces.BooleanConsumer;
 import lib.android.interfaces.Filter;
 import lib.android.util.CommonUtils;
-import lib.android.view.pop.handler.ToastHandler;
+import lib.android.view.pop.display.ToastDisplay;
 import lib.common.model.log.Logger;
 
 /**
  * 要显示的数据。一般推荐使用Builder来创建对象（简单），当需要动态配置显示策略时才直接使用构造函数并实现抽象方法创建对象（灵活）。
  */
-public abstract class ShowTask implements Runnable {
+public abstract class ShowRequest implements Runnable {
     public static final int STRATEGY_APPEND_TAIL = 0;
     public static final int STRATEGY_INSERT_HEAD = 1;
     public static final int STRATEGY_SHOW_IMMEDIATELY = 2;
 
-    Object handlerIndicator;
+    Object displayIndicator;
     Context context;
     Object data;
+    /**
+     * 该数据的显示时间，若为0则一直显示
+     */
     long duration;
-    DataViewHandler handler;
-    PopDataManager manager;
+    Object tag;
+    Display display;
+    PopScheduler scheduler;
 
     /**
-     * @param handlerIndicator
+     * @param displayIndicator
      * @param context
      * @param data
-     * @param duration         该数据的显示时间，若为0则一直显示。
      */
-    public ShowTask(Object handlerIndicator, Context context, Object data, long duration) {
-        this.handlerIndicator = handlerIndicator;
+    public ShowRequest(Object displayIndicator, Context context, Object data) {
+        this.displayIndicator = displayIndicator;
         this.context = context;
         this.data = data;
-        this.duration = duration;
-    }
-
-    /**
-     * @param context
-     * @param duration 该数据的显示时间，若为0则一直显示。
-     */
-    public ShowTask(Context context, long duration) {
-        this.context = context;
-        this.duration = duration;
-        this.handlerIndicator = this;
-        this.data = this;
     }
 
     public static Builder getBuilder() {
@@ -58,35 +49,29 @@ public abstract class ShowTask implements Runnable {
     public void dismiss() {
         CommonUtils.cancelPendingTimeout(this);
         if (doDismiss()) {
-            Logger.getDefault().v("manually dismiss: %s", data);
+            Logger.getDefault().vv("manually dismiss: ", data);
         }
     }
 
     private boolean doDismiss() {
-        if (manager.currentTask == this) {
-            manager.currentTask = null;
+        if (scheduler.current == this) {
+            scheduler.current = null;
             onDismiss(true);
-            handler.internalDismiss();
-            manager.loop();
+            display.internalDismiss();
+            scheduler.loop();
             return true;
         }
         return false;
     }
 
-    public Object getHandlerIndicator() {
-        return handlerIndicator;
+    public ShowRequest setDuration(long duration) {
+        this.duration = duration;
+        return this;
     }
 
-    public Context getContext() {
-        return context;
-    }
-
-    public Object getData() {
-        return data;
-    }
-
-    public long getDuration() {
-        return duration;
+    public ShowRequest setTag(Object tag) {
+        this.tag = tag;
+        return this;
     }
 
     @Override
@@ -102,7 +87,7 @@ public abstract class ShowTask implements Runnable {
 
     protected abstract boolean rejectDismissed();
 
-    protected abstract boolean expelWaitingTask(ShowTask task);
+    protected abstract boolean expelWaitingTask(ShowRequest request);
 
     protected abstract void onShow();
 
@@ -112,30 +97,24 @@ public abstract class ShowTask implements Runnable {
      * 默认构造的ShowTask不拒绝从队列被清除或者被替换显示，如果当前有正在显示的数据界面，则加入队列尾部等待。
      */
     public static class Builder {
-        private Object typeId;
-        private long duration;
+        private Object displayIndicator;
         private int strategy;
         private boolean rejectExpelled;
         private boolean rejectDismissed;
-        private Filter<ShowTask> ifExpel;
+        private Filter<ShowRequest> ifExpel;
         private Runnable onShow;
         private BooleanConsumer onDismiss;
 
         private Builder() {
         }
 
-        public Builder type(Object typeId) {
-            this.typeId = typeId;
+        public Builder displayIndicator(Object displayIndicator) {
+            this.displayIndicator = displayIndicator;
             return this;
         }
 
         public Builder toast() {
-            this.typeId = ToastHandler.class;
-            return this;
-        }
-
-        public Builder duration(long duration) {
-            this.duration = duration;
+            this.displayIndicator = ToastDisplay.class;
             return this;
         }
 
@@ -164,7 +143,7 @@ public abstract class ShowTask implements Runnable {
             return this;
         }
 
-        public Builder expelWaitingTasks(Filter<ShowTask> ifExpel) {
+        public Builder expelWaitingTasks(Filter<ShowRequest> ifExpel) {
             this.ifExpel = ifExpel;
             return this;
         }
@@ -179,8 +158,8 @@ public abstract class ShowTask implements Runnable {
             return this;
         }
 
-        public ShowTask build(Context context, Object data) {
-            ShowTask showTask = new ShowTask(typeId == null ? data : typeId, context, data, duration) {
+        public ShowRequest build(Context context, Object data) {
+            ShowRequest request = new ShowRequest(displayIndicator == null ? data : displayIndicator, context, data) {
                 @Override
                 protected int getStrategy() {
                     return strategy;
@@ -197,9 +176,9 @@ public abstract class ShowTask implements Runnable {
                 }
 
                 @Override
-                protected boolean expelWaitingTask(ShowTask task) {
+                protected boolean expelWaitingTask(ShowRequest request) {
                     if (ifExpel != null) {
-                        return ifExpel.accept(task);
+                        return ifExpel.accept(request);
                     }
                     return false;
                 }
@@ -218,7 +197,7 @@ public abstract class ShowTask implements Runnable {
                     }
                 }
             };
-            return showTask;
+            return request;
         }
     }
 

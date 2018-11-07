@@ -1,10 +1,10 @@
-package lib.android.view.pop.handler;
+package lib.android.view.pop.display;
 
 import android.content.Context;
 import android.view.View;
 import android.view.WindowManager;
 
-public abstract class FloatViewHandler<D> extends ReusableViewHandler<D, View> {
+public abstract class FloatDisplay<D> extends ReusableDisplay<D, View> {
     private WindowManager windowManager;
     private WindowManager.LayoutParams layoutParams;
 
