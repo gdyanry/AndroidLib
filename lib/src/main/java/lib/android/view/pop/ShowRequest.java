@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import lib.android.interfaces.BooleanConsumer;
+import lib.android.interfaces.Consumer;
 import lib.android.interfaces.Filter;
 import lib.android.util.CommonUtils;
 import lib.android.view.pop.display.ToastDisplay;
@@ -102,7 +103,7 @@ public abstract class ShowRequest implements Runnable {
         private boolean rejectExpelled;
         private boolean rejectDismissed;
         private Filter<ShowRequest> ifExpel;
-        private Runnable onShow;
+        private Consumer<ShowRequest> onShow;
         private BooleanConsumer onDismiss;
 
         private Builder() {
@@ -148,7 +149,7 @@ public abstract class ShowRequest implements Runnable {
             return this;
         }
 
-        public Builder onShow(Runnable onShow) {
+        public Builder onShow(Consumer<ShowRequest> onShow) {
             this.onShow = onShow;
             return this;
         }
@@ -186,7 +187,7 @@ public abstract class ShowRequest implements Runnable {
                 @Override
                 protected void onShow() {
                     if (onShow != null) {
-                        onShow.run();
+                        onShow.accept(this);
                     }
                 }
 

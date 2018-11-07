@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 manager.show(task.setTag(this).setDuration(4000));
                 break;
             case R.id.btn_builder:
-                ShowRequest.Builder builder = ShowRequest.getBuilder().onShow(() -> Logger.getDefault().vv("onShow: ", data))
+                ShowRequest.Builder builder = ShowRequest.getBuilder().onShow(request -> Logger.getDefault().vv("onShow: ", data))
                         .onDismiss(isInternal -> Logger.getDefault().vv("onDismiss: ", data, ", is internal: ", isInternal));
                 switch (rgStrategy.getCheckedRadioButtonId()) {
                     case R.id.show_immediately:
