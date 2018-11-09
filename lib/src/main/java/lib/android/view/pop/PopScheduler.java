@@ -110,6 +110,19 @@ public class PopScheduler {
         }
     }
 
+    public void cancel(boolean dismissCurrent) {
+        Iterator<ShowTask> iterator = queue.iterator();
+        while (iterator.hasNext()) {
+            ShowTask next = iterator.next();
+            if (next.scheduler == this) {
+                iterator.remove();
+            }
+        }
+        if (dismissCurrent) {
+            dismissCurrent();
+        }
+    }
+
     public void registerDisplay(Display display) {
         if (!displays.contains(display)) {
             displays.add(display);
