@@ -121,6 +121,7 @@ public class PopScheduler {
         if (dismissCurrent) {
             dismissCurrent();
         }
+        loop();
     }
 
     public void registerDisplay(Display display) {
@@ -190,8 +191,8 @@ public class PopScheduler {
                 }
                 break;
         }
-        boolean ifShow = !queue.contains(request);
-        if (ifShow) {
+        boolean show = !queue.contains(request);
+        if (show) {
             Logger.getDefault().vv("show directly: ", request.data);
             doShow(request);
         } else if (current == null) {
@@ -209,6 +210,11 @@ public class PopScheduler {
         return null;
     }
 
+    /**
+     * 获取当前调度器以及与当前调度器关联的调度器中正在显示的任务（如果有的话）所属的调节器实例。
+     *
+     * @return
+     */
     private PopScheduler getSchedulerOfDisplayingRequest() {
         if (current != null) {
             return this;
