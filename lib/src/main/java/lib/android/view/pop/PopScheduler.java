@@ -19,27 +19,8 @@ public class PopScheduler {
     private static LinkedList<ShowTask> queue = new LinkedList<>();
     private static HashMap<PopScheduler, HashSet<PopScheduler>> conflictedSchedulers = new HashMap<>();
     private static HashMap<Object, PopScheduler> instances = new HashMap<>();
+
     ShowTask current;
-    private LinkedList<Display> displays;
-
-    private PopScheduler() {
-        displays = new LinkedList<>();
-        registerDisplay(new ToastDisplay());
-    }
-
-    public static void link(PopScheduler a, PopScheduler b) {
-        addLink(a, b);
-        addLink(b, a);
-    }
-
-    private static void addLink(PopScheduler scheduler, PopScheduler addTo) {
-        HashSet<PopScheduler> linkedSchedulers = conflictedSchedulers.get(addTo);
-        if (linkedSchedulers == null) {
-            linkedSchedulers = new HashSet<>();
-            conflictedSchedulers.put(addTo, linkedSchedulers);
-        }
-        linkedSchedulers.add(scheduler);
-    }
 
     public static PopScheduler get(@NonNull Object tag) {
         if (tag == null) {
@@ -108,6 +89,27 @@ public class PopScheduler {
                 scheduler.dismissCurrent();
             }
         }
+    }
+
+    private LinkedList<Display> displays;
+
+    private PopScheduler() {
+        displays = new LinkedList<>();
+        registerDisplay(new ToastDisplay());
+    }
+
+    public static void link(PopScheduler a, PopScheduler b) {
+        a.addLink(b);
+        b.addLink(a);
+    }
+
+    public void addLink(PopScheduler scheduler) {
+        HashSet<PopScheduler> linkedSchedulers = conflictedSchedulers.get(this);
+        if (linkedSchedulers == null) {
+            linkedSchedulers = new HashSet<>();
+            conflictedSchedulers.put(this, linkedSchedulers);
+        }
+        linkedSchedulers.add(scheduler);
     }
 
     public void cancel(boolean dismissCurrent) {
@@ -211,7 +213,7 @@ public class PopScheduler {
     }
 
     /**
-     * 获取当前调度器以及与当前调度器关联的调度器中正在显示的任务（如果有的话）所属的调节器实例。
+     * 获取当前调度器以及与当前调度器关联的调度器中正在显示的任务（如果有的话）所属的调度器实例。
      *
      * @return
      */
