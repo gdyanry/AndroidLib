@@ -10,6 +10,7 @@ import android.widget.RadioGroup;
 import lib.android.model.AndroidLogHandler;
 import lib.android.view.pop.PopScheduler;
 import lib.android.view.pop.ShowTask;
+import lib.android.view.pop.display.ToastDisplay;
 import lib.common.model.log.Logger;
 import lib.common.model.log.SimpleFormatter;
 
@@ -20,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CheckBox cbRejectDismissed;
     private CheckBox cbExpelExistingTask;
     private RadioGroup rgTag;
+    private RadioGroup rgDisplay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatter().method(3), null, true));
 
+        rgDisplay = findViewById(R.id.rg_display);
         rgStrategy = findViewById(R.id.rg_strategy);
         cbRejectExpelled = findViewById(R.id.reject_expelled);
         cbRejectDismissed = findViewById(R.id.reject_dismissed);
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         rgTag = findViewById(R.id.rg_tag);
         registerDisplay("A");
         registerDisplay("B");
+        PopScheduler.get("B").registerDisplay(DemoActivityDisplay.getInstance());
         registerDisplay("C");
         PopScheduler.get("B").addLink(PopScheduler.get("A"), PopScheduler.get("C"));
         PopScheduler.get("C").addLink(PopScheduler.get("B"));
@@ -53,12 +57,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
+        Object indicator = null;
+        switch (rgDisplay.getCheckedRadioButtonId()) {
+            case R.id.rb_activity:
+                indicator = DemoActivityDisplay.class;
+                break;
+            case R.id.rb_float:
+                indicator = DemoFloatDisplay.class;
+                break;
+            case R.id.rb_toast:
+                indicator = ToastDisplay.class;
+                break;
+        }
         RadioButton rbTag = findViewById(rgTag.getCheckedRadioButtonId());
         PopScheduler manager = PopScheduler.get(rbTag.getText().toString());
         final int data = counter++;
         switch (v.getId()) {
             case R.id.btn_show:
-                ShowTask task = new ShowTask(data, this, data) {
+                ShowTask task = new ShowTask(indicator, this, data) {
                     @Override
                     protected int getStrategy() {
                         switch (rgStrategy.getCheckedRadioButtonId()) {
@@ -98,7 +114,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 manager.show(task.setTag(this).setDuration(4000));
                 break;
             case R.id.btn_builder:
-                ShowTask.Builder builder = ShowTask.getBuilder().onShow(request -> Logger.getDefault().vv("onShow: ", data))
+                ShowTask.Builder builder = ShowTask.getBuilder().displayIndicator(indicator)
+                        .onShow(request -> Logger.getDefault().vv("onShow: ", data))
                         .onDismiss(isInternal -> Logger.getDefault().vv("onDismiss: ", data, ", is internal: ", isInternal));
                 switch (rgStrategy.getCheckedRadioButtonId()) {
                     case R.id.show_immediately:

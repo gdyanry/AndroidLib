@@ -55,6 +55,6 @@ public class DemoFloatDisplay extends FloatDisplay<Integer> {
 
     @Override
     protected boolean accept(Object handlerIndicator) {
-        return true;
+        return handlerIndicator.equals(getClass());
     }
 }

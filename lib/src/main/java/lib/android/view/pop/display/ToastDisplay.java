@@ -4,9 +4,9 @@ import android.content.Context;
 import android.widget.Toast;
 
 import lib.android.util.CommonUtils;
-import lib.android.view.pop.Display;
+import lib.android.view.pop.SyncDisplay;
 
-public class ToastDisplay extends Display<Object, Toast> implements Runnable {
+public class ToastDisplay extends SyncDisplay<Object, Toast> implements Runnable {
 
     @Override
     protected boolean accept(Object typeId) {

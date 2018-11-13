@@ -7,6 +7,33 @@
     tools:context=".MainActivity">
 
     <RadioGroup
+        android:id="@+id/rg_display"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rb_toast"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="toast" />
+
+        <RadioButton
+            android:id="@+id/rb_float"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="float" />
+
+        <RadioButton
+            android:id="@+id/rb_activity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="activity" />
+
+    </RadioGroup>
+
+    <RadioGroup
         android:id="@+id/rg_tag"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -1,6 +1,7 @@
 package lib.android.view.pop;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
 import lib.android.util.CommonUtils;
 import lib.common.model.log.Logger;
@@ -13,7 +14,10 @@ import lib.common.model.log.Logger;
  */
 public abstract class Display<D, V> {
     PopScheduler scheduler;
-    private V popInstance;
+    protected V popInstance;
+
+    Display() {
+    }
 
     public ShowTask getShowingTask() {
         if (scheduler != null && scheduler.current != null && scheduler.current.display == this) {
@@ -31,9 +35,9 @@ public abstract class Display<D, V> {
             CommonUtils.cancelPendingTimeout(scheduler.current);
             scheduler.current.onDismiss(false);
             scheduler.current = null;
-            popInstance = null;
             scheduler.loop(null);
         }
+        popInstance = null;
     }
 
     public void dismiss() {
@@ -42,11 +46,7 @@ public abstract class Display<D, V> {
         }
     }
 
-    final void show(Context context, Object data) {
-        popInstance = showData(popInstance, context, (D) data);
-    }
-
-    final void internalDismiss() {
+    protected void internalDismiss() {
         if (popInstance != null) {
             dismiss(popInstance);
         }
@@ -62,15 +62,9 @@ public abstract class Display<D, V> {
 
     protected abstract boolean accept(Object handlerIndicator);
 
-    /**
-     * @param currentInstance may be null.
-     * @param context
-     * @param data
-     * @return
-     */
-    protected abstract V showData(V currentInstance, Context context, D data);
+    protected abstract void show(Context context, D data);
 
     protected abstract void dismiss(V popInstance);
 
-    protected abstract boolean isShowing(V popInstance);
+    protected abstract boolean isShowing(@NonNull V popInstance);
 }

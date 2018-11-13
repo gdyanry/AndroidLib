@@ -2,9 +2,9 @@ package lib.android.view.pop.display;
 
 import android.content.Context;
 
-import lib.android.view.pop.Display;
+import lib.android.view.pop.SyncDisplay;
 
-public abstract class ReusableDisplay<D, V> extends Display<D, V> {
+public abstract class ReusableDisplay<D, V> extends SyncDisplay<D, V> {
 
     @Override
     protected final V showData(V currentInstance, Context context, D data) {
