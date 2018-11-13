@@ -5,6 +5,7 @@ import android.support.annotation.IntDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashSet;
 
 import lib.android.interfaces.BooleanConsumer;
 import lib.android.interfaces.Consumer;
@@ -59,8 +60,9 @@ public abstract class ShowTask implements Runnable {
         if (scheduler.current == this) {
             scheduler.current = null;
             onDismiss(true);
-            display.internalDismiss();
-            scheduler.loop();
+            HashSet<Display> displaysToDismiss = new HashSet<>();
+            displaysToDismiss.add(display);
+            scheduler.loop(displaysToDismiss);
             return true;
         }
         return false;

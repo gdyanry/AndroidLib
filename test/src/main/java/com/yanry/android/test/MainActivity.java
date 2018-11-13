@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         registerDisplay("A");
         registerDisplay("B");
         registerDisplay("C");
-        PopScheduler.link(PopScheduler.get("A"), PopScheduler.get("B"));
-        PopScheduler.link(PopScheduler.get("C"), PopScheduler.get("B"));
+        PopScheduler.get("B").addLink(PopScheduler.get("A"), PopScheduler.get("C"));
+        PopScheduler.get("C").addLink(PopScheduler.get("B"));
     }
 
     private void registerDisplay(String tag) {

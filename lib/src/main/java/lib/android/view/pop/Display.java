@@ -7,6 +7,7 @@ import lib.common.model.log.Logger;
 
 /**
  * 为特定数据显示特定界面。
+ *
  * @param <D> data type.
  * @param <V> view type.
  */
@@ -30,7 +31,7 @@ public abstract class Display<D, V> {
             CommonUtils.cancelPendingTimeout(scheduler.current);
             scheduler.current.onDismiss(false);
             scheduler.current = null;
-            scheduler.loop();
+            scheduler.loop(null);
         }
     }
 

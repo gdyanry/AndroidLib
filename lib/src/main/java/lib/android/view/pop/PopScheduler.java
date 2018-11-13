@@ -34,7 +34,12 @@ public class PopScheduler {
         return scheduler;
     }
 
-    static void loop() {
+    public static void link(PopScheduler a, PopScheduler b) {
+        a.addLink(b);
+        b.addLink(a);
+    }
+
+    static void loop(HashSet<Display> displaysToDismiss) {
         Iterator<ShowTask> iterator = queue.iterator();
         while (iterator.hasNext()) {
             ShowTask next = iterator.next();
@@ -42,15 +47,21 @@ public class PopScheduler {
                 iterator.remove();
                 Logger.getDefault().vv("loop and show: ", next.data);
                 doShow(next);
+                if (displaysToDismiss != null) {
+                    displaysToDismiss.remove(next.display);
+                }
+            }
+        }
+        if (displaysToDismiss != null) {
+            for (Display display : displaysToDismiss) {
+                display.internalDismiss();
             }
         }
     }
 
     private static void doShow(ShowTask task) {
-        CommonUtils.runOnUiThread(() -> {
-            task.onShow();
-            task.display.show(task.context, task.data);
-        });
+        task.onShow();
+        task.display.show(task.context, task.data);
         if (task.duration > 0) {
             CommonUtils.scheduleTimeout(task, task.duration);
         }
@@ -69,12 +80,13 @@ public class PopScheduler {
             }
         }
         // 清理当前显示的窗口
+        HashSet<Display> displaysToDismiss = new HashSet<>();
         for (PopScheduler scheduler : instances.values()) {
             if (scheduler.current != null && scheduler.current.tag == tag) {
-                scheduler.dismissCurrent();
+                scheduler.dismissCurrent(displaysToDismiss);
             }
         }
-        loop();
+        loop(displaysToDismiss);
     }
 
     /**
@@ -86,7 +98,7 @@ public class PopScheduler {
         queue.clear();
         if (dismissCurrent) {
             for (PopScheduler scheduler : instances.values()) {
-                scheduler.dismissCurrent();
+                scheduler.dismissCurrent(null);
             }
         }
     }
@@ -98,18 +110,15 @@ public class PopScheduler {
         registerDisplay(new ToastDisplay());
     }
 
-    public static void link(PopScheduler a, PopScheduler b) {
-        a.addLink(b);
-        b.addLink(a);
-    }
-
-    public void addLink(PopScheduler scheduler) {
+    public void addLink(PopScheduler... schedulers) {
         HashSet<PopScheduler> linkedSchedulers = conflictedSchedulers.get(this);
         if (linkedSchedulers == null) {
             linkedSchedulers = new HashSet<>();
             conflictedSchedulers.put(this, linkedSchedulers);
         }
-        linkedSchedulers.add(scheduler);
+        for (PopScheduler scheduler : schedulers) {
+            linkedSchedulers.add(scheduler);
+        }
     }
 
     public void cancel(boolean dismissCurrent) {
@@ -121,9 +130,10 @@ public class PopScheduler {
             }
         }
         if (dismissCurrent) {
-            dismissCurrent();
+            HashSet<Display> displaysToDismiss = new HashSet<>();
+            dismissCurrent(displaysToDismiss);
+            loop(displaysToDismiss);
         }
-        loop();
     }
 
     public void registerDisplay(Display display) {
@@ -163,6 +173,7 @@ public class PopScheduler {
         if (scheduler != null) {
             current = scheduler.current;
         }
+        HashSet<Display> displaysToDismiss = null;
         switch (request.getStrategy()) {
             case ShowTask.STRATEGY_SHOW_IMMEDIATELY:
                 if (current != null && current.display.isShowing()) {
@@ -175,7 +186,8 @@ public class PopScheduler {
                         CommonUtils.cancelPendingTimeout(current);
                         Logger.getDefault().vv("dismiss on expelled: ", current.data);
                         current.onDismiss(true);
-                        current.display.internalDismiss();
+                        displaysToDismiss = new HashSet<>();
+                        displaysToDismiss.add(current.display);
                         scheduler.current = null;
                     }
                 }
@@ -197,9 +209,8 @@ public class PopScheduler {
         if (show) {
             Logger.getDefault().vv("show directly: ", request.data);
             doShow(request);
-        } else if (current == null) {
-            loop();
         }
+        loop(displaysToDismiss);
     }
 
     private ShowTask getNextToShow() {
@@ -232,13 +243,17 @@ public class PopScheduler {
         return null;
     }
 
-    private void dismissCurrent() {
+    private void dismissCurrent(HashSet<Display> displaysToDismiss) {
         if (current != null) {
             CommonUtils.cancelPendingTimeout(current);
             if (current.display.isShowing()) {
                 Logger.getDefault().vv("dismiss on cancelled: ", current.data);
                 current.onDismiss(true);
-                current.display.internalDismiss();
+                if (displaysToDismiss == null) {
+                    current.display.internalDismiss();
+                } else {
+                    displaysToDismiss.add(current.display);
+                }
             }
             current = null;
         }
