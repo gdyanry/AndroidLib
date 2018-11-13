@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatter().method(3), null, true));
+        Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatter().sequenceNumber().method(3), null, true));
 
         rgDisplay = findViewById(R.id.rg_display);
         rgStrategy = findViewById(R.id.rg_strategy);

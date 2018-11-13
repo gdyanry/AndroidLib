@@ -224,7 +224,7 @@ public class PopScheduler {
 
     /**
      * 获取当前调度器以及与当前调度器关联的调度器中正在显示的任务（如果有的话）所属的调度器实例。
-     *
+     *  TODO 其实有可能存在多个显示中的任务
      * @return
      */
     private PopScheduler getSchedulerOfDisplayingRequest() {
