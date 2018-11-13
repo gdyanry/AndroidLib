@@ -31,6 +31,7 @@ public abstract class Display<D, V> {
             CommonUtils.cancelPendingTimeout(scheduler.current);
             scheduler.current.onDismiss(false);
             scheduler.current = null;
+            popInstance = null;
             scheduler.loop(null);
         }
     }
