@@ -20,8 +20,6 @@ public class PopScheduler {
     private static HashMap<PopScheduler, HashSet<PopScheduler>> conflictedSchedulers = new HashMap<>();
     private static HashMap<Object, PopScheduler> instances = new HashMap<>();
 
-    ShowTask current;
-
     public static PopScheduler get(@NonNull Object tag) {
         if (tag == null) {
             throw new NullPointerException();
@@ -104,6 +102,7 @@ public class PopScheduler {
     }
 
     private LinkedList<Display> displays;
+    ShowTask current;
 
     private PopScheduler() {
         displays = new LinkedList<>();
@@ -145,11 +144,11 @@ public class PopScheduler {
 
     public void show(ShowTask request) {
         request.scheduler = this;
-        // 寻找匹配的Handler
-        for (Display handler : displays) {
-            if (handler.accept(request.displayIndicator)) {
-                Logger.getDefault().vv("find display " + handler + " for type: ", request.displayIndicator);
-                request.display = handler;
+        // 寻找匹配的display
+        for (Display display : displays) {
+            if (display.accept(request.displayIndicator)) {
+                Logger.getDefault().vv("find display " + display + " for type: ", request.displayIndicator);
+                request.display = display;
                 break;
             }
         }
