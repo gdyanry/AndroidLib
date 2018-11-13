@@ -27,7 +27,7 @@ public class DisplayActivity extends AppCompatActivity implements Function<Integ
 
     @Override
     public Activity apply(Integer integer) {
-        textView.setText(integer.toString());
+        textView.setText(String.valueOf(integer));
         return this;
     }
 }

@@ -5,6 +5,7 @@ import android.content.Context;
 import lib.android.interfaces.Function;
 
 /**
+ * 对应的View需要在创建时调用{@link #async(Function)}，并在销毁时调用{@link #notifyDismiss()}。
  * rongyu.yan
  * 2018/11/13
  **/
