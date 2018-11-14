@@ -29,15 +29,17 @@ public abstract class Display<D, V> {
     /**
      * 此数据界面被提前关闭（非超时，比如由用户按返回键触发）时需要调用此方法通知显示队列中等待的数据，否则队列中下一条数据要等到前一条数据超时时间后才会显示。
      */
-    public void notifyDismiss() {
-        if (scheduler != null && scheduler.current != null && scheduler.current.display == this) {
+    public boolean notifyDismiss(V popInstance) {
+        if (popInstance == this.popInstance && scheduler != null && scheduler.current != null && scheduler.current.display == this) {
             Logger.getDefault().vv(scheduler.current.data);
             CommonUtils.cancelPendingTimeout(scheduler.current);
             scheduler.current.onDismiss(false);
             scheduler.current = null;
             scheduler.loop(null);
+            this.popInstance = null;
+            return true;
         }
-        popInstance = null;
+        return false;
     }
 
     public void dismiss() {

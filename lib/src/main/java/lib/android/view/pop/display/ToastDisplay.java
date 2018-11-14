@@ -37,6 +37,6 @@ public class ToastDisplay extends SyncDisplay<Object, Toast> implements Runnable
 
     @Override
     public void run() {
-        notifyDismiss();
+        notifyDismiss(popInstance);
     }
 }

@@ -21,7 +21,7 @@ public class DisplayActivity extends AppCompatActivity implements Function<Integ
 
     @Override
     protected void onDestroy() {
-        DemoActivityDisplay.getInstance().notifyDismiss();
+        DemoActivityDisplay.getInstance().notifyDismiss(this);
         super.onDestroy();
     }
 
