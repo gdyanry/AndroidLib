@@ -50,6 +50,7 @@ public abstract class Display<D, V> {
 
     protected void internalDismiss() {
         if (popInstance != null) {
+            Logger.getDefault().vv(popInstance);
             dismiss(popInstance);
         }
         popInstance = null;

@@ -186,7 +186,9 @@ public class PopScheduler {
                         showingTask.scheduler.current = null;
                         Logger.getDefault().vv("dismiss on expelled: ", showingTask.data);
                         showingTask.onDismiss(true);
-                        displaysToDismiss.add(showingTask.display);
+                        if (request.display != showingTask.display) {
+                            displaysToDismiss.add(showingTask.display);
+                        }
                     }
                 }
                 break;
