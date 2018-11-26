@@ -22,6 +22,10 @@ public abstract class ShowTask implements Runnable {
     public static final int STRATEGY_INSERT_HEAD = 1;
     public static final int STRATEGY_SHOW_IMMEDIATELY = 2;
 
+    public static Builder getBuilder() {
+        return new Builder();
+    }
+
     Object displayIndicator;
     Context context;
     Object data;
@@ -45,8 +49,8 @@ public abstract class ShowTask implements Runnable {
         this.data = this;
     }
 
-    public static Builder getBuilder() {
-        return new Builder();
+    public boolean isShowing() {
+        return scheduler != null && scheduler.current == this;
     }
 
     public void dismiss() {
@@ -57,7 +61,7 @@ public abstract class ShowTask implements Runnable {
     }
 
     private boolean doDismiss() {
-        if (scheduler.current == this) {
+        if (scheduler != null && scheduler.current == this) {
             scheduler.current = null;
             onDismiss(true);
             HashSet<Display> displaysToDismiss = new HashSet<>();

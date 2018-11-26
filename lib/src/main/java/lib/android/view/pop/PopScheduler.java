@@ -236,17 +236,18 @@ public class PopScheduler {
 
     private void dismissCurrent(HashSet<Display> displaysToDismiss) {
         if (current != null) {
-            CommonUtils.cancelPendingTimeout(current);
-            if (current.display.isShowing()) {
-                Logger.getDefault().vv("dismiss on cancelled: ", current.data);
-                current.onDismiss(true);
+            ShowTask currentTask = this.current;
+            current = null;
+            CommonUtils.cancelPendingTimeout(currentTask);
+            if (currentTask.display.isShowing()) {
+                Logger.getDefault().vv("dismiss on cancelled: ", currentTask.data);
+                currentTask.onDismiss(true);
                 if (displaysToDismiss == null) {
-                    current.display.internalDismiss();
+                    currentTask.display.internalDismiss();
                 } else {
-                    displaysToDismiss.add(current.display);
+                    displaysToDismiss.add(currentTask.display);
                 }
             }
-            current = null;
         }
     }
 }

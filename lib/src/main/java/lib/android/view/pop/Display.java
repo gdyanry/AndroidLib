@@ -31,12 +31,13 @@ public abstract class Display<D, V> {
      */
     public boolean notifyDismiss(V popInstance) {
         if (popInstance == this.popInstance && scheduler != null && scheduler.current != null && scheduler.current.display == this) {
-            Logger.getDefault().vv(scheduler.current.data);
-            CommonUtils.cancelPendingTimeout(scheduler.current);
-            scheduler.current.onDismiss(false);
+            ShowTask currentTask = scheduler.current;
             scheduler.current = null;
-            scheduler.loop(null);
             this.popInstance = null;
+            Logger.getDefault().vv(currentTask.data);
+            CommonUtils.cancelPendingTimeout(currentTask);
+            currentTask.onDismiss(false);
+            scheduler.loop(null);
             return true;
         }
         return false;

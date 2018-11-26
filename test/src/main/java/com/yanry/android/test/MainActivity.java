@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Logger.getDefault().vv(data, ' ', isFromInternal);
                     }
                 };
-                manager.show(task.setTag(this).setDuration(4000));
+                manager.show(task.setTag(this).setDuration(400000));
                 break;
             case R.id.btn_builder:
                 ShowTask.Builder builder = ShowTask.getBuilder().displayIndicator(indicator)
