@@ -5,7 +5,7 @@ import android.content.Context;
 import lib.android.interfaces.Function;
 
 /**
- * 对应的View需要在创建时调用{@link #async(Function)}，并在销毁时调用{@link #notifyDismiss(Object)}。
+ * 对应的View需要在创建时调用{@link #notifyCreate(Function)}，并在销毁时调用{@link #notifyDismiss(Object)}。
  * rongyu.yan
  * 2018/11/13
  **/
@@ -13,7 +13,7 @@ public abstract class AsyncDisplay<D, V> extends Display<D, V> {
     private D data;
     private Function<D, V> async;
 
-    public void async(Function<D, V> function) {
+    public void notifyCreate(Function<D, V> function) {
         this.async = function;
         popInstance = function.apply(data);
     }

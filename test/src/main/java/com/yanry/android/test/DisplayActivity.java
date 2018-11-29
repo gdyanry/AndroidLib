@@ -16,7 +16,7 @@ public class DisplayActivity extends AppCompatActivity implements Function<Integ
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         textView = findViewById(R.id.tv);
-        DemoActivityDisplay.getInstance().async(this);
+        DemoActivityDisplay.getInstance().notifyCreate(this);
     }
 
     @Override

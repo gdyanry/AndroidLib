@@ -6,7 +6,7 @@ import lib.android.interfaces.Function;
 import lib.android.view.pop.AsyncDisplay;
 
 /**
- * Activity需要在onCreate()中调用{@link #async(Function)}，在onDestroy()中调用{@link #notifyDismiss(Object)}。
+ * Activity需要在onCreate()中调用{@link #notifyCreate(Function)}，在onDestroy()中调用{@link #notifyDismiss(Object)}。
  * rongyu.yan
  * 2018/11/13
  **/
