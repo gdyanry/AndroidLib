@@ -22,7 +22,7 @@
    ```
    dependencies {
        ...
-       compile '...'
+       implementation '...'
    }
    ```
 
