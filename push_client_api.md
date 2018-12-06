@@ -7,6 +7,7 @@
    一个应用可以订阅多个兴趣点。
 
    兴趣点id从后台申请得到：
+
    > {$后台url}
 
 2. 添加gradle依赖
@@ -25,15 +26,17 @@
    }
    ```
 
+---
+
 ## API使用
 
 1. 接口类说明
 
-   ***接口***|***说明***
-   ---|:---:
-   PushClient|SDK 功能接口，用于调用推送相关功能接口
-   PushCommandCallback|指令回调接口
-   PushMessageListener|推送消息监听接口
+   |***接口***|***说明***|
+   |-----------|-----------|
+   | PushClient | SDK 功能接口，用于调用推送相关功能接口 |
+   | PushCommandCallback | 指令回调接口 |
+   | PushMessageListener | 推送消息监听接口 |
 
 1. 获取PushClient对象
    ```java
@@ -43,6 +46,7 @@
    * 返回PushManager单例对象
 
    ***说明***
+
    * 所有推送的接口均是通过该实例调用。
 
 1. 初始化
@@ -55,6 +59,7 @@
    * executor: 用于执行跨进程调用，避免阻塞主线程
 
    ***说明***
+
    * 调用其他API之前必须先进行初始化。
 
 1. 添加标签
@@ -78,13 +83,15 @@
    * listener: 推送监听接口
 
    ***说明***
+
    * 如果是在特定页面订阅推送消息，在页面销毁时记得取消订阅，避免内存泄漏。
 
 1. 取消订阅
    ```java
-   public void removeMessageListener(String interestId, PushMessageListener listener) {
+   public void removeMessageListener(String interestId, PushMessageListener listener)
    ```
    ***参数***
+
    * interestId: 兴趣点id
    * listener: 需要取消订阅的监听接口
 
