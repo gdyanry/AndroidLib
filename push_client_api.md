@@ -100,3 +100,16 @@ public void addTag(String tag, PushCommandCallback callback)
    *说明*
    * 当不需要接收任何推送消息时调用此方法。
    * 调用此方法后若要重新接收推送，必须重新初始化。
+
+---
+
+## 测试
+
+* 测试前确保设备上安装了包名为"com.tcl.common.pushservice"的apk。
+* logcat使用"yanry.push"关键字过滤，正常情况下执行了初始化方法后会出现类似如下日志：
+
+   > 12-07 16:16:55.515 1768-7025/com.tcl.common.pushservice D/yanry.push.service: push client id: fe79a2eb34b5976d45301cd250c79cb9
+
+   > 12-07 16:16:55.690 6936-6936/com.tcl.common.clientdemo D/yanry.push.lib: service connected.
+
+* 排除其它因素后若没有看到如上所示日志，说明该设备尚未部署推送服务。
