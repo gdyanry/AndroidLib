@@ -13,14 +13,14 @@
    * 在以项目名为命名的顶层build.gradle文件中，添加推送maven库地址：
    ```groovy
    maven {
-       url "http://..."
+       url "http://bigdata.tclking.com/nexus/repository/maven-public"
    }
    ```
    * 在app/build.gradle文件中引用推送SDK依赖库：
    ```groovy
    dependencies {
        ...
-       implementation '...'
+       implementation 'com.tcl.common:pushlib:v1.0.0s'
    }
    ```
 ---
