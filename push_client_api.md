@@ -20,7 +20,7 @@
    ```groovy
    dependencies {
        ...
-       implementation 'com.tcl.common:pushlib:v1.0.0'
+       implementation 'com.tcl.common:pushlib:+'
    }
    ```
 ---
