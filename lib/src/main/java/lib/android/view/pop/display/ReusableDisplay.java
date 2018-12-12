@@ -8,7 +8,7 @@ public abstract class ReusableDisplay<D, V> extends SyncDisplay<D, V> {
 
     @Override
     protected final V showData(V currentInstance, Context context, D data) {
-        if (currentInstance == null) {
+        if (currentInstance == null || !enableReuse()) {
             currentInstance = createInstance(context);
         }
         if (currentInstance != null) {
@@ -18,6 +18,10 @@ public abstract class ReusableDisplay<D, V> extends SyncDisplay<D, V> {
             }
         }
         return currentInstance;
+    }
+
+    protected boolean enableReuse() {
+        return true;
     }
 
     protected abstract V createInstance(Context context);
