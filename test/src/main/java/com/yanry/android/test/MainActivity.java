@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cbRejectDismissed = findViewById(R.id.reject_dismissed);
         cbExpelExistingTask = findViewById(R.id.expel_existing_task);
         findViewById(R.id.btn_show).setOnClickListener(this);
-        findViewById(R.id.btn_builder).setOnClickListener(this);
         rgTag = findViewById(R.id.rg_tag);
         registerDisplay("A");
         registerDisplay("B");
@@ -74,49 +73,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final int data = counter++;
         switch (v.getId()) {
             case R.id.btn_show:
-                ShowTask task = new ShowTask(indicator, this, data) {
-                    @Override
-                    protected int getStrategy() {
-                        switch (rgStrategy.getCheckedRadioButtonId()) {
-                            case R.id.show_immediately:
-                                return STRATEGY_SHOW_IMMEDIATELY;
-                            case R.id.insert_head:
-                                return STRATEGY_INSERT_HEAD;
-                        }
-                        return STRATEGY_APPEND_TAIL;
-                    }
-
-                    @Override
-                    protected boolean rejectExpelled() {
-                        return cbRejectExpelled.isChecked();
-                    }
-
-                    @Override
-                    protected boolean rejectDismissed() {
-                        return cbRejectDismissed.isChecked();
-                    }
-
-                    @Override
-                    protected boolean expelWaitingTask(ShowTask request) {
-                        return cbExpelExistingTask.isChecked();
-                    }
-
-                    @Override
-                    protected void onShow() {
-                        Logger.getDefault().vv(data);
-                    }
-
-                    @Override
-                    protected void onDismiss(boolean isFromInternal) {
-                        Logger.getDefault().vv(data, ' ', isFromInternal);
-                    }
-                };
-                manager.show(task.setTag(this).setDuration(400000));
-                break;
-            case R.id.btn_builder:
                 ShowTask.Builder builder = ShowTask.getBuilder().displayIndicator(indicator)
                         .onShow(request -> Logger.getDefault().vv("onShow: ", data))
-                        .onDismiss(isInternal -> Logger.getDefault().vv("onDismiss: ", data, ", is internal: ", isInternal));
+                        .onDismiss(isInternal -> Logger.getDefault().vv("onDismiss: ", data, ", is before: ", isInternal));
                 switch (rgStrategy.getCheckedRadioButtonId()) {
                     case R.id.show_immediately:
                         builder.showImmediately();
@@ -134,7 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (cbExpelExistingTask.isChecked()) {
                     builder.expelWaitingTasks();
                 }
-                manager.show(builder.build(this, data).setDuration(4000));
+                manager.show(builder.duration(4000).build(this, data));
                 break;
         }
     }

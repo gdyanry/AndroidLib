@@ -43,9 +43,9 @@ public abstract class Display<D, V> {
         return false;
     }
 
-    public void dismiss() {
+    public void dismiss(long delay) {
         if (scheduler != null && scheduler.current != null && scheduler.current.display == this) {
-            scheduler.current.dismiss();
+            scheduler.current.dismiss(delay);
         }
     }
 

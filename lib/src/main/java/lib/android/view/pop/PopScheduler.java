@@ -46,8 +46,8 @@ public class PopScheduler {
     }
 
     private static void doShow(ShowTask task) {
-        task.onShow();
         task.display.show(task.context, task.data);
+        task.onShow();
         if (task.duration > 0) {
             CommonUtils.scheduleTimeout(task, task.duration);
         }

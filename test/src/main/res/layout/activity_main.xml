@@ -107,11 +107,5 @@
         android:id="@+id/btn_show"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="SHOW" />
-
-    <Button
-        android:id="@+id/btn_builder"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="USE BUILDER" />
 </LinearLayout>

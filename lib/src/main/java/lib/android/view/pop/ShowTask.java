@@ -6,6 +6,7 @@ import android.support.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.HashSet;
+import java.util.LinkedList;
 
 import lib.android.interfaces.BooleanConsumer;
 import lib.android.interfaces.Consumer;
@@ -29,33 +30,30 @@ public abstract class ShowTask implements Runnable {
     Object displayIndicator;
     Context context;
     Object data;
-    /**
-     * 该数据的显示时间，若为0则一直显示
-     */
-    long duration;
     Object tag;
     Display display;
     PopScheduler scheduler;
+    long duration;
+    private LinkedList<Consumer<ShowTask>> onShowListeners;
+    private LinkedList<BooleanConsumer> onDismissListeners;
 
-    public ShowTask(Object displayIndicator, Context context, Object data) {
+    private ShowTask(Object displayIndicator, Context context, Object data) {
         this.displayIndicator = displayIndicator;
         this.context = context;
         this.data = data;
-    }
-
-    public ShowTask(Context context) {
-        this.context = context;
-        this.displayIndicator = this;
-        this.data = this;
+        onShowListeners = new LinkedList<>();
+        onDismissListeners = new LinkedList<>();
     }
 
     public boolean isShowing() {
         return scheduler != null && scheduler.current == this;
     }
 
-    public void dismiss() {
+    public void dismiss(long delay) {
         CommonUtils.cancelPendingTimeout(this);
-        if (doDismiss()) {
+        if (delay > 0) {
+            CommonUtils.scheduleTimeout(this, delay);
+        } else if (doDismiss()) {
             Logger.getDefault().vv("manually dismiss: ", data);
         }
     }
@@ -72,14 +70,35 @@ public abstract class ShowTask implements Runnable {
         return false;
     }
 
-    public ShowTask setDuration(long duration) {
-        this.duration = duration;
-        return this;
-    }
-
     public ShowTask setTag(Object tag) {
         this.tag = tag;
         return this;
+    }
+
+    /**
+     * Add callback after this task has been shown.
+     */
+    public void addOnShowListener(Consumer<ShowTask> listener) {
+        onShowListeners.add(listener);
+    }
+
+    /**
+     * 回调的boolean参数只有当dismiss事件由外部触发后并且调用了{@link Display#notifyDismiss(Object)}的情况下才为false。
+     */
+    public void addOnDismissListener(BooleanConsumer listener) {
+        onDismissListeners.add(listener);
+    }
+
+    final void onShow() {
+        for (Consumer<ShowTask> listener : onShowListeners) {
+            listener.accept(this);
+        }
+    }
+
+    final void onDismiss(boolean isBeforeDismiss) {
+        for (BooleanConsumer listener : onDismissListeners) {
+            listener.accept(isBeforeDismiss);
+        }
     }
 
     @Override
@@ -97,10 +116,6 @@ public abstract class ShowTask implements Runnable {
 
     protected abstract boolean expelWaitingTask(ShowTask request);
 
-    protected abstract void onShow();
-
-    protected abstract void onDismiss(boolean isFromInternal);
-
     /**
      * 默认构造的ShowTask不拒绝从队列被清除或者被替换显示，如果当前有正在显示的数据界面，则加入队列尾部等待。
      */
@@ -112,12 +127,18 @@ public abstract class ShowTask implements Runnable {
         private Filter<ShowTask> ifExpel;
         private Consumer<ShowTask> onShow;
         private BooleanConsumer onDismiss;
+        private long duration;
 
         private Builder() {
         }
 
         public Builder displayIndicator(Object displayIndicator) {
             this.displayIndicator = displayIndicator;
+            return this;
+        }
+
+        public Builder duration(long duration) {
+            this.duration = duration;
             return this;
         }
 
@@ -167,7 +188,7 @@ public abstract class ShowTask implements Runnable {
         }
 
         public ShowTask build(Context context, Object data) {
-            ShowTask request = new ShowTask(displayIndicator == null ? data : displayIndicator, context, data) {
+            ShowTask showTask = new ShowTask(displayIndicator == null ? data : displayIndicator, context, data) {
                 @Override
                 protected int getStrategy() {
                     return strategy;
@@ -190,22 +211,15 @@ public abstract class ShowTask implements Runnable {
                     }
                     return false;
                 }
-
-                @Override
-                protected void onShow() {
-                    if (onShow != null) {
-                        onShow.accept(this);
-                    }
-                }
-
-                @Override
-                protected void onDismiss(boolean isFromInternal) {
-                    if (onDismiss != null) {
-                        onDismiss.accept(isFromInternal);
-                    }
-                }
             };
-            return request;
+            showTask.duration = this.duration;
+            if (onShow != null) {
+                showTask.addOnShowListener(onShow);
+            }
+            if (onDismiss != null) {
+                showTask.addOnDismissListener(onDismiss);
+            }
+            return showTask;
         }
     }
 
