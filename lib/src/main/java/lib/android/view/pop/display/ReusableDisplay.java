@@ -12,10 +12,10 @@ public abstract class ReusableDisplay<D, V> extends SyncDisplay<D, V> {
             currentInstance = createInstance(context);
         }
         if (currentInstance != null) {
-            setData(currentInstance, data);
             if (!isShowing(currentInstance)) {
                 showView(currentInstance);
             }
+            setData(currentInstance, data);
         }
         return currentInstance;
     }
