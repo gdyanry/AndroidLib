@@ -37,14 +37,6 @@ public class PopScheduler {
         b.addLink(a);
     }
 
-    private PopScheduler() {
-        displays = new LinkedList<>();
-        registerDisplay(new ToastDisplay());
-        HashSet<PopScheduler> set = new HashSet<>();
-        set.add(this);
-        conflictedSchedulers.put(this, set);
-    }
-
     private static void doShow(ShowTask task) {
         task.scheduler.current = task;
         task.display.show(task.context, task.data);
@@ -54,26 +46,7 @@ public class PopScheduler {
         }
     }
 
-    static void loop(HashSet<Display> displaysToDismiss) {
-        // display不相同时才dismiss，否则只需要更换显示的数据就可以了
-        Iterator<ShowTask> iterator = queue.iterator();
-        while (iterator.hasNext()) {
-            ShowTask next = iterator.next();
-            if (next.scheduler.getConcernedShowingTasks().isEmpty()) {
-                iterator.remove();
-                Logger.getDefault().vv("loop and show: ", next.data);
-                doShow(next);
-                if (displaysToDismiss != null) {
-                    displaysToDismiss.remove(next.display);
-                }
-            }
-        }
-        if (displaysToDismiss != null) {
-            for (Display display : displaysToDismiss) {
-                display.internalDismiss();
-            }
-        }
-    }
+    ShowTask current;
 
     /**
      * 撤消显示所有的数据。
@@ -88,9 +61,6 @@ public class PopScheduler {
             }
         }
     }
-
-    private LinkedList<Display> displays;
-    ShowTask current;
 
     public static void cancelByTag(Object tag) {
         // 清理队列
@@ -111,6 +81,41 @@ public class PopScheduler {
             }
         }
         loop(displaysToDismiss);
+    }
+
+    private LinkedList<Display> displays;
+
+    private PopScheduler() {
+        displays = new LinkedList<>();
+        registerDisplay(new ToastDisplay());
+        HashSet<PopScheduler> set = new HashSet<>();
+        set.add(this);
+        conflictedSchedulers.put(this, set);
+    }
+
+    static void loop(HashSet<Display> displaysToDismiss) {
+        // display不相同时才dismiss，否则只需要更换显示的数据就可以了
+        LinkedList<ShowTask> taskToShow = new LinkedList<>();
+        Iterator<ShowTask> iterator = queue.iterator();
+        while (iterator.hasNext()) {
+            ShowTask next = iterator.next();
+            if (next.scheduler.getConcernedShowingTasks().isEmpty()) {
+                taskToShow.add(next);
+                iterator.remove();
+                if (displaysToDismiss != null) {
+                    displaysToDismiss.remove(next.display);
+                }
+            }
+        }
+        if (displaysToDismiss != null) {
+            for (Display display : displaysToDismiss) {
+                display.internalDismiss();
+            }
+        }
+        for (ShowTask showTask : taskToShow) {
+            Logger.getDefault().vv("loop and show: ", showTask.data);
+            doShow(showTask);
+        }
     }
 
     public void addLink(PopScheduler... schedulers) {
@@ -206,11 +211,11 @@ public class PopScheduler {
                 break;
         }
         boolean show = !queue.contains(request);
+        loop(displaysToDismiss);
         if (show) {
             Logger.getDefault().vv("show directly: ", request.data);
             doShow(request);
         }
-        loop(displaysToDismiss);
     }
 
     private ShowTask getNextToShow() {
