@@ -57,7 +57,7 @@ public abstract class Display<D, V> {
         popInstance = null;
     }
 
-    final boolean isShowing() {
+    public final boolean isShowing() {
         if (popInstance != null) {
             return isShowing(popInstance);
         }
