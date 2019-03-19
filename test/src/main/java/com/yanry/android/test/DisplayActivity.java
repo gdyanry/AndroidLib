@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
-import lib.android.interfaces.Function;
+import yanry.lib.android.interfaces.Function;
 
 public class DisplayActivity extends AppCompatActivity implements Function<Integer, Activity> {
 

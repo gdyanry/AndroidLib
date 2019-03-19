@@ -3,7 +3,7 @@ package com.yanry.android.test;
 import android.content.Context;
 import android.content.Intent;
 
-import lib.android.view.pop.display.ActivityDisplay;
+import yanry.lib.android.view.pop.display.ActivityDisplay;
 
 /**
  * rongyu.yan

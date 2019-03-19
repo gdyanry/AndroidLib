@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import lib.android.view.pop.display.FloatDisplay;
+import yanry.lib.android.view.pop.display.FloatDisplay;
 
 /**
  * rongyu.yan

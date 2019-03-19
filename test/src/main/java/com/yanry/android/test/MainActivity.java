@@ -7,12 +7,12 @@ import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
-import lib.android.model.AndroidLogHandler;
-import lib.android.view.pop.PopScheduler;
-import lib.android.view.pop.ShowTask;
-import lib.android.view.pop.display.ToastDisplay;
-import lib.common.model.log.Logger;
-import lib.common.model.log.SimpleFormatter;
+import yanry.lib.android.model.AndroidLogHandler;
+import yanry.lib.android.view.pop.PopScheduler;
+import yanry.lib.android.view.pop.ShowTask;
+import yanry.lib.android.view.pop.display.ToastDisplay;
+import yanry.lib.java.model.log.Logger;
+import yanry.lib.java.model.log.SimpleFormatter;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private int counter;
