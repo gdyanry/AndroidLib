@@ -51,6 +51,6 @@ public class AndroidLogHandler extends LogHandler {
 
     @Override
     protected void catches(Object tag, Exception e) {
-        Log.wtf(tag.toString(), e);
+        Log.e(tag.toString(), e.getMessage(), e);
     }
 }

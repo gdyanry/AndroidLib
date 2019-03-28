@@ -66,7 +66,7 @@ public abstract class Display<D, V> {
 
     protected abstract boolean accept(Object handlerIndicator);
 
-    protected abstract void show(Context context, D data);
+    protected abstract void show(Context context, @NonNull D data);
 
     protected abstract void dismiss(V popInstance);
 

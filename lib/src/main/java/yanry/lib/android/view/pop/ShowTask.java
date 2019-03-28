@@ -2,6 +2,7 @@ package yanry.lib.android.view.pop;
 
 import android.content.Context;
 import android.support.annotation.IntDef;
+import android.support.annotation.NonNull;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -187,7 +188,7 @@ public abstract class ShowTask implements Runnable {
             return this;
         }
 
-        public ShowTask build(Context context, Object data) {
+        public ShowTask build(Context context, @NonNull Object data) {
             ShowTask showTask = new ShowTask(displayIndicator == null ? data : displayIndicator, context, data) {
                 @Override
                 protected int getStrategy() {
