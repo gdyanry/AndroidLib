@@ -51,6 +51,14 @@ public class AndroidLogHandler extends LogHandler {
 
     @Override
     protected void catches(Object tag, Exception e) {
+        /**
+         * Log.wtf() and Log.e() both have the same priority, ERROR.
+         *
+         * The difference is that Log.wtf() calls for onTerribleFailure() call back, which
+         * "Report a serious error in the current process. May or may not cause the process to terminate (depends on system settings)."
+         *
+         * So, in other words, Log.wtf() could crash your app.
+         */
         Log.e(tag.toString(), e.getMessage(), e);
     }
 }
