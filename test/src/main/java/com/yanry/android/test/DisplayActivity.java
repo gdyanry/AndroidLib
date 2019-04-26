@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 import yanry.lib.android.interfaces.Function;
+import yanry.lib.android.view.pop.PopScheduler;
 
 public class DisplayActivity extends AppCompatActivity implements Function<Integer, Activity> {
 
@@ -16,12 +17,16 @@ public class DisplayActivity extends AppCompatActivity implements Function<Integ
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
         textView = findViewById(R.id.tv);
-        DemoActivityDisplay.getInstance().notifyCreate(this);
+        for (String tag : new String[]{"A", "B", "C"}) {
+            PopScheduler.get(tag).getDisplay(DemoActivityDisplay.class).notifyCreate(this);
+        }
     }
 
     @Override
     protected void onDestroy() {
-        DemoActivityDisplay.getInstance().notifyDismiss(this);
+        for (String tag : new String[]{"A", "B", "C"}) {
+            PopScheduler.get(tag).getDisplay(DemoActivityDisplay.class).notifyDismiss(this);
+        }
         super.onDestroy();
     }
 

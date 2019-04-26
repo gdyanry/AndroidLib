@@ -10,7 +10,7 @@ public abstract class SyncDisplay<D, V> extends Display<D, V> {
 
     @Override
     protected void show(Context context, D data) {
-        popInstance = showData(popInstance, context, data);
+        setPopInstance(showData(getPopInstance(), context, data));
     }
 
     /**

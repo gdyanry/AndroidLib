@@ -59,6 +59,6 @@ public class AndroidLogHandler extends LogHandler {
          *
          * So, in other words, Log.wtf() could crash your app.
          */
-        Log.e(tag.toString(), e.getMessage(), e);
+        Log.e(tag == null ? getClass().getSimpleName() : tag.toString(), e.getMessage(), e);
     }
 }

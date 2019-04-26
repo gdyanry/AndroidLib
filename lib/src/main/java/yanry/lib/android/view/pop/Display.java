@@ -13,10 +13,22 @@ import yanry.lib.java.model.log.Logger;
  * @param <V> view type.
  */
 public abstract class Display<D, V> {
-    PopScheduler scheduler;
-    protected V popInstance;
+    private PopScheduler scheduler;
+    private V popInstance;
 
-    Display() {
+    protected Display() {
+    }
+
+    void setScheduler(PopScheduler scheduler) {
+        this.scheduler = scheduler;
+    }
+
+    protected V getPopInstance() {
+        return popInstance;
+    }
+
+    protected void setPopInstance(V popInstance) {
+        this.popInstance = popInstance;
     }
 
     public ShowTask getShowingTask() {
@@ -37,7 +49,7 @@ public abstract class Display<D, V> {
             Logger.getDefault().vv(currentTask.data);
             CommonUtils.cancelPendingTimeout(currentTask);
             currentTask.onDismiss(false);
-            scheduler.loop(null);
+            scheduler.rebalance(null, null);
             return true;
         }
         return false;
@@ -51,10 +63,9 @@ public abstract class Display<D, V> {
 
     protected void internalDismiss() {
         if (popInstance != null) {
-            Logger.getDefault().vv(popInstance);
             dismiss(popInstance);
+            popInstance = null;
         }
-        popInstance = null;
     }
 
     public final boolean isShowing() {
@@ -63,8 +74,6 @@ public abstract class Display<D, V> {
         }
         return false;
     }
-
-    protected abstract boolean accept(Object handlerIndicator);
 
     protected abstract void show(Context context, @NonNull D data);
 

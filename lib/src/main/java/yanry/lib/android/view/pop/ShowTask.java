@@ -28,7 +28,7 @@ public abstract class ShowTask implements Runnable {
         return new Builder();
     }
 
-    Object displayIndicator;
+    Class<? extends Display> displayIndicator;
     Context context;
     Object data;
     Object tag;
@@ -38,7 +38,7 @@ public abstract class ShowTask implements Runnable {
     private LinkedList<Consumer<ShowTask>> onShowListeners;
     private LinkedList<BooleanConsumer> onDismissListeners;
 
-    private ShowTask(Object displayIndicator, Context context, Object data) {
+    private ShowTask(Class<? extends Display> displayIndicator, Context context, Object data) {
         this.displayIndicator = displayIndicator;
         this.context = context;
         this.data = data;
@@ -51,11 +51,13 @@ public abstract class ShowTask implements Runnable {
     }
 
     public void dismiss(long delay) {
-        CommonUtils.cancelPendingTimeout(this);
-        if (delay > 0) {
-            CommonUtils.scheduleTimeout(this, delay);
-        } else if (doDismiss()) {
-            Logger.getDefault().vv("manually dismiss: ", data);
+        if (scheduler != null && scheduler.current == this) {
+            CommonUtils.cancelPendingTimeout(this);
+            if (delay > 0) {
+                CommonUtils.scheduleTimeout(this, delay);
+            } else if (doDismiss()) {
+                Logger.getDefault().vv("manually dismiss: ", data);
+            }
         }
     }
 
@@ -65,7 +67,7 @@ public abstract class ShowTask implements Runnable {
             onDismiss(true);
             HashSet<Display> displaysToDismiss = new HashSet<>();
             displaysToDismiss.add(display);
-            scheduler.loop(displaysToDismiss);
+            scheduler.rebalance(null, displaysToDismiss);
             return true;
         }
         return false;
@@ -121,7 +123,7 @@ public abstract class ShowTask implements Runnable {
      * 默认构造的ShowTask不拒绝从队列被清除或者被替换显示，如果当前有正在显示的数据界面，则加入队列尾部等待。
      */
     public static class Builder {
-        private Object displayIndicator;
+        private Class<? extends Display> displayIndicator;
         private int strategy;
         private boolean rejectExpelled;
         private boolean rejectDismissed;
@@ -133,18 +135,13 @@ public abstract class ShowTask implements Runnable {
         private Builder() {
         }
 
-        public Builder displayIndicator(Object displayIndicator) {
+        public Builder displayIndicator(Class<? extends Display> displayIndicator) {
             this.displayIndicator = displayIndicator;
             return this;
         }
 
         public Builder duration(long duration) {
             this.duration = duration;
-            return this;
-        }
-
-        public Builder toast() {
-            this.displayIndicator = ToastDisplay.class;
             return this;
         }
 
@@ -189,7 +186,7 @@ public abstract class ShowTask implements Runnable {
         }
 
         public ShowTask build(Context context, @NonNull Object data) {
-            ShowTask showTask = new ShowTask(displayIndicator == null ? data : displayIndicator, context, data) {
+            ShowTask showTask = new ShowTask(displayIndicator == null ? ToastDisplay.class : displayIndicator, context, data) {
                 @Override
                 protected int getStrategy() {
                     return strategy;

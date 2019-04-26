@@ -16,7 +16,7 @@ public abstract class AsyncDisplay<D, V> extends Display<D, V> {
     public void notifyCreate(Function<D, V> function) {
         this.async = function;
         if (data != null) {
-            popInstance = function.apply(data);
+            setPopInstance(function.apply(data));
             data = null;
         }
     }
@@ -24,7 +24,7 @@ public abstract class AsyncDisplay<D, V> extends Display<D, V> {
     @Override
     protected void show(Context context, D data) {
         this.data = data;
-        if (popInstance == null) {
+        if (getPopInstance() == null) {
             show(context);
         } else {
             async.apply(data);

@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import yanry.lib.android.util.CommonUtils;
-import yanry.lib.android.view.pop.display.ToastDisplay;
 import yanry.lib.java.model.log.Logger;
 
 /**
@@ -36,7 +35,6 @@ public class PopScheduler {
     }
 
     private static void doShow(ShowTask task) {
-        task.scheduler.current = task;
         task.display.show(task.context, task.data);
         task.onShow();
         if (task.duration > 0) {
@@ -60,6 +58,15 @@ public class PopScheduler {
         }
     }
 
+    private HashMap<Class<? extends Display>, Display> displays;
+
+    private PopScheduler() {
+        displays = new HashMap<>();
+        HashSet<PopScheduler> set = new HashSet<>();
+        set.add(this);
+        conflictedSchedulers.put(this, set);
+    }
+
     public static void cancelByTag(Object tag) {
         // 清理队列
         Iterator<ShowTask> it = queue.iterator();
@@ -67,42 +74,37 @@ public class PopScheduler {
             ShowTask request = it.next();
             if (request.tag == tag) {
                 it.remove();
-                CommonUtils.cancelPendingTimeout(request);
                 Logger.getDefault().vv("cancelled by tag: ", request.data);
             }
         }
         // 清理当前显示的窗口
         HashSet<Display> displaysToDismiss = new HashSet<>();
         for (PopScheduler scheduler : instances.values()) {
-            if (scheduler.current != null && scheduler.current.tag == tag) {
+            if (scheduler.current.tag == tag) {
                 scheduler.dismissCurrent(displaysToDismiss);
             }
         }
-        loop(displaysToDismiss);
+        rebalance(null, displaysToDismiss);
     }
 
-    private LinkedList<Display> displays;
-
-    private PopScheduler() {
-        displays = new LinkedList<>();
-        registerDisplay(new ToastDisplay());
-        HashSet<PopScheduler> set = new HashSet<>();
-        set.add(this);
-        conflictedSchedulers.put(this, set);
-    }
-
-    static void loop(HashSet<Display> displaysToDismiss) {
+    static void rebalance(ShowTask showTask, HashSet<Display> displaysToDismiss) {
+        LinkedList<ShowTask> tasksToShow = new LinkedList<>();
+        if (showTask != null) {
+            // 此处调用是为了后面getConcernedShowingTasks()能得到正确的结果
+            showTask.scheduler.current = showTask;
+        }
         // display不相同时才dismiss，否则只需要更换显示的数据就可以了
-        LinkedList<ShowTask> taskToShow = new LinkedList<>();
         Iterator<ShowTask> iterator = queue.iterator();
         while (iterator.hasNext()) {
             ShowTask next = iterator.next();
             if (next.scheduler.getConcernedShowingTasks().isEmpty()) {
-                taskToShow.add(next);
+                tasksToShow.add(next);
                 iterator.remove();
                 if (displaysToDismiss != null) {
                     displaysToDismiss.remove(next.display);
                 }
+                // 此处调用同样是为了后续getConcernedShowingTasks()能得到正确的结果
+                next.scheduler.current = next;
             }
         }
         if (displaysToDismiss != null) {
@@ -110,9 +112,12 @@ public class PopScheduler {
                 display.internalDismiss();
             }
         }
-        for (ShowTask showTask : taskToShow) {
-            Logger.getDefault().vv("loop and show: ", showTask.data);
+        if (showTask != null) {
             doShow(showTask);
+        }
+        for (ShowTask task : tasksToShow) {
+            Logger.getDefault().vv("loop and show: ", task.data);
+            doShow(task);
         }
     }
 
@@ -132,64 +137,61 @@ public class PopScheduler {
         if (dismissCurrent) {
             HashSet<Display> displaysToDismiss = new HashSet<>();
             dismissCurrent(displaysToDismiss);
-            loop(displaysToDismiss);
+            rebalance(null, displaysToDismiss);
         }
     }
 
-    public void registerDisplay(Display display) {
-        if (!displays.contains(display)) {
-            displays.add(display);
-            display.scheduler = this;
+    public <T extends Display> T getDisplay(Class<T> displayType) {
+        T display = (T) displays.get(displayType);
+        if (display == null) {
+            try {
+                display = displayType.newInstance();
+                display.setScheduler(this);
+                displays.put(displayType, display);
+            } catch (Exception e) {
+                Logger.getDefault().catches(e);
+            }
         }
+        return display;
     }
 
     public void show(ShowTask request) {
         request.scheduler = this;
         // 寻找匹配的display
-        for (Display display : displays) {
-            if (display.accept(request.displayIndicator)) {
-                request.display = display;
-                break;
-            }
-        }
-        if (request.display == null) {
-            Logger.getDefault().ww("no display found for type: ", request.displayIndicator);
-            return;
-        }
-        // 清理队列
+        Display display = getDisplay(request.displayIndicator);
+        request.display = display;
+        // 根据request的需要清理队列
         Iterator<ShowTask> it = queue.iterator();
         while (it.hasNext()) {
             ShowTask next = it.next();
             if (next.scheduler == this && request.expelWaitingTask(next) && !next.rejectExpelled()) {
                 it.remove();
-                CommonUtils.cancelPendingTimeout(next);
                 Logger.getDefault().vv("expelled from queue: ", next.data);
             }
         }
-        // 处理当前正在显示的task
+        // 处理当前正在显示的关联task
         HashSet<ShowTask> concernedShowingTasks = getConcernedShowingTasks();
         HashSet<Display> displaysToDismiss = null;
         switch (request.getStrategy()) {
             case ShowTask.STRATEGY_SHOW_IMMEDIATELY:
                 for (ShowTask showingTask : concernedShowingTasks) {
                     if (showingTask.rejectDismissed()) {
-                        // 正在显示的task不肯dismiss，只能放到队首等待
+                        // 存在显示中的不愿结束的task，只能放到队首等待，此时调度器的暂稳态未发生改变，可直接返回
                         Logger.getDefault().vv("dismiss others failed, so insert head: ", request.data);
                         queue.addFirst(request);
-                        break;
+                        return;
                     }
                 }
-                if (queue.peekFirst() != request) {
-                    // 不在队首，那就是可以立即显示，先把当前显示的任务关掉
-                    displaysToDismiss = new HashSet<>();
-                    for (ShowTask showingTask : concernedShowingTasks) {
-                        CommonUtils.cancelPendingTimeout(showingTask);
-                        showingTask.scheduler.current = null;
-                        Logger.getDefault().vv("dismiss on expelled: ", showingTask.data);
-                        showingTask.onDismiss(true);
-                        if (request.display != showingTask.display) {
-                            displaysToDismiss.add(showingTask.display);
-                        }
+                // 立即显示，先收集需要关闭的正在显示的display
+                displaysToDismiss = new HashSet<>();
+                for (ShowTask showingTask : concernedShowingTasks) {
+                    CommonUtils.cancelPendingTimeout(showingTask);
+                    showingTask.scheduler.current = null;
+                    Logger.getDefault().vv("dismiss on expelled: ", showingTask.data);
+                    // 结束当前正在显示的关联任务
+                    showingTask.onDismiss(true);
+                    if (request.display != showingTask.display) {
+                        displaysToDismiss.add(showingTask.display);
                     }
                 }
                 break;
@@ -197,31 +199,29 @@ public class PopScheduler {
                 if (!concernedShowingTasks.isEmpty()) {
                     Logger.getDefault().vv("insert head: ", request.data);
                     queue.addFirst(request);
+                    return;
                 }
                 break;
             default:
-                if (!concernedShowingTasks.isEmpty() || getNextToShow() != null) {
+                if (!concernedShowingTasks.isEmpty() || hasWaitingTask()) {
                     Logger.getDefault().vv("append tail: ", request.data);
                     queue.addLast(request);
+                    return;
                 }
-                break;
         }
-        boolean show = !queue.contains(request);
-        loop(displaysToDismiss);
-        if (show) {
-            Logger.getDefault().vv("show directly: ", request.data);
-            doShow(request);
-        }
+        Logger.getDefault().vv("show directly: ", request.data);
+        // 显示及取消显示使得调度器处于非稳态，需要重新平衡到次稳态
+        rebalance(request, displaysToDismiss);
     }
 
-    private ShowTask getNextToShow() {
+    private boolean hasWaitingTask() {
         HashSet<PopScheduler> schedulers = conflictedSchedulers.get(this);
-        for (ShowTask request : queue) {
-            if (schedulers.contains(request.scheduler)) {
-                return request;
+        for (ShowTask task : queue) {
+            if (schedulers.contains(task.scheduler)) {
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     private HashSet<ShowTask> getConcernedShowingTasks() {
@@ -240,14 +240,12 @@ public class PopScheduler {
             ShowTask currentTask = this.current;
             current = null;
             CommonUtils.cancelPendingTimeout(currentTask);
-            if (currentTask.display.isShowing()) {
-                Logger.getDefault().vv("dismiss on cancelled: ", currentTask.data);
-                currentTask.onDismiss(true);
-                if (displaysToDismiss == null) {
-                    currentTask.display.internalDismiss();
-                } else {
-                    displaysToDismiss.add(currentTask.display);
-                }
+            Logger.getDefault().vv("dismiss on cancelled: ", currentTask.data);
+            currentTask.onDismiss(true);
+            if (displaysToDismiss == null) {
+                currentTask.display.internalDismiss();
+            } else {
+                displaysToDismiss.add(currentTask.display);
             }
         }
     }

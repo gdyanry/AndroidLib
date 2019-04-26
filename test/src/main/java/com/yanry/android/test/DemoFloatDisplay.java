@@ -2,7 +2,6 @@ package com.yanry.android.test;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -17,17 +16,8 @@ import yanry.lib.android.view.pop.display.FloatDisplay;
 public class DemoFloatDisplay extends FloatDisplay<Integer> {
     private int gravity;
 
-    public DemoFloatDisplay(String tag) {
-        switch (tag) {
-            case "A":
-                gravity = Gravity.BOTTOM | Gravity.LEFT;
-                break;
-            case "B":
-                gravity = Gravity.BOTTOM | Gravity.CENTER;
-                break;
-            case "C":
-                gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        }
+    public DemoFloatDisplay(int gravity) {
+        this.gravity = gravity;
     }
 
     @Override
@@ -51,10 +41,5 @@ public class DemoFloatDisplay extends FloatDisplay<Integer> {
     protected void setData(View instance, Integer data) {
         TextView textView = instance.findViewById(R.id.tv);
         textView.setText(data.toString());
-    }
-
-    @Override
-    protected boolean accept(Object handlerIndicator) {
-        return handlerIndicator.equals(getClass());
     }
 }
