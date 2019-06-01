@@ -17,14 +17,16 @@ import android.os.Environment;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 import android.util.TypedValue;
 
 import java.io.File;
+import java.lang.reflect.Proxy;
 
 import yanry.lib.android.entity.MainHandler;
 import yanry.lib.android.interfaces.BooleanSupplier;
+import yanry.lib.android.interfaces.Consumer;
 import yanry.lib.java.model.Singletons;
+import yanry.lib.java.model.log.Logger;
 
 /**
  * @author yanry
@@ -32,6 +34,15 @@ import yanry.lib.java.model.Singletons;
  *         2014年8月11日 下午2:18:58
  */
 public class CommonUtils {
+
+    public static boolean launchApp(Context context, String packageName) {
+        Intent intent = context.getPackageManager().getLaunchIntentForPackage(packageName);
+        if (intent == null) {
+            return false;
+        }
+        context.startActivity(intent);
+        return true;
+    }
 
 	public static void installApk(Context ctx, File apk) {
 		if (apk.exists()) {
@@ -42,14 +53,6 @@ public class CommonUtils {
 		}
 	}
 
-	/**
-	 * 记得在manifest file中添加"android.permission.READ_PHONE_STATE"权限
-	 */
-	public static String getPhoneNo(Context ctx) {
-		TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
-		return tm.getLine1Number();
-	}
-
 	public static boolean requestCamera(Activity ctx, File out, int requestCode) {
 		Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		if (cameraIntent.resolveActivity(ctx.getPackageManager()) != null) {
@@ -57,9 +60,22 @@ public class CommonUtils {
 			ctx.startActivityForResult(cameraIntent, requestCode);
 			return true;
 		}
-		Log.e(CommonUtils.class.getSimpleName(), "no system camera found.");
+        Logger.getDefault().ee("no system camera found.");
 		return false;
 	}
+
+    /**
+     * 记得在manifest file中添加"android.permission.READ_PHONE_STATE"权限
+     */
+    public static String getPhoneNo(Context ctx) {
+        TelephonyManager tm = (TelephonyManager) ctx.getSystemService(Context.TELEPHONY_SERVICE);
+        return tm.getLine1Number();
+    }
+
+    public <T> T getRunOnUiProxy(T target, Class<T> targetInterface, Consumer<Exception> exceptionHandler) {
+        Class<?>[] interfaces = {targetInterface};
+        return (T) Proxy.newProxyInstance(target.getClass().getClassLoader(), interfaces, new RunOnUiHandler(target, exceptionHandler));
+    }
 
 	public static int dip2px(float dipValue) {
 		return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue,

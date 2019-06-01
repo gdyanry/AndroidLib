@@ -20,6 +20,8 @@ public class PopScheduler {
     private static HashMap<PopScheduler, HashSet<PopScheduler>> conflictedSchedulers = new HashMap<>();
     private static HashMap<Object, PopScheduler> instances = new HashMap<>();
 
+    ShowTask current;
+
     public static PopScheduler get(@NonNull Object tag) {
         PopScheduler scheduler = instances.get(tag);
         if (scheduler == null) {
@@ -42,8 +44,6 @@ public class PopScheduler {
         }
     }
 
-    ShowTask current;
-
     /**
      * 撤消显示所有的数据。
      *
@@ -58,13 +58,8 @@ public class PopScheduler {
         }
     }
 
-    private HashMap<Class<? extends Display>, Display> displays;
-
-    private PopScheduler() {
-        displays = new HashMap<>();
-        HashSet<PopScheduler> set = new HashSet<>();
-        set.add(this);
-        conflictedSchedulers.put(this, set);
+    public static boolean hasScheduler(@NonNull Object tag) {
+        return instances.get(tag) != null;
     }
 
     public static void cancelByTag(Object tag) {
@@ -85,6 +80,14 @@ public class PopScheduler {
             }
         }
         rebalance(null, displaysToDismiss);
+    }
+    private HashMap<Class<? extends Display>, Display> displays;
+
+    private PopScheduler() {
+        displays = new HashMap<>();
+        HashSet<PopScheduler> set = new HashSet<>();
+        set.add(this);
+        conflictedSchedulers.put(this, set);
     }
 
     static void rebalance(ShowTask showTask, HashSet<Display> displaysToDismiss) {
