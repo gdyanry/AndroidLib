@@ -77,6 +77,10 @@ public class ShowData implements Runnable {
         return this;
     }
 
+    public Object getExtra() {
+        return extra;
+    }
+
     /**
      * Add callback after this task has been shown.
      */
