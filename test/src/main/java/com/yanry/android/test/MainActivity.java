@@ -104,8 +104,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     protected boolean expelWaitingTask(ShowData request) {
                         return cbExpelExistingTask.isChecked();
                     }
-                }
-                        .addOnShowListener(d -> Logger.getDefault().vv("onShow: ", d))
+                };
+                showData.addOnShowListener(() -> Logger.getDefault().vv("onShow: ", showData))
                         .addOnDismissListener(isInternal -> Logger.getDefault().vv("onDismiss: ", data, ", is before: ", isInternal))
                         .setExtra(data)
                         .setDuration(20000);

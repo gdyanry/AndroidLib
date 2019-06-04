@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 import yanry.lib.android.interfaces.BooleanConsumer;
-import yanry.lib.android.interfaces.Consumer;
 import yanry.lib.android.util.CommonUtils;
 import yanry.lib.java.model.log.Logger;
 
@@ -26,7 +25,7 @@ public class ShowData implements Runnable {
     Context context;
     PopScheduler scheduler;
     Object tag;
-    private LinkedList<Consumer<ShowData>> onShowListeners;
+    private LinkedList<Runnable> onShowListeners;
     private LinkedList<BooleanConsumer> onDismissListeners;
     Display display;
 
@@ -81,7 +80,7 @@ public class ShowData implements Runnable {
     /**
      * Add callback after this task has been shown.
      */
-    public ShowData addOnShowListener(Consumer<ShowData> listener) {
+    public ShowData addOnShowListener(Runnable listener) {
         onShowListeners.add(listener);
         return this;
     }
@@ -95,8 +94,8 @@ public class ShowData implements Runnable {
     }
 
     final void onShow() {
-        for (Consumer<ShowData> listener : onShowListeners) {
-            listener.accept(this);
+        for (Runnable listener : onShowListeners) {
+            listener.run();
         }
     }
 
