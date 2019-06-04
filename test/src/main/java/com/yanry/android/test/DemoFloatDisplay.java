@@ -7,13 +7,14 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import yanry.lib.android.view.pop.ShowData;
 import yanry.lib.android.view.pop.display.FloatDisplay;
 
 /**
  * rongyu.yan
  * 2018/11/7
  **/
-public class DemoFloatDisplay extends FloatDisplay<Integer> {
+public class DemoFloatDisplay extends FloatDisplay<ShowData> {
     private int gravity;
 
     public DemoFloatDisplay(int gravity) {
@@ -38,7 +39,7 @@ public class DemoFloatDisplay extends FloatDisplay<Integer> {
     }
 
     @Override
-    protected void setData(View instance, Integer data) {
+    protected void setData(View instance, ShowData data) {
         TextView textView = instance.findViewById(R.id.tv);
         textView.setText(data.toString());
     }

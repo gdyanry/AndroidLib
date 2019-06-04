@@ -16,11 +16,11 @@ import yanry.lib.java.model.log.Logger;
  * 当前有数据正在显示的情况下，新来的数据可以采取替换当前数据界面或进入等待队列等策略，而被替换的数据也可以相应采取接受或拒绝等策略。
  */
 public class PopScheduler {
-    private static LinkedList<ShowTask> queue = new LinkedList<>();
+    private static LinkedList<ShowData> queue = new LinkedList<>();
     private static HashMap<PopScheduler, HashSet<PopScheduler>> conflictedSchedulers = new HashMap<>();
     private static HashMap<Object, PopScheduler> instances = new HashMap<>();
 
-    ShowTask current;
+    ShowData current;
 
     public static PopScheduler get(@NonNull Object tag) {
         PopScheduler scheduler = instances.get(tag);
@@ -36,11 +36,11 @@ public class PopScheduler {
         b.addLink(a);
     }
 
-    private static void doShow(ShowTask task) {
-        task.display.show(task.context, task.data);
-        task.onShow();
-        if (task.duration > 0) {
-            CommonUtils.scheduleTimeout(task, task.duration);
+    private static void doShow(ShowData data) {
+        data.display.show(data.context, data);
+        data.onShow();
+        if (data.duration > 0) {
+            CommonUtils.scheduleTimeout(data, data.duration);
         }
     }
 
@@ -64,12 +64,12 @@ public class PopScheduler {
 
     public static void cancelByTag(Object tag) {
         // 清理队列
-        Iterator<ShowTask> it = queue.iterator();
+        Iterator<ShowData> it = queue.iterator();
         while (it.hasNext()) {
-            ShowTask request = it.next();
-            if (request.tag == tag) {
+            ShowData data = it.next();
+            if (data.tag == tag) {
                 it.remove();
-                Logger.getDefault().vv("cancelled by tag: ", request.data);
+                Logger.getDefault().vv("cancelled by tag: ", data);
             }
         }
         // 清理当前显示的窗口
@@ -90,16 +90,16 @@ public class PopScheduler {
         conflictedSchedulers.put(this, set);
     }
 
-    static void rebalance(ShowTask showTask, HashSet<Display> displaysToDismiss) {
-        LinkedList<ShowTask> tasksToShow = new LinkedList<>();
-        if (showTask != null) {
+    static void rebalance(ShowData showData, HashSet<Display> displaysToDismiss) {
+        LinkedList<ShowData> tasksToShow = new LinkedList<>();
+        if (showData != null) {
             // 此处调用是为了后面getConcernedShowingTasks()能得到正确的结果
-            showTask.scheduler.current = showTask;
+            showData.scheduler.current = showData;
         }
         // display不相同时才dismiss，否则只需要更换显示的数据就可以了
-        Iterator<ShowTask> iterator = queue.iterator();
+        Iterator<ShowData> iterator = queue.iterator();
         while (iterator.hasNext()) {
-            ShowTask next = iterator.next();
+            ShowData next = iterator.next();
             if (next.scheduler.getConcernedShowingTasks().isEmpty()) {
                 tasksToShow.add(next);
                 iterator.remove();
@@ -115,12 +115,12 @@ public class PopScheduler {
                 display.internalDismiss();
             }
         }
-        if (showTask != null) {
-            doShow(showTask);
+        if (showData != null) {
+            doShow(showData);
         }
-        for (ShowTask task : tasksToShow) {
-            Logger.getDefault().vv("loop and show: ", task.data);
-            doShow(task);
+        for (ShowData data : tasksToShow) {
+            Logger.getDefault().vv("loop and show: ", data);
+            doShow(data);
         }
     }
 
@@ -130,9 +130,9 @@ public class PopScheduler {
     }
 
     public void cancel(boolean dismissCurrent) {
-        Iterator<ShowTask> iterator = queue.iterator();
+        Iterator<ShowData> iterator = queue.iterator();
         while (iterator.hasNext()) {
-            ShowTask next = iterator.next();
+            ShowData next = iterator.next();
             if (next.scheduler == this) {
                 iterator.remove();
             }
@@ -158,68 +158,66 @@ public class PopScheduler {
         return display;
     }
 
-    public void show(ShowTask request) {
-        request.scheduler = this;
-        // 寻找匹配的display
-        Display display = getDisplay(request.displayIndicator);
-        request.display = display;
+    public void show(ShowData data, Class<? extends Display> displayType) {
+        data.scheduler = this;
+        data.display = getDisplay(displayType);
         // 根据request的需要清理队列
-        Iterator<ShowTask> it = queue.iterator();
+        Iterator<ShowData> it = queue.iterator();
         while (it.hasNext()) {
-            ShowTask next = it.next();
-            if (next.scheduler == this && request.expelWaitingTask(next) && !next.rejectExpelled()) {
+            ShowData next = it.next();
+            if (next.scheduler == this && data.expelWaitingTask(next) && !next.rejectExpelled()) {
                 it.remove();
-                Logger.getDefault().vv("expelled from queue: ", next.data);
+                Logger.getDefault().vv("expelled from queue: ", next);
             }
         }
         // 处理当前正在显示的关联task
-        HashSet<ShowTask> concernedShowingTasks = getConcernedShowingTasks();
+        HashSet<ShowData> concernedShowingTasks = getConcernedShowingTasks();
         HashSet<Display> displaysToDismiss = null;
-        switch (request.getStrategy()) {
-            case ShowTask.STRATEGY_SHOW_IMMEDIATELY:
-                for (ShowTask showingTask : concernedShowingTasks) {
+        switch (data.getStrategy()) {
+            case ShowData.STRATEGY_SHOW_IMMEDIATELY:
+                for (ShowData showingTask : concernedShowingTasks) {
                     if (showingTask.rejectDismissed()) {
                         // 存在显示中的不愿结束的task，只能放到队首等待，此时调度器的暂稳态未发生改变，可直接返回
-                        Logger.getDefault().vv("dismiss others failed, so insert head: ", request.data);
-                        queue.addFirst(request);
+                        Logger.getDefault().vv("dismiss others failed, so insert head: ", data);
+                        queue.addFirst(data);
                         return;
                     }
                 }
                 // 立即显示，先收集需要关闭的正在显示的display
                 displaysToDismiss = new HashSet<>();
-                for (ShowTask showingTask : concernedShowingTasks) {
+                for (ShowData showingTask : concernedShowingTasks) {
                     CommonUtils.cancelPendingTimeout(showingTask);
                     showingTask.scheduler.current = null;
-                    Logger.getDefault().vv("dismiss on expelled: ", showingTask.data);
+                    Logger.getDefault().vv("dismiss on expelled: ", showingTask);
                     // 结束当前正在显示的关联任务
                     showingTask.onDismiss(true);
-                    if (request.display != showingTask.display) {
+                    if (data.display != showingTask.display) {
                         displaysToDismiss.add(showingTask.display);
                     }
                 }
                 break;
-            case ShowTask.STRATEGY_INSERT_HEAD:
+            case ShowData.STRATEGY_INSERT_HEAD:
                 if (!concernedShowingTasks.isEmpty()) {
-                    Logger.getDefault().vv("insert head: ", request.data);
-                    queue.addFirst(request);
+                    Logger.getDefault().vv("insert head: ", data);
+                    queue.addFirst(data);
                     return;
                 }
                 break;
             default:
                 if (!concernedShowingTasks.isEmpty() || hasWaitingTask()) {
-                    Logger.getDefault().vv("append tail: ", request.data);
-                    queue.addLast(request);
+                    Logger.getDefault().vv("append tail: ", data);
+                    queue.addLast(data);
                     return;
                 }
         }
-        Logger.getDefault().vv("show directly: ", request.data);
+        Logger.getDefault().vv("show directly: ", data);
         // 显示及取消显示使得调度器处于非稳态，需要重新平衡到次稳态
-        rebalance(request, displaysToDismiss);
+        rebalance(data, displaysToDismiss);
     }
 
     private boolean hasWaitingTask() {
         HashSet<PopScheduler> schedulers = conflictedSchedulers.get(this);
-        for (ShowTask task : queue) {
+        for (ShowData task : queue) {
             if (schedulers.contains(task.scheduler)) {
                 return true;
             }
@@ -227,8 +225,8 @@ public class PopScheduler {
         return false;
     }
 
-    private HashSet<ShowTask> getConcernedShowingTasks() {
-        HashSet<ShowTask> result = new HashSet<>();
+    private HashSet<ShowData> getConcernedShowingTasks() {
+        HashSet<ShowData> result = new HashSet<>();
         HashSet<PopScheduler> schedulers = conflictedSchedulers.get(this);
         for (PopScheduler scheduler : schedulers) {
             if (scheduler.current != null) {
@@ -240,10 +238,10 @@ public class PopScheduler {
 
     private void dismissCurrent(HashSet<Display> displaysToDismiss) {
         if (current != null) {
-            ShowTask currentTask = this.current;
+            ShowData currentTask = this.current;
             current = null;
             CommonUtils.cancelPendingTimeout(currentTask);
-            Logger.getDefault().vv("dismiss on cancelled: ", currentTask.data);
+            Logger.getDefault().vv("dismiss on cancelled: ", currentTask);
             currentTask.onDismiss(true);
             if (displaysToDismiss == null) {
                 currentTask.display.internalDismiss();

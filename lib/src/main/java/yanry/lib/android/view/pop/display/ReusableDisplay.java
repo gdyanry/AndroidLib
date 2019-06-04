@@ -2,9 +2,10 @@ package yanry.lib.android.view.pop.display;
 
 import android.content.Context;
 
+import yanry.lib.android.view.pop.ShowData;
 import yanry.lib.android.view.pop.SyncDisplay;
 
-public abstract class ReusableDisplay<D, V> extends SyncDisplay<D, V> {
+public abstract class ReusableDisplay<D extends ShowData, V> extends SyncDisplay<D, V> {
 
     @Override
     protected final V showData(V currentInstance, Context context, D data) {

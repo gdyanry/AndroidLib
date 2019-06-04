@@ -5,7 +5,9 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.WindowManager;
 
-public abstract class FloatDisplay<D> extends ReusableDisplay<D, View> {
+import yanry.lib.android.view.pop.ShowData;
+
+public abstract class FloatDisplay<D extends ShowData> extends ReusableDisplay<D, View> {
     private WindowManager windowManager;
     private WindowManager.LayoutParams layoutParams;
 

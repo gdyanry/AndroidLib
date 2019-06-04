@@ -5,11 +5,11 @@ import android.content.Context;
 import yanry.lib.android.interfaces.Function;
 
 /**
- * 对应的View需要在创建时调用{@link #notifyCreate(Function)}，并在销毁时调用{@link #notifyDismiss(Object)}。
+ * 对应的View需要在创建时调用{@link #notifyCreate(Function)}，并在销毁时调用{@link #notifyDismiss(V)}。
  * rongyu.yan
  * 2018/11/13
  **/
-public abstract class AsyncDisplay<D, V> extends Display<D, V> {
+public abstract class AsyncDisplay<D extends ShowData, V> extends Display<D, V> {
     private D data;
     private Function<D, V> async;
 

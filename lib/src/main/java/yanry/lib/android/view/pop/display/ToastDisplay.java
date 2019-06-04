@@ -5,12 +5,13 @@ import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import yanry.lib.android.util.CommonUtils;
+import yanry.lib.android.view.pop.ShowData;
 import yanry.lib.android.view.pop.SyncDisplay;
 
-public class ToastDisplay extends SyncDisplay<Object, Toast> {
+public class ToastDisplay extends SyncDisplay<ShowData, Toast> {
 
     @Override
-    protected Toast showData(Toast currentInstance, Context context, Object data) {
+    protected Toast showData(Toast currentInstance, Context context, ShowData data) {
         if (currentInstance != null) {
             currentInstance.cancel();
         }

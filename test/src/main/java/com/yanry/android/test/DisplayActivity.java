@@ -7,8 +7,9 @@ import android.widget.TextView;
 
 import yanry.lib.android.interfaces.Function;
 import yanry.lib.android.view.pop.PopScheduler;
+import yanry.lib.android.view.pop.ShowData;
 
-public class DisplayActivity extends AppCompatActivity implements Function<Integer, Activity> {
+public class DisplayActivity extends AppCompatActivity implements Function<ShowData, Activity> {
 
     private TextView textView;
 
@@ -31,7 +32,7 @@ public class DisplayActivity extends AppCompatActivity implements Function<Integ
     }
 
     @Override
-    public Activity apply(Integer integer) {
+    public Activity apply(ShowData integer) {
         textView.setText(String.valueOf(integer));
         return this;
     }

@@ -10,7 +10,7 @@ import android.widget.RadioGroup;
 import yanry.lib.android.model.AndroidLogHandler;
 import yanry.lib.android.view.pop.Display;
 import yanry.lib.android.view.pop.PopScheduler;
-import yanry.lib.android.view.pop.ShowTask;
+import yanry.lib.android.view.pop.ShowData;
 import yanry.lib.android.view.pop.display.ToastDisplay;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.log.SimpleFormatter;
@@ -73,31 +73,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 indicator = ToastDisplay.class;
                 break;
         }
-        PopScheduler manager = PopScheduler.get(tag);
+        PopScheduler scheduler = PopScheduler.get(tag);
         final int data = counter++;
         switch (v.getId()) {
             case R.id.btn_show:
-                ShowTask.Builder builder = ShowTask.getBuilder().displayIndicator(indicator)
-                        .onShow(request -> Logger.getDefault().vv("onShow: ", data))
-                        .onDismiss(isInternal -> Logger.getDefault().vv("onDismiss: ", data, ", is before: ", isInternal));
-                switch (rgStrategy.getCheckedRadioButtonId()) {
-                    case R.id.show_immediately:
-                        builder.showImmediately();
-                        break;
-                    case R.id.insert_head:
-                        builder.insertHead();
-                        break;
+                ShowData showData = new ShowData(this) {
+                    @Override
+                    protected int getStrategy() {
+                        switch (rgStrategy.getCheckedRadioButtonId()) {
+                            case R.id.append_tail:
+                                return STRATEGY_APPEND_TAIL;
+                            case R.id.insert_head:
+                                return STRATEGY_INSERT_HEAD;
+                            default:
+                                return STRATEGY_SHOW_IMMEDIATELY;
+                        }
+                    }
+
+                    @Override
+                    protected boolean rejectExpelled() {
+                        return cbRejectExpelled.isChecked();
+                    }
+
+                    @Override
+                    protected boolean rejectDismissed() {
+                        return cbRejectDismissed.isChecked();
+                    }
+
+                    @Override
+                    protected boolean expelWaitingTask(ShowData request) {
+                        return cbExpelExistingTask.isChecked();
+                    }
                 }
-                if (cbRejectExpelled.isChecked()) {
-                    builder.rejectExpelled();
-                }
-                if (cbRejectDismissed.isChecked()) {
-                    builder.rejectDismissed();
-                }
-                if (cbExpelExistingTask.isChecked()) {
-                    builder.expelWaitingTasks();
-                }
-                manager.show(builder.duration(20000).build(this, data));
+                        .addOnShowListener(d -> Logger.getDefault().vv("onShow: ", d))
+                        .addOnDismissListener(isInternal -> Logger.getDefault().vv("onDismiss: ", data, ", is before: ", isInternal))
+                        .setExtra(data)
+                        .setDuration(20000);
+                scheduler.show(showData, indicator);
                 break;
         }
     }

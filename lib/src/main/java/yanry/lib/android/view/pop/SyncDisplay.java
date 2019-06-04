@@ -6,7 +6,7 @@ import android.content.Context;
  * rongyu.yan
  * 2018/11/13
  **/
-public abstract class SyncDisplay<D, V> extends Display<D, V> {
+public abstract class SyncDisplay<D extends ShowData, V> extends Display<D, V> {
 
     @Override
     protected void show(Context context, D data) {

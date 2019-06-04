@@ -12,7 +12,7 @@ import yanry.lib.java.model.log.Logger;
  * @param <D> data type.
  * @param <V> view type.
  */
-public abstract class Display<D, V> {
+public abstract class Display<D extends ShowData, V> {
     private PopScheduler scheduler;
     private V popInstance;
 
@@ -31,7 +31,7 @@ public abstract class Display<D, V> {
         this.popInstance = popInstance;
     }
 
-    public ShowTask getShowingTask() {
+    public ShowData getShowingData() {
         if (scheduler != null && scheduler.current != null && scheduler.current.display == this) {
             return scheduler.current;
         }
@@ -43,10 +43,10 @@ public abstract class Display<D, V> {
      */
     public boolean notifyDismiss(V popInstance) {
         if (popInstance == this.popInstance && scheduler != null && scheduler.current != null && scheduler.current.display == this) {
-            ShowTask currentTask = scheduler.current;
+            ShowData currentTask = scheduler.current;
             scheduler.current = null;
             this.popInstance = null;
-            Logger.getDefault().vv(currentTask.data);
+            Logger.getDefault().vv(currentTask);
             CommonUtils.cancelPendingTimeout(currentTask);
             currentTask.onDismiss(false);
             scheduler.rebalance(null, null);
