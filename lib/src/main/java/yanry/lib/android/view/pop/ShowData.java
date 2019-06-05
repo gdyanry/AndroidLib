@@ -128,7 +128,7 @@ public class ShowData implements Runnable {
     }
 
     @Override
-    public void run() {
+    public final void run() {
         if (doDismiss()) {
             Logger.getDefault().vv("dismiss on timeout: ", this);
         }

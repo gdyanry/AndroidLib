@@ -27,12 +27,12 @@ public abstract class ComplexItemAdapter<T> extends ListAdapter<T> {
 	}
 
 	@Override
-	protected void display(ViewHolder holder, T itemData, int position) {
+	protected final void display(ViewHolder holder, T itemData, int position) {
 		map.get(itemData).display(holder);
 	}
 	
 	@Override
-	public void notifyDataSetChanged() {
+	public final void notifyDataSetChanged() {
 		map.resize(getCount() + 1);
 		super.notifyDataSetChanged();
 	}

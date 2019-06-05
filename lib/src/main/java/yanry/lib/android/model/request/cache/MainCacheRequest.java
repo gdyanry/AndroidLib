@@ -99,7 +99,7 @@ public abstract class MainCacheRequest extends AbstractCacheRequest implements R
 	protected abstract RequestPack createRequest();
 
 	@Override
-	public void run() {
+	public final void run() {
 		batchAppendTo(createRequest());
 		request.send(visualizer);
 	}

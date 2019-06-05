@@ -112,7 +112,7 @@ public abstract class ImageSelectViewHelper extends CommonAdapter implements OnI
 	protected abstract void onPermissionDenied();
 
 	@Override
-	public void run() {
+	public final void run() {
 		calculateItemWidth();
 	}
 

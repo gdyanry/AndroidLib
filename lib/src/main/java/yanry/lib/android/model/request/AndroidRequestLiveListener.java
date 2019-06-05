@@ -50,7 +50,7 @@ public abstract class AndroidRequestLiveListener implements RequestLiveListener,
 	}
 
 	@Override
-	public synchronized void run() {
+    public final synchronized void run() {
 		if (lastState != null) {
 			// uncertain runtime exception might happen.
 			try {

@@ -51,7 +51,7 @@ public abstract class TimeBarHandler implements Runnable, OnSeekBarChangeListene
 	}
 	
 	@Override
-	public void run() {
+    public final void run() {
 		if (inProgress) {
 			int newProgress = getCurrentProgress();
 			if (newProgress < bar.getMax()) {

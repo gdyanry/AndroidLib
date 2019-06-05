@@ -18,7 +18,7 @@ class RunOnUiHandler implements InvocationHandler, Runnable {
     }
 
     @Override
-    public synchronized Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public final synchronized Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         this.method = method;
         this.args = args;
         CommonUtils.runOnUiThread(this);
@@ -26,7 +26,7 @@ class RunOnUiHandler implements InvocationHandler, Runnable {
     }
 
     @Override
-    public synchronized void run() {
+    public final synchronized void run() {
         if (method != null) {
             try {
                 result = method.invoke(target, args);

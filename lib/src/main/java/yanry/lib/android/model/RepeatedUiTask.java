@@ -32,7 +32,7 @@ public abstract class RepeatedUiTask implements Runnable {
     }
 
     @Override
-    public void run() {
+    public final void run() {
         if (isActive) {
             doRun();
             CommonUtils.scheduleTimeout(this, period);

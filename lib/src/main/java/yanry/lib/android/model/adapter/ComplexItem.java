@@ -51,7 +51,7 @@ public abstract class ComplexItem<T, H extends PositionHolder> implements Runnab
 	protected abstract void display(H holder, T data, boolean fromNotify);
 	
 	@Override
-	public void run() {
+	public final void run() {
 		if (isActive()) {
 			display(holder, data, true);
 		}

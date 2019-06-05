@@ -29,7 +29,7 @@ public abstract class DownloadHook implements Runnable {
 	protected abstract void onError();
 	
 	@Override
-	public void run() {
+	public final void run() {
 		switch (action) {
 		case ACTION_START:
 			onStart(startPos, totalLen);

@@ -38,7 +38,7 @@ public class DefaultExecutor extends ThreadPoolExecutor {
     }
 
     @Override
-    public void execute(Runnable command) {
+    public final void execute(Runnable command) {
         super.execute(command);
         Logger.getDefault().ii(this);
     }

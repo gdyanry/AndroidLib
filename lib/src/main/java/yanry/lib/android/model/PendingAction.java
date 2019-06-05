@@ -26,7 +26,7 @@ public abstract class PendingAction implements Runnable {
 
     public synchronized void setup(long timeout) {
         if (mark == atomicInteger.get()) {
-            Logger.getDefault().v("setup fail, action is pending currently!");
+            Logger.getDefault().vv("setup fail, action is pending currently!");
         } else {
             mark = atomicInteger.incrementAndGet();
             MainHandler mainHandler = Singletons.get(MainHandler.class);
@@ -49,7 +49,7 @@ public abstract class PendingAction implements Runnable {
     protected abstract void onFinish(boolean isTimeout);
 
     @Override
-    public synchronized void run() {
+    public final synchronized void run() {
         atomicInteger.incrementAndGet();
         Logger.getDefault().v("[%s]timeout.", mark);
         onFinish(true);
