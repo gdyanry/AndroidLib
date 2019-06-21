@@ -45,7 +45,7 @@ public abstract class Display<D extends ShowData, V> {
         if (popInstance == this.popInstance && scheduler != null && scheduler.current != null && scheduler.current.display == this) {
             ShowData currentTask = scheduler.current;
             scheduler.current = null;
-            this.popInstance = null;
+            setPopInstance(null);
             Logger.getDefault().vv(currentTask);
             CommonUtils.cancelPendingTimeout(currentTask);
             currentTask.onDismiss(false);
@@ -64,7 +64,7 @@ public abstract class Display<D extends ShowData, V> {
     protected void internalDismiss() {
         if (popInstance != null) {
             dismiss(popInstance);
-            popInstance = null;
+            setPopInstance(null);
         }
     }
 

@@ -17,6 +17,8 @@ import yanry.lib.java.model.log.Logger;
 public class DefaultExecutor extends ThreadPoolExecutor {
     private static final int THREAD_NUM = Runtime.getRuntime().availableProcessors() * 2;
 
+    private boolean debug;
+
     /**
      * 对于计算密集型的任务，在拥有Ncpu个处理器的系统上，当线程池的大小为Ncpu+1时，通常能实现最优的利用率。
      * （计算当计算密集型的线程偶尔由于页缺失故障或者其他原因而暂停时，这个“额外”的线程也能确保CPU的时钟周期不会被浪费）
@@ -37,9 +39,15 @@ public class DefaultExecutor extends ThreadPoolExecutor {
         allowCoreThreadTimeOut(true);
     }
 
+    public void setDebug(boolean debug) {
+        this.debug = debug;
+    }
+
     @Override
     public final void execute(Runnable command) {
         super.execute(command);
-        Logger.getDefault().ii(this);
+        if (debug) {
+            Logger.getDefault().ii(this);
+        }
     }
 }
