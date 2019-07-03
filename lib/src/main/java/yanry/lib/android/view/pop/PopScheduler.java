@@ -20,8 +20,6 @@ public class PopScheduler {
     private static HashMap<PopScheduler, HashSet<PopScheduler>> conflictedSchedulers = new HashMap<>();
     private static HashMap<Object, PopScheduler> instances = new HashMap<>();
 
-    ShowData current;
-
     public static PopScheduler get(@NonNull Object tag) {
         PopScheduler scheduler = instances.get(tag);
         if (scheduler == null) {
@@ -81,14 +79,8 @@ public class PopScheduler {
         }
         rebalance(null, displaysToDismiss);
     }
-    private HashMap<Class<? extends Display>, Display> displays;
 
-    private PopScheduler() {
-        displays = new HashMap<>();
-        HashSet<PopScheduler> set = new HashSet<>();
-        set.add(this);
-        conflictedSchedulers.put(this, set);
-    }
+    ShowData current;
 
     static void rebalance(ShowData showData, HashSet<Display> displaysToDismiss) {
         LinkedList<ShowData> tasksToShow = new LinkedList<>();
@@ -122,6 +114,14 @@ public class PopScheduler {
             Logger.getDefault().vv("loop and show: ", data);
             doShow(data);
         }
+    }
+    private HashMap<Class<? extends Display>, Display> displays;
+
+    private PopScheduler() {
+        displays = new HashMap<>();
+        HashSet<PopScheduler> set = new HashSet<>();
+        set.add(this);
+        conflictedSchedulers.put(this, set);
     }
 
     public void addLink(PopScheduler... schedulers) {

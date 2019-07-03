@@ -7,7 +7,7 @@ import yanry.lib.android.util.CommonUtils;
 import yanry.lib.java.model.log.Logger;
 
 /**
- * 为特定数据显示特定界面。
+ * 为特定数据显示特定界面。非抽象子孙类必须包含无参构造函数。
  *
  * @param <D> data type.
  * @param <V> view type.
