@@ -31,9 +31,9 @@ public abstract class Display<D extends ShowData, V> {
         this.popInstance = popInstance;
     }
 
-    public ShowData getShowingData() {
+    public D getShowingData() {
         if (scheduler != null && scheduler.current != null && scheduler.current.display == this) {
-            return scheduler.current;
+            return (D) scheduler.current;
         }
         return null;
     }
