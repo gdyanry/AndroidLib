@@ -2,6 +2,7 @@ package yanry.lib.android.view.pop;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.view.View;
 
 import yanry.lib.android.util.CommonUtils;
 import yanry.lib.java.model.log.Logger;
@@ -28,6 +29,9 @@ public abstract class Display<D extends ShowData, V> {
     }
 
     protected void setPopInstance(V popInstance) {
+        if (popInstance instanceof View && popInstance == null) {
+            CommonUtils.fixInputMethodMemoryLeak((View) popInstance);
+        }
         this.popInstance = popInstance;
     }
 
