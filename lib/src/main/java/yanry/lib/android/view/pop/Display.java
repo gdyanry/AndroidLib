@@ -16,6 +16,7 @@ import yanry.lib.java.model.log.Logger;
 public abstract class Display<D extends ShowData, V> {
     private PopScheduler scheduler;
     private V popInstance;
+    private boolean isView;
 
     protected Display() {
     }
@@ -29,8 +30,12 @@ public abstract class Display<D extends ShowData, V> {
     }
 
     protected void setPopInstance(V popInstance) {
-        if (popInstance instanceof View && popInstance == null) {
-            CommonUtils.fixInputMethodMemoryLeak((View) popInstance);
+        if (popInstance == null) {
+            if (isView) {
+                CommonUtils.fixInputMethodMemoryLeak((View) popInstance);
+            }
+        } else {
+            isView = popInstance instanceof View;
         }
         this.popInstance = popInstance;
     }
