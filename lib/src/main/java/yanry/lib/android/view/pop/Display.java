@@ -31,8 +31,8 @@ public abstract class Display<D extends ShowData, V> {
 
     protected void setPopInstance(V popInstance) {
         if (popInstance == null) {
-            if (isView) {
-                CommonUtils.fixInputMethodMemoryLeak((View) popInstance);
+            if (isView && this.popInstance != null) {
+                CommonUtils.fixInputMethodMemoryLeak((View) this.popInstance);
             }
         } else {
             isView = popInstance instanceof View;
