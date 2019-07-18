@@ -103,6 +103,12 @@
         android:layout_height="wrap_content"
         android:text="expelWaitingTask" />
 
+    <CheckBox
+        android:id="@+id/is_valid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="isValid" />
+
     <Button
         android:id="@+id/btn_show"
         android:layout_width="wrap_content"

@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CheckBox cbRejectExpelled;
     private CheckBox cbRejectDismissed;
     private CheckBox cbExpelExistingTask;
+    private CheckBox cbIsValid;
     private RadioGroup rgTag;
     private RadioGroup rgDisplay;
 
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cbRejectExpelled = findViewById(R.id.reject_expelled);
         cbRejectDismissed = findViewById(R.id.reject_dismissed);
         cbExpelExistingTask = findViewById(R.id.expel_existing_task);
+        cbIsValid = findViewById(R.id.is_valid);
         findViewById(R.id.btn_show).setOnClickListener(this);
         rgTag = findViewById(R.id.rg_tag);
         PopScheduler.get("B").addLink(PopScheduler.get("A"), PopScheduler.get("C"));
@@ -104,10 +106,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     protected boolean expelWaitingTask(ShowData request) {
                         return cbExpelExistingTask.isChecked();
                     }
+
+                    @Override
+                    protected boolean isValid() {
+                        return cbIsValid.isChecked();
+                    }
                 };
-                showData.addOnShowListener(() -> Logger.getDefault().vv("onShow: ", showData))
-                        .addOnDismissListener(isInternal -> Logger.getDefault().vv("onDismiss: ", data, ", is before: ", isInternal))
-                        .setExtra(data)
+                showData.setExtra(data)
                         .setDuration(20000);
                 scheduler.show(showData, indicator);
                 break;

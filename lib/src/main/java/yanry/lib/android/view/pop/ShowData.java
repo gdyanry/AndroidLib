@@ -28,6 +28,7 @@ public class ShowData implements Runnable {
     private LinkedList<Runnable> onShowListeners;
     private LinkedList<BooleanConsumer> onDismissListeners;
     Display display;
+    int priority;
 
     public ShowData(Context context) {
         this.context = context;
@@ -74,6 +75,11 @@ public class ShowData implements Runnable {
 
     public ShowData setExtra(Object extra) {
         this.extra = extra;
+        return this;
+    }
+
+    public ShowData setPriority(int priority) {
+        this.priority = priority;
         return this;
     }
 
@@ -125,6 +131,15 @@ public class ShowData implements Runnable {
 
     protected boolean expelWaitingTask(ShowData request) {
         return false;
+    }
+
+    /**
+     * 当数据从队列中取出显示时回调此方法，如果返回false则不显示直接丢弃
+     *
+     * @return
+     */
+    protected boolean isValid() {
+        return true;
     }
 
     @Override
