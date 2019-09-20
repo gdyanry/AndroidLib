@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
 
                     @Override
-                    protected boolean isValid() {
+                    protected boolean isValidOnDequeue() {
                         return cbIsValid.isChecked();
                     }
                 };

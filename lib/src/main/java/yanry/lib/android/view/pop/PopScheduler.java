@@ -94,7 +94,7 @@ public class PopScheduler {
         for (ShowData data : queue) {
             HashSet<ShowData> concernedShowingData = data.scheduler.getConcernedShowingData();
             if (concernedShowingData.size() == 0) {
-                if (data.isValid()) {
+                if (data.isValidOnDequeue()) {
                     data.scheduler.current = data;
                     dataToShow.add(data);
                 } else {
@@ -103,7 +103,7 @@ public class PopScheduler {
             } else {
                 for (ShowData showingData : concernedShowingData) {
                     if (dataToShow.contains(showingData) && data.priority > showingData.priority) {
-                        if (data.isValid()) {
+                        if (data.isValidOnDequeue()) {
                             // 替换优先级较低的待显示数据
                             dataToShow.remove(showingData);
                             showingData.scheduler.current = null;
@@ -189,6 +189,12 @@ public class PopScheduler {
         return display;
     }
 
+    /**
+     * 此方法需要在主线程中调用。
+     *
+     * @param data
+     * @param displayType
+     */
     public void show(ShowData data, Class<? extends Display> displayType) {
         data.scheduler = this;
         data.display = getDisplay(displayType);

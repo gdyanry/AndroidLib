@@ -12,9 +12,6 @@ import yanry.lib.android.interfaces.BooleanConsumer;
 import yanry.lib.android.util.CommonUtils;
 import yanry.lib.java.model.log.Logger;
 
-/**
- * 要显示的数据。一般推荐使用Builder来创建对象（简单），当需要动态配置显示策略时才直接使用构造函数并实现抽象方法创建对象（灵活）。
- */
 public class ShowData implements Runnable {
     public static final int STRATEGY_APPEND_TAIL = 0;
     public static final int STRATEGY_INSERT_HEAD = 1;
@@ -36,31 +33,18 @@ public class ShowData implements Runnable {
         onDismissListeners = new LinkedList<>();
     }
 
+    public boolean isScheduled() {
+        return display != null;
+    }
+
     public boolean isShowing() {
         return scheduler != null && scheduler.current == this;
     }
 
     public void dismiss(long delay) {
         if (scheduler != null && scheduler.current == this) {
-            CommonUtils.cancelPendingTimeout(this);
-            if (delay > 0) {
-                CommonUtils.scheduleTimeout(this, delay);
-            } else if (doDismiss()) {
-                Logger.getDefault().vv("manually dismiss: ", this);
-            }
+            CommonUtils.scheduleTimeout(this, delay);
         }
-    }
-
-    private boolean doDismiss() {
-        if (scheduler != null && scheduler.current == this) {
-            scheduler.current = null;
-            onDismiss(true);
-            HashSet<Display> displaysToDismiss = new HashSet<>();
-            displaysToDismiss.add(display);
-            scheduler.rebalance(null, displaysToDismiss);
-            return true;
-        }
-        return false;
     }
 
     public ShowData setDuration(long duration) {
@@ -138,14 +122,19 @@ public class ShowData implements Runnable {
      *
      * @return
      */
-    protected boolean isValid() {
+    protected boolean isValidOnDequeue() {
         return true;
     }
 
     @Override
     public final void run() {
-        if (doDismiss()) {
-            Logger.getDefault().vv("dismiss on timeout: ", this);
+        if (scheduler != null && scheduler.current == this) {
+            scheduler.current = null;
+            Logger.getDefault().vv("dismiss: ", this);
+            onDismiss(true);
+            HashSet<Display> displaysToDismiss = new HashSet<>();
+            displaysToDismiss.add(display);
+            scheduler.rebalance(null, displaysToDismiss);
         }
     }
 
