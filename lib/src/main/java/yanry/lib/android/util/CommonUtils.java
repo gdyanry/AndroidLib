@@ -146,11 +146,7 @@ public class CommonUtils {
     public static void scheduleTimeout(Runnable task, long delay) {
         MainHandler mainHandler = Singletons.get(MainHandler.class);
         mainHandler.removeCallbacks(task);
-        if (delay > 0) {
-            mainHandler.postDelayed(task, delay);
-        } else {
-            runOnUiThread(task);
-        }
+        mainHandler.postDelayed(task, delay);
     }
 
     public static void cancelPendingTimeout(Runnable task) {
