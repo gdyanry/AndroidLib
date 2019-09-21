@@ -43,7 +43,12 @@ public class ShowData implements Runnable {
 
     public void dismiss(long delay) {
         if (scheduler != null && scheduler.current == this) {
-            CommonUtils.scheduleTimeout(this, delay);
+            if (delay > 0) {
+                CommonUtils.scheduleTimeout(this, delay);
+            } else {
+                CommonUtils.cancelPendingTimeout(this);
+                CommonUtils.runOnUiThread(this);
+            }
         }
     }
 
