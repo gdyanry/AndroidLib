@@ -36,7 +36,7 @@ public class PopScheduler {
 
     private static void doShow(ShowData data) {
         data.display.show(data.context, data);
-        data.onShow();
+        data.dispatchShow();
         if (data.duration > 0) {
             CommonUtils.scheduleTimeout(data, data.duration);
         }
@@ -222,7 +222,7 @@ public class PopScheduler {
                 CommonUtils.cancelPendingTimeout(showingData);
                 showingData.scheduler.current = null;
                 // 结束当前正在显示的关联任务
-                showingData.onDismiss(OnDismissListener.DISMISS_TYPE_EXPELLED);
+                showingData.dispatchDismiss(OnDismissListener.DISMISS_TYPE_EXPELLED);
                 if (data.display != showingData.display) {
                     displaysToDismiss.add(showingData.display);
                 }
@@ -261,7 +261,7 @@ public class PopScheduler {
             ShowData currentTask = this.current;
             current = null;
             CommonUtils.cancelPendingTimeout(currentTask);
-            currentTask.onDismiss(OnDismissListener.DISMISS_TYPE_CANCELLED);
+            currentTask.dispatchDismiss(OnDismissListener.DISMISS_TYPE_CANCELLED);
             if (displaysToDismiss == null) {
                 currentTask.display.internalDismiss();
             } else {

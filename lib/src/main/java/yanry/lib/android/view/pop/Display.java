@@ -55,7 +55,7 @@ public abstract class Display<D extends ShowData, V> {
             scheduler.current = null;
             setPopInstance(null);
             CommonUtils.cancelPendingTimeout(currentTask);
-            currentTask.onDismiss(OnDismissListener.DISMISS_TYPE_NOTIFIED);
+            currentTask.dispatchDismiss(OnDismissListener.DISMISS_TYPE_NOTIFIED);
             scheduler.rebalance(null, null);
             return true;
         }

@@ -88,13 +88,13 @@ public class ShowData implements Runnable {
         return this;
     }
 
-    final void onShow() {
+    final void dispatchShow() {
         for (Runnable listener : onShowListeners) {
             listener.run();
         }
     }
 
-    final void onDismiss(@OnDismissListener.DismissType int type) {
+    final void dispatchDismiss(@OnDismissListener.DismissType int type) {
         Logger.getDefault().v("dismiss(%s): %s", type, this);
         for (OnDismissListener listener : onDismissListeners) {
             listener.onDismiss(type);
@@ -136,7 +136,7 @@ public class ShowData implements Runnable {
     private void doDismiss(int type) {
         if (scheduler != null && scheduler.current == this) {
             scheduler.current = null;
-            onDismiss(type);
+            dispatchDismiss(type);
             HashSet<Display> displaysToDismiss = new HashSet<>();
             displaysToDismiss.add(display);
             scheduler.rebalance(null, displaysToDismiss);
