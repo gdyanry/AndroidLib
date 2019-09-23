@@ -5,7 +5,6 @@ import android.support.annotation.NonNull;
 import android.view.View;
 
 import yanry.lib.android.util.CommonUtils;
-import yanry.lib.java.model.log.Logger;
 
 /**
  * 为特定数据显示特定界面。非抽象子孙类必须包含无参构造函数。
@@ -55,9 +54,8 @@ public abstract class Display<D extends ShowData, V> {
             ShowData currentTask = scheduler.current;
             scheduler.current = null;
             setPopInstance(null);
-            Logger.getDefault().vv(currentTask);
             CommonUtils.cancelPendingTimeout(currentTask);
-            currentTask.onDismiss(false);
+            currentTask.onDismiss(OnDismissListener.DISMISS_TYPE_NOTIFIED);
             scheduler.rebalance(null, null);
             return true;
         }

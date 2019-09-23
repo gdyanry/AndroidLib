@@ -221,9 +221,8 @@ public class PopScheduler {
             for (ShowData showingData : concernedShowingData) {
                 CommonUtils.cancelPendingTimeout(showingData);
                 showingData.scheduler.current = null;
-                Logger.getDefault().vv("dismiss on expelled: ", showingData);
                 // 结束当前正在显示的关联任务
-                showingData.onDismiss(true);
+                showingData.onDismiss(OnDismissListener.DISMISS_TYPE_EXPELLED);
                 if (data.display != showingData.display) {
                     displaysToDismiss.add(showingData.display);
                 }
@@ -262,8 +261,7 @@ public class PopScheduler {
             ShowData currentTask = this.current;
             current = null;
             CommonUtils.cancelPendingTimeout(currentTask);
-            Logger.getDefault().vv("dismiss on cancelled: ", currentTask);
-            currentTask.onDismiss(true);
+            currentTask.onDismiss(OnDismissListener.DISMISS_TYPE_CANCELLED);
             if (displaysToDismiss == null) {
                 currentTask.display.internalDismiss();
             } else {

@@ -8,7 +8,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-import yanry.lib.android.interfaces.BooleanConsumer;
 import yanry.lib.android.util.CommonUtils;
 import yanry.lib.java.model.log.Logger;
 
@@ -23,7 +22,7 @@ public class ShowData implements Runnable {
     PopScheduler scheduler;
     Object tag;
     private LinkedList<Runnable> onShowListeners;
-    private LinkedList<BooleanConsumer> onDismissListeners;
+    private LinkedList<OnDismissListener> onDismissListeners;
     Display display;
     int priority;
 
@@ -47,7 +46,7 @@ public class ShowData implements Runnable {
                 CommonUtils.scheduleTimeout(this, delay);
             } else {
                 CommonUtils.cancelPendingTimeout(this);
-                CommonUtils.runOnUiThread(this);
+                CommonUtils.runOnUiThread(() -> doDismiss(OnDismissListener.DISMISS_TYPE_MANUAL));
             }
         }
     }
@@ -84,10 +83,7 @@ public class ShowData implements Runnable {
         return this;
     }
 
-    /**
-     * 回调的boolean参数只有当dismiss事件由外部触发后并且调用了{@link Display#notifyDismiss(Object)}的情况下才为false。
-     */
-    public ShowData addOnDismissListener(BooleanConsumer listener) {
+    public ShowData addOnDismissListener(OnDismissListener listener) {
         onDismissListeners.add(listener);
         return this;
     }
@@ -98,9 +94,10 @@ public class ShowData implements Runnable {
         }
     }
 
-    final void onDismiss(boolean isBeforeDismiss) {
-        for (BooleanConsumer listener : onDismissListeners) {
-            listener.accept(isBeforeDismiss);
+    final void onDismiss(@OnDismissListener.DismissType int type) {
+        Logger.getDefault().v("dismiss(%s): %s", type, this);
+        for (OnDismissListener listener : onDismissListeners) {
+            listener.onDismiss(type);
         }
     }
 
@@ -133,10 +130,13 @@ public class ShowData implements Runnable {
 
     @Override
     public final void run() {
+        doDismiss(OnDismissListener.DISMISS_TYPE_TIMEOUT);
+    }
+
+    private void doDismiss(int type) {
         if (scheduler != null && scheduler.current == this) {
             scheduler.current = null;
-            Logger.getDefault().vv("dismiss: ", this);
-            onDismiss(true);
+            onDismiss(type);
             HashSet<Display> displaysToDismiss = new HashSet<>();
             displaysToDismiss.add(display);
             scheduler.rebalance(null, displaysToDismiss);
