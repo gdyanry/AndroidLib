@@ -36,7 +36,7 @@ public abstract class AndroidBaseDao extends BaseDao {
                 if (!onDbUpgrade(db, oldVersion, newVersion)) {
                     Cursor cursor = db.query("sqlite_master", new String[]{"type", "name"}, "name <> ?", new String[]{"android_metadata"}, null, null, null);
                     while (cursor.moveToNext()) {
-                        db.execSQL(new StringBuilder("drop ").append(cursor.getString(0)).append(" if not exists ").append(cursor.getString(1)).toString());
+                        db.execSQL(new StringBuilder("drop ").append(cursor.getString(0)).append(" if exists ").append(cursor.getString(1)).toString());
                     }
                     cursor.close();
                     getDbObjectCreateStatements(new SqlExecutor() {
