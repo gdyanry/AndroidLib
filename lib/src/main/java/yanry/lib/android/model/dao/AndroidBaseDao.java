@@ -33,24 +33,30 @@ public abstract class AndroidBaseDao extends BaseDao {
 
             @Override
             public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                onDbUpgrade(db, oldVersion, newVersion);
-            }
-
-            @Override
-            public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                onDbUpgrade(db, oldVersion, newVersion);
+                if (!onDbUpgrade(db, oldVersion, newVersion)) {
+                    Cursor cursor = db.query("sqlite_master", new String[]{"type", "name"}, "name <> ?", new String[]{"android_metadata"}, null, null, null);
+                    while (cursor.moveToNext()) {
+                        db.execSQL(new StringBuilder("drop ").append(cursor.getString(0)).append(" if not exists ").append(cursor.getString(1)).toString());
+                    }
+                    cursor.close();
+                    getDbObjectCreateStatements(new SqlExecutor() {
+                        @Override
+                        public void execute(String sql) {
+                            db.execSQL(sql);
+                        }
+                    });
+                }
             }
 
             @Override
             public void onCreate(final SQLiteDatabase db) {
-                getDbObjectCreateStatements(new SqlExecutor() {
+                onDbCreated(db, getDbObjectCreateStatements(new SqlExecutor() {
 
                     @Override
                     public void execute(String sql) {
                         db.execSQL(sql);
                     }
-                });
-                onDbCreated(db);
+                }));
             }
         };
         if (supportConcurrent && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -143,16 +149,20 @@ public abstract class AndroidBaseDao extends BaseDao {
      * @param db
      * @param oldVersion
      * @param newVersion
+     * @return return true to take up upgrade all by yourself; or false to accept the
+     * default behavior that old database objects(tables, views, etc.) will be removed
+     * and new database objects will be created.
      */
-    protected abstract void onDbUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
+    protected abstract boolean onDbUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
 
     /**
      * Called when the database is created for the first time. Note that all
      * tables have been created by now.
      *
      * @param db
+     * @param sql
      */
-    protected abstract void onDbCreated(SQLiteDatabase db);
+    protected abstract void onDbCreated(SQLiteDatabase db, String sql);
 
     public abstract class WriteTransaction {
         public void start() {
