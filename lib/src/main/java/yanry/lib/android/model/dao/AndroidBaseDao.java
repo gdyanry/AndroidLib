@@ -33,7 +33,11 @@ public abstract class AndroidBaseDao extends BaseDao {
 
             @Override
             public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-                if (!onDbUpgrade(db, oldVersion, newVersion)) {
+                dispatchDbVersionChange(db, oldVersion, newVersion);
+            }
+
+            private void dispatchDbVersionChange(SQLiteDatabase db, int oldVersion, int newVersion) {
+                if (!onDbVersionChange(db, oldVersion, newVersion)) {
                     Cursor cursor = db.query("sqlite_master", new String[]{"type", "name"}, "name <> ?", new String[]{"android_metadata"}, null, null, null);
                     while (cursor.moveToNext()) {
                         db.execSQL(new StringBuilder("drop ").append(cursor.getString(0)).append(" if exists ").append(cursor.getString(1)).toString());
@@ -46,6 +50,11 @@ public abstract class AndroidBaseDao extends BaseDao {
                         }
                     });
                 }
+            }
+
+            @Override
+            public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+                dispatchDbVersionChange(db, oldVersion, newVersion);
             }
 
             @Override
@@ -153,7 +162,7 @@ public abstract class AndroidBaseDao extends BaseDao {
      * default behavior that old database objects(tables, views, etc.) will be removed
      * and new database objects will be created.
      */
-    protected abstract boolean onDbUpgrade(SQLiteDatabase db, int oldVersion, int newVersion);
+    protected abstract boolean onDbVersionChange(SQLiteDatabase db, int oldVersion, int newVersion);
 
     /**
      * Called when the database is created for the first time. Note that all
@@ -167,8 +176,7 @@ public abstract class AndroidBaseDao extends BaseDao {
     public abstract class WriteTransaction {
         public void start() {
             SQLiteDatabase db = openHelper.getWritableDatabase();
-            // simple test shows that different transaction mode has little
-            // impact on performance --!
+            // simple test shows that different transaction mode has little impact on performance --!
             db.beginTransactionNonExclusive();
             try {
                 inTransaction(db);

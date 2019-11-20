@@ -48,7 +48,7 @@ public abstract class CopyDaoCreator implements DaoCreator {
 			}
 
 			@Override
-			protected boolean onDbUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			protected boolean onDbVersionChange(SQLiteDatabase db, int oldVersion, int newVersion) {
 				return false;
 			}
 
