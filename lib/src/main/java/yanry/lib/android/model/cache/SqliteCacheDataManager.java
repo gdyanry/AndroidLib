@@ -41,11 +41,13 @@ public class SqliteCacheDataManager extends CacheDataManager {
 			}
 
 			@Override
-			protected void onDbUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			protected boolean onDbUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+				return false;
 			}
 
 			@Override
-			protected void onDbCreated(SQLiteDatabase db) {
+			protected void onDbCreated(SQLiteDatabase db, String sql) {
+
 			}
 		};
 		this.retentionMillis = retentionHours * 3600000L;

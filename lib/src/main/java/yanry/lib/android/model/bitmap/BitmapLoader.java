@@ -13,6 +13,7 @@ import android.util.LruCache;
 import android.widget.TextView;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -98,12 +99,7 @@ public class BitmapLoader implements ConnectivityListener {
             }
 
             @Override
-            protected void onDiscard(BitmapRequest bitmapRequest) {
-
-            }
-
-            @Override
-            protected void onCleared(int i) {
+            protected void onClean(List<BitmapRequest> discarded) {
 
             }
         };
