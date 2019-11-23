@@ -5,7 +5,7 @@ package yanry.lib.android.model.request.cache;
 
 import android.view.View;
 
-import yanry.lib.android.widget.RequestListenPage;
+import yanry.lib.android.model.request.RequestListenPage;
 import yanry.lib.java.model.communication.base.RequestLiveListener;
 
 /**

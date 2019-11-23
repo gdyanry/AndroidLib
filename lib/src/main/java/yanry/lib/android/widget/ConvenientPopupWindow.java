@@ -7,9 +7,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.widget.PopupWindow;
 
-import yanry.lib.android.entity.enums.Alignment;
-import yanry.lib.android.entity.enums.Orientation;
-
 /**
  * @author yanry
  *
@@ -68,5 +65,23 @@ public class ConvenientPopupWindow extends PopupWindow {
 			return -anchor.getHeight();
 		}
 		return 0;
+	}
+
+	/**
+	 * @author yanry
+	 * <p>
+	 * 2016年3月18日
+	 */
+	public enum Alignment {
+		START, CENTER, END
+	}
+
+	/**
+	 * @author yanry
+	 * <p>
+	 * 2016年3月18日
+	 */
+	public enum Orientation {
+		TOP, RIGHT, BOTTOM, LEFT
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package yanry.lib.android.entity.enums;
+package yanry.lib.android.model.request;
 
 /**
  * @author yanry

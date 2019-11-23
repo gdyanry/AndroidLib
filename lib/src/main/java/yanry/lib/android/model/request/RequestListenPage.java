@@ -1,15 +1,13 @@
 /**
  * 
  */
-package yanry.lib.android.widget;
+package yanry.lib.android.model.request;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ViewSwitcher;
 
-import yanry.lib.android.entity.enums.RequestState;
-import yanry.lib.android.model.request.AndroidRequestLiveListener;
 import yanry.lib.java.model.communication.base.RequestLiveListener;
 
 /**

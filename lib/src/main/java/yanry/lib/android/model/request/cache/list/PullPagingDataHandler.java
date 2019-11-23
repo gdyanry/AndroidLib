@@ -3,8 +3,8 @@
  */
 package yanry.lib.android.model.request.cache.list;
 
-import yanry.lib.android.entity.enums.RequestState;
 import yanry.lib.android.model.request.AndroidRequestLiveListener;
+import yanry.lib.android.model.request.RequestState;
 import yanry.lib.android.view.pull.PullDownSource;
 import yanry.lib.android.view.pull.loadmore.LoadMore;
 import yanry.lib.android.view.pull.loadmore.OnLoadMoreListener;

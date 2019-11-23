@@ -10,11 +10,11 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
+import yanry.lib.android.model.request.RequestListenPage;
 import yanry.lib.android.model.request.cache.PageLoadingProvider;
 import yanry.lib.android.view.pull.PullDownSource;
 import yanry.lib.android.view.pull.loadmore.LoadMore;
 import yanry.lib.android.view.pull.refresh.RefreshHandler;
-import yanry.lib.android.widget.RequestListenPage;
 import yanry.lib.java.model.communication.base.RequestLiveListener;
 import yanry.lib.java.model.json.JSONObject;
 

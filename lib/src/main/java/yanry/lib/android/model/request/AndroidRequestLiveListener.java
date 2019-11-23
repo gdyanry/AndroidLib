@@ -3,7 +3,6 @@
  */
 package yanry.lib.android.model.request;
 
-import yanry.lib.android.entity.enums.RequestState;
 import yanry.lib.android.util.CommonUtils;
 import yanry.lib.java.model.communication.base.RequestLiveListener;
 
