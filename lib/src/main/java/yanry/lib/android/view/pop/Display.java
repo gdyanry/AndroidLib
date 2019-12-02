@@ -4,6 +4,10 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.View;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import yanry.lib.android.interfaces.Consumer;
 import yanry.lib.android.util.CommonUtils;
 
 /**
@@ -16,8 +20,10 @@ public abstract class Display<D extends ShowData, V> {
     private PopScheduler scheduler;
     private V popInstance;
     private boolean isView;
+    private List<Consumer<V>> onPopInstanceChangeListeners;
 
     protected Display() {
+        onPopInstanceChangeListeners = new LinkedList<>();
     }
 
     void setScheduler(PopScheduler scheduler) {
@@ -36,7 +42,23 @@ public abstract class Display<D extends ShowData, V> {
         } else {
             isView = popInstance instanceof View;
         }
-        this.popInstance = popInstance;
+        if (this.popInstance != popInstance) {
+            for (Consumer<V> listener : onPopInstanceChangeListeners) {
+                listener.accept(popInstance);
+            }
+            this.popInstance = popInstance;
+        }
+    }
+
+
+    public void addOnPopInstanceChangeListener(Consumer<V> listener) {
+        if (!onPopInstanceChangeListeners.contains(listener)) {
+            onPopInstanceChangeListeners.add(listener);
+        }
+    }
+
+    public void removeOnPopInstanceChangeListener(Consumer<V> listener) {
+        onPopInstanceChangeListeners.remove(listener);
     }
 
     public D getShowingData() {
