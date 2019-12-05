@@ -94,7 +94,7 @@ public class ShowData implements Runnable {
         }
     }
 
-    final void dispatchDismiss(@OnDismissListener.DismissType int type) {
+    final void dispatchDismiss(@OnDismissListener.DismissType String type) {
         Logger.getDefault().v("dismiss(%s): %s", type, this);
         for (OnDismissListener listener : onDismissListeners) {
             listener.onDismiss(type);
@@ -128,12 +128,15 @@ public class ShowData implements Runnable {
         return true;
     }
 
+    protected void onCleanFromQueue() {
+    }
+
     @Override
     public final void run() {
         doDismiss(OnDismissListener.DISMISS_TYPE_TIMEOUT);
     }
 
-    private void doDismiss(int type) {
+    private void doDismiss(String type) {
         if (scheduler != null && scheduler.current == this) {
             scheduler.current = null;
             dispatchDismiss(type);

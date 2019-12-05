@@ -1,20 +1,20 @@
 package yanry.lib.android.view.pop;
 
-import android.support.annotation.IntDef;
+import android.support.annotation.StringDef;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 public interface OnDismissListener {
-    int DISMISS_TYPE_MANUAL = 1;
-    int DISMISS_TYPE_TIMEOUT = 2;
-    int DISMISS_TYPE_EXPELLED = 3;
-    int DISMISS_TYPE_CANCELLED = 4;
-    int DISMISS_TYPE_NOTIFIED = 5;
+    String DISMISS_TYPE_MANUAL = "MANUAL";
+    String DISMISS_TYPE_TIMEOUT = "TIMEOUT";
+    String DISMISS_TYPE_EXPELLED = "EXPELLED";
+    String DISMISS_TYPE_CANCELLED = "CANCELLED";
+    String DISMISS_TYPE_NOTIFIED = "NOTIFIED";
 
-    void onDismiss(@DismissType int type);
+    void onDismiss(@DismissType String type);
 
-    @IntDef({DISMISS_TYPE_CANCELLED, DISMISS_TYPE_MANUAL, DISMISS_TYPE_NOTIFIED, DISMISS_TYPE_TIMEOUT, DISMISS_TYPE_EXPELLED})
+    @StringDef({DISMISS_TYPE_CANCELLED, DISMISS_TYPE_MANUAL, DISMISS_TYPE_NOTIFIED, DISMISS_TYPE_TIMEOUT, DISMISS_TYPE_EXPELLED})
     @Retention(RetentionPolicy.SOURCE)
     @interface DismissType {
     }

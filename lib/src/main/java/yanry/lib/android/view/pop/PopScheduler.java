@@ -48,6 +48,10 @@ public class PopScheduler {
      * @param dismissCurrent 是否关闭当前正在显示的界面。
      */
     public static void cancelAll(boolean dismissCurrent) {
+        for (ShowData data : queue) {
+            data.onCleanFromQueue();
+            Logger.getDefault().vv("clean from queue: ", data);
+        }
         queue.clear();
         if (dismissCurrent) {
             for (PopScheduler scheduler : instances.values()) {
@@ -67,6 +71,7 @@ public class PopScheduler {
             ShowData data = it.next();
             if (data.tag == tag) {
                 it.remove();
+                data.onCleanFromQueue();
                 Logger.getDefault().vv("cancelled by tag: ", data);
             }
         }
@@ -166,6 +171,8 @@ public class PopScheduler {
             ShowData next = iterator.next();
             if (next.scheduler == this) {
                 iterator.remove();
+                next.onCleanFromQueue();
+                Logger.getDefault().vv("clean from queue: ", next);
             }
         }
         if (dismissCurrent) {
