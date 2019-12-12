@@ -1,23 +1,23 @@
-package yanry.lib.android.view.pop.display;
+package yanry.lib.android.view.pop;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.WindowManager;
 
-import yanry.lib.android.view.pop.ShowData;
+import yanry.lib.java.model.schedule.ReusableDisplay;
 
-public abstract class FloatDisplay<D extends ShowData> extends ReusableDisplay<D, View> {
+public abstract class FloatDisplay<D extends ContextShowData> extends ReusableDisplay<D, View> {
     private WindowManager windowManager;
     private WindowManager.LayoutParams layoutParams;
 
     @Override
-    protected View createInstance(Context context) {
+    protected View createInstance(D data) {
         if (windowManager == null) {
-            windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+            windowManager = (WindowManager) data.getContext().getSystemService(Context.WINDOW_SERVICE);
             layoutParams = getLayoutParams();
         }
-        return getContentView(context);
+        return getContentView(data.getContext());
     }
 
     @Override

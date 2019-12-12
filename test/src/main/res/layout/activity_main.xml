@@ -44,19 +44,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:text="A" />
+            android:text="Left" />
 
         <RadioButton
             android:id="@+id/tag_b"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="B" />
+            android:text="Center" />
 
         <RadioButton
             android:id="@+id/tag_c"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="C" />
+            android:text="Right" />
     </RadioGroup>
 
     <RadioGroup

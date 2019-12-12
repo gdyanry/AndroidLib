@@ -1,21 +1,19 @@
-package yanry.lib.android.view.pop.display;
+package yanry.lib.android.view.pop;
 
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import yanry.lib.android.util.CommonUtils;
-import yanry.lib.android.view.pop.ShowData;
-import yanry.lib.android.view.pop.SyncDisplay;
+import yanry.lib.java.model.schedule.SyncDisplay;
 
-public class ToastDisplay extends SyncDisplay<ShowData, Toast> {
+public class ToastDisplay extends SyncDisplay<ContextShowData, Toast> {
 
     @Override
-    protected Toast showData(Toast currentInstance, Context context, ShowData data) {
+    protected Toast showData(Toast currentInstance, ContextShowData data) {
         if (currentInstance != null) {
             currentInstance.cancel();
         }
-        Toast toast = Toast.makeText(context, data.toString(), Toast.LENGTH_LONG);
+        Toast toast = Toast.makeText(data.getContext(), data.toString(), Toast.LENGTH_LONG);
         toast.show();
         CommonUtils.scheduleTimeout(() -> notifyDismiss(toast), 3500);
         return toast;

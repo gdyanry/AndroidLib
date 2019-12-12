@@ -8,12 +8,15 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import yanry.lib.android.model.AndroidLogHandler;
-import yanry.lib.android.view.pop.Display;
-import yanry.lib.android.view.pop.PopScheduler;
-import yanry.lib.android.view.pop.ShowData;
-import yanry.lib.android.view.pop.display.ToastDisplay;
+import yanry.lib.android.view.pop.ContextShowData;
+import yanry.lib.android.view.pop.ToastDisplay;
+import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.log.SimpleFormatter;
+import yanry.lib.java.model.schedule.Display;
+import yanry.lib.java.model.schedule.Scheduler;
+import yanry.lib.java.model.schedule.SchedulerManager;
+import yanry.lib.java.model.schedule.ShowData;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private int counter;
@@ -25,12 +28,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private RadioGroup rgTag;
     private RadioGroup rgDisplay;
 
+    private SchedulerManager manager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Logger.getDefault().addHandler(new AndroidLogHandler(new SimpleFormatter().sequenceNumber().method(3), null, true));
-
         rgDisplay = findViewById(R.id.rg_display);
         rgStrategy = findViewById(R.id.rg_strategy);
         cbRejectExpelled = findViewById(R.id.reject_expelled);
@@ -39,13 +43,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         cbIsValid = findViewById(R.id.is_valid);
         findViewById(R.id.btn_show).setOnClickListener(this);
         rgTag = findViewById(R.id.rg_tag);
-        PopScheduler.get("B").addLink(PopScheduler.get("A"), PopScheduler.get("C"));
-        PopScheduler.get("C").addLink(PopScheduler.get("B"));
+
+        manager = Singletons.get(PopManager.class);
+        manager.get("Center").addLink(manager.get("Left"), manager.get("Right"));
+        manager.get("Right").addLink(manager.get("Center"));
     }
 
     @Override
     protected void onDestroy() {
-        PopScheduler.cancelAll(true);
+        manager.cancelAll(true);
         super.onDestroy();
     }
 
@@ -60,13 +66,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.rb_float:
                 switch (tag) {
-                    case "A":
+                    case "Left":
                         indicator = LeftFloatDisplay.class;
                         break;
-                    case "B":
+                    case "Center":
                         indicator = CenterFloatDisplay.class;
                         break;
-                    case "C":
+                    case "Right":
                         indicator = RightFloatDisplay.class;
                         break;
                 }
@@ -75,11 +81,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 indicator = ToastDisplay.class;
                 break;
         }
-        PopScheduler scheduler = PopScheduler.get(tag);
+        Scheduler scheduler = manager.get(tag);
         final int data = counter++;
         switch (v.getId()) {
             case R.id.btn_show:
-                ShowData showData = new ShowData(this) {
+                ContextShowData showData = new ContextShowData(this) {
                     @Override
                     protected int getStrategy() {
                         switch (rgStrategy.getCheckedRadioButtonId()) {
@@ -113,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 };
                 showData.setExtra(data)
-                        .setDuration(20000);
+                        .setDuration(5000);
                 scheduler.show(showData, indicator);
                 break;
         }

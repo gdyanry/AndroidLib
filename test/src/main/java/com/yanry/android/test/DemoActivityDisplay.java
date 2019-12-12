@@ -1,18 +1,18 @@
 package com.yanry.android.test;
 
-import android.content.Context;
 import android.content.Intent;
 
-import yanry.lib.android.view.pop.ShowData;
-import yanry.lib.android.view.pop.display.ActivityDisplay;
+import yanry.lib.android.view.pop.ActivityDisplay;
+import yanry.lib.android.view.pop.ContextShowData;
 
 /**
  * rongyu.yan
  * 2018/11/13
  **/
-public class DemoActivityDisplay extends ActivityDisplay<ShowData> {
+public class DemoActivityDisplay extends ActivityDisplay<ContextShowData> {
+
     @Override
-    protected void show(Context context) {
-        context.startActivity(new Intent(context, DisplayActivity.class));
+    protected void showView(ContextShowData data) {
+        data.getContext().startActivity(new Intent(data.getContext(), DisplayActivity.class));
     }
 }
