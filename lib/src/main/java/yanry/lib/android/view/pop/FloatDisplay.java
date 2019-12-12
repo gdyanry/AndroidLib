@@ -12,7 +12,7 @@ public abstract class FloatDisplay<D extends ContextShowData> extends ReusableDi
     private WindowManager.LayoutParams layoutParams;
 
     @Override
-    protected View createInstance(D data) {
+    protected View createView(D data) {
         if (windowManager == null) {
             windowManager = (WindowManager) data.getContext().getSystemService(Context.WINDOW_SERVICE);
             layoutParams = getLayoutParams();
@@ -26,13 +26,13 @@ public abstract class FloatDisplay<D extends ContextShowData> extends ReusableDi
     }
 
     @Override
-    protected void dismiss(View popInstance) {
-        windowManager.removeView(popInstance);
+    protected void dismiss(View view) {
+        windowManager.removeView(view);
     }
 
     @Override
-    protected boolean isShowing(@NonNull View popInstance) {
-        return popInstance.getParent() != null;
+    protected boolean isShowing(@NonNull View view) {
+        return view.getParent() != null;
     }
 
     protected abstract WindowManager.LayoutParams getLayoutParams();
