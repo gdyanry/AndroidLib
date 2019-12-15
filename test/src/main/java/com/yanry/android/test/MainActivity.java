@@ -18,6 +18,10 @@ import yanry.lib.java.model.schedule.Scheduler;
 import yanry.lib.java.model.schedule.SchedulerManager;
 import yanry.lib.java.model.schedule.ShowData;
 
+import static yanry.lib.java.model.schedule.ShowData.STRATEGY_APPEND_TAIL;
+import static yanry.lib.java.model.schedule.ShowData.STRATEGY_INSERT_HEAD;
+import static yanry.lib.java.model.schedule.ShowData.STRATEGY_SHOW_IMMEDIATELY;
+
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private int counter;
     private RadioGroup rgStrategy;
@@ -59,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         RadioButton rbTag = findViewById(rgTag.getCheckedRadioButtonId());
         String tag = rbTag.getText().toString();
-        Class<? extends Display> indicator = null;
+        Class<? extends Display<ContextShowData, ?>> indicator = null;
         switch (rgDisplay.getCheckedRadioButtonId()) {
             case R.id.rb_activity:
                 indicator = DemoActivityDisplay.class;
@@ -85,39 +89,32 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final int data = counter++;
         switch (v.getId()) {
             case R.id.btn_show:
-                ContextShowData showData = new ContextShowData(this) {
-                    @Override
-                    protected int getStrategy() {
-                        switch (rgStrategy.getCheckedRadioButtonId()) {
-                            case R.id.append_tail:
-                                return STRATEGY_APPEND_TAIL;
-                            case R.id.insert_head:
-                                return STRATEGY_INSERT_HEAD;
-                            default:
-                                return STRATEGY_SHOW_IMMEDIATELY;
-                        }
-                    }
-
-                    @Override
-                    protected boolean rejectExpelled() {
-                        return cbRejectExpelled.isChecked();
-                    }
-
-                    @Override
-                    protected boolean rejectDismissed() {
-                        return cbRejectDismissed.isChecked();
-                    }
-
-                    @Override
-                    protected boolean expelWaitingTask(ShowData request) {
-                        return cbExpelExistingTask.isChecked();
-                    }
-
-                    @Override
-                    protected boolean isValidOnDequeue() {
-                        return cbIsValid.isChecked();
-                    }
-                };
+                ContextShowData showData = new ContextShowData(this);
+                switch (rgStrategy.getCheckedRadioButtonId()) {
+                    case R.id.append_tail:
+                        showData.setStrategy(STRATEGY_APPEND_TAIL);
+                        break;
+                    case R.id.insert_head:
+                        showData.setStrategy(STRATEGY_INSERT_HEAD);
+                        break;
+                    default:
+                        showData.setStrategy(STRATEGY_SHOW_IMMEDIATELY);
+                        break;
+                }
+                int flags = 0;
+                if (cbRejectExpelled.isChecked()) {
+                    flags |= ShowData.FLAG_REJECT_EXPELLED;
+                }
+                if (cbRejectDismissed.isChecked()) {
+                    flags |= ShowData.FLAG_REJECT_DISMISSED;
+                }
+                if (cbExpelExistingTask.isChecked()) {
+                    flags |= ShowData.FLAG_EXPEL_WAITING_DATA;
+                }
+                if (cbIsValid.isChecked()) {
+                    flags |= ShowData.FLAG_INVALID_ON_DEQUEUE;
+                }
+                showData.setFlags(flags);
                 showData.setExtra(data)
                         .setDuration(5000);
                 scheduler.show(showData, indicator);
