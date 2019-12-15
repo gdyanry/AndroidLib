@@ -101,20 +101,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         showData.setStrategy(STRATEGY_SHOW_IMMEDIATELY);
                         break;
                 }
-                int flags = 0;
                 if (cbRejectExpelled.isChecked()) {
-                    flags |= ShowData.FLAG_REJECT_EXPELLED;
+                    showData.addFlag(ShowData.FLAG_REJECT_EXPELLED);
                 }
                 if (cbRejectDismissed.isChecked()) {
-                    flags |= ShowData.FLAG_REJECT_DISMISSED;
+                    showData.addFlag(ShowData.FLAG_REJECT_DISMISSED);
                 }
                 if (cbExpelExistingTask.isChecked()) {
-                    flags |= ShowData.FLAG_EXPEL_WAITING_DATA;
+                    showData.addFlag(ShowData.FLAG_EXPEL_WAITING_DATA);
                 }
                 if (cbIsValid.isChecked()) {
-                    flags |= ShowData.FLAG_INVALID_ON_DEQUEUE;
+                    showData.addFlag(ShowData.FLAG_INVALID_ON_DEQUEUE);
                 }
-                showData.setFlags(flags);
                 showData.setExtra(data)
                         .setDuration(5000);
                 scheduler.show(showData, indicator);
