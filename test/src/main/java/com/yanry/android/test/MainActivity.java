@@ -111,10 +111,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     showData.addFlag(ShowData.FLAG_EXPEL_WAITING_DATA);
                 }
                 if (cbIsValid.isChecked()) {
-                    showData.addFlag(ShowData.FLAG_INVALID_ON_DEQUEUE);
+                    showData.addFlag(ShowData.FLAG_INVALID_ON_DELAYED_SHOW);
                 }
-                showData.setExtra(data)
-                        .setDuration(5000);
+                showData.setExtra(data).setDuration(5000);
                 scheduler.show(showData, indicator);
                 break;
         }
