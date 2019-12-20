@@ -7,7 +7,7 @@ import yanry.lib.java.model.log.LogHandler;
 import yanry.lib.java.model.log.LogLevel;
 
 public class AndroidLogHandler extends LogHandler {
-    public static final String DEFAULT_TAG = "tag:default";
+    public static final String DEFAULT_TAG = "yanry.lib";
     private static final int MAX_LEN = 2500;
     private boolean splitLongLine;
 
