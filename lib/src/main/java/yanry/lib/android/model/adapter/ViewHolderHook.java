@@ -4,6 +4,7 @@
 package yanry.lib.android.model.adapter;
 
 import android.view.View;
+import android.view.ViewGroup;
 
 /**
  * @author yanry
@@ -16,7 +17,7 @@ public interface ViewHolderHook {
 
 	int getItemViewId(int viewType);
 
-	View getItemView(int viewType);
+	View getItemView(ViewGroup parent, int viewType);
 	
 	boolean onRebind(ViewHolder holder, int newPosition);
 }

@@ -17,7 +17,7 @@ public abstract class RecyclerAdapter extends Adapter<RecyclerViewHolder> {
 
 	@Override
 	public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View itemView = getItemView(viewType);
+		View itemView = getItemView(parent, viewType);
 		if (itemView == null) {
 			int itemId = getItemViewId(viewType);
 			if (itemId > 0) {
@@ -28,6 +28,6 @@ public abstract class RecyclerAdapter extends Adapter<RecyclerViewHolder> {
 	}
 
 	protected abstract int getItemViewId(int viewType);
-	
-	protected abstract View getItemView(int viewType);
+
+	protected abstract View getItemView(ViewGroup parent, int viewType);
 }
