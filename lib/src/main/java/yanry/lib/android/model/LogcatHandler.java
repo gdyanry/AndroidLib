@@ -2,24 +2,21 @@ package yanry.lib.android.model;
 
 import android.util.Log;
 
-import yanry.lib.java.model.log.LogFormatter;
 import yanry.lib.java.model.log.LogHandler;
-import yanry.lib.java.model.log.LogLevel;
+import yanry.lib.java.model.log.LogRecord;
 
-public class AndroidLogHandler extends LogHandler {
-    public static final String DEFAULT_TAG = "yanry.lib";
+public class LogcatHandler extends LogHandler {
     private static final int MAX_LEN = 2500;
     private boolean splitLongLine;
 
-    public AndroidLogHandler(LogFormatter formatter, LogLevel level, boolean splitLongLine) {
-        super(formatter, level);
+    public LogcatHandler(boolean splitLongLine) {
         this.splitLongLine = splitLongLine;
     }
 
     @Override
-    protected void handleLog(LogLevel logLevel, Object tag, String log, int messageStart, int messageEnd) {
+    protected void handleFormattedLog(LogRecord logRecord, String formattedLog) {
         int priority = 0;
-        switch (logLevel) {
+        switch (logRecord.getLevel()) {
             case Verbose:
                 priority = Log.VERBOSE;
                 break;
@@ -36,22 +33,23 @@ public class AndroidLogHandler extends LogHandler {
                 priority = Log.ERROR;
                 break;
         }
-        String strTag = tag == null ? DEFAULT_TAG : tag.toString();
+        Object tag = logRecord.getTag();
+        String strTag = tag == null ? "yanry.lib" : tag.toString();
         if (splitLongLine) {
-            int length = log.length();
+            int length = formattedLog.length();
             for (int i = 0; i < length; ) {
                 int endIndex = Math.min(i + MAX_LEN, length);
-                Log.println(priority, strTag, log.substring(i, endIndex));
+                Log.println(priority, strTag, formattedLog.substring(i, endIndex));
                 i = endIndex;
             }
         } else {
-            Log.println(priority, strTag, log);
+            Log.println(priority, strTag, formattedLog);
         }
     }
 
     @Override
     protected void catches(Object tag, Exception e) {
-        /**
+        /*
          * Log.wtf() and Log.e() both have the same priority, ERROR.
          *
          * The difference is that Log.wtf() calls for onTerribleFailure() call back, which
