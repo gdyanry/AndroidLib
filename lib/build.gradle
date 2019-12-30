@@ -12,15 +12,9 @@ android {
         abortOnError false
     }
     buildTypes {
-        debug {
-            minifyEnabled false
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        local {
-            minifyEnabled false
         }
     }
     compileOptions {
@@ -32,8 +26,7 @@ android {
 
 dependencies {
     compileOnly 'com.android.support:appcompat-v7:27.1.1'
-    releaseApi 'com.github.gdyanry:CommonLib:v0.1912.300'
-    debugApi 'com.github.gdyanry:CommonLib:v0.1912.300'
-    localApi project(path: ':CommonLib')
+    api 'com.github.gdyanry:CommonLib:v0.1912.300'
+//    api project(path: ':CommonLib')
     compileOnly 'com.android.support:recyclerview-v7:27.1.1'
 }
