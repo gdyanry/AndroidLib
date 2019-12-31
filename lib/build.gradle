@@ -26,7 +26,7 @@ android {
 
 dependencies {
     compileOnly 'com.android.support:appcompat-v7:27.1.1'
-    api 'com.github.gdyanry:CommonLib:v0.1912.310'
+    api 'com.github.gdyanry:CommonLib:v0.1912.311'
 //    api project(path: ':CommonLib')
     compileOnly 'com.android.support:recyclerview-v7:27.1.1'
 }
