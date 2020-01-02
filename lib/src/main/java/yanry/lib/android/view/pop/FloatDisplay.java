@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.WindowManager;
 
-import yanry.lib.java.model.schedule.ReusableDisplay;
+import yanry.lib.java.model.schedule.imple.ReusableDisplay;
 
 public abstract class FloatDisplay<D extends ContextShowData> extends ReusableDisplay<D, View> {
     private WindowManager windowManager;

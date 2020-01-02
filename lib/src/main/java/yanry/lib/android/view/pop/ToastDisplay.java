@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import yanry.lib.android.util.CommonUtils;
-import yanry.lib.java.model.schedule.SyncDisplay;
+import yanry.lib.java.model.schedule.imple.SyncDisplay;
 
 public class ToastDisplay extends SyncDisplay<ContextShowData, Toast> {
 

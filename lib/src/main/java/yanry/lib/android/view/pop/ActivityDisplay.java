@@ -3,7 +3,7 @@ package yanry.lib.android.view.pop;
 import android.app.Activity;
 import android.support.annotation.NonNull;
 
-import yanry.lib.java.model.schedule.AsyncDisplay;
+import yanry.lib.java.model.schedule.imple.AsyncDisplay;
 
 /**
  * Activity需要在onCreate()中调用{@link #notifyCreate(yanry.lib.java.model.schedule.AsyncBridge)}，在onDestroy()中调用{@link #notifyDismiss(Activity)} 。
