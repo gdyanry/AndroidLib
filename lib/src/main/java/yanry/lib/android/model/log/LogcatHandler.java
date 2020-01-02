@@ -1,4 +1,4 @@
-package yanry.lib.android.model;
+package yanry.lib.android.model.log;
 
 import android.util.Log;
 
@@ -6,7 +6,7 @@ import yanry.lib.java.model.log.LogHandler;
 import yanry.lib.java.model.log.LogRecord;
 
 public class LogcatHandler extends LogHandler {
-    private static final int MAX_LEN = 2500;
+    public static final int MAX_LOG_LEN = 2500;
     private boolean splitLongLine;
 
     public LogcatHandler(boolean splitLongLine) {
@@ -38,7 +38,7 @@ public class LogcatHandler extends LogHandler {
         if (splitLongLine) {
             int length = formattedLog.length();
             for (int i = 0; i < length; ) {
-                int endIndex = Math.min(i + MAX_LEN, length);
+                int endIndex = Math.min(i + MAX_LOG_LEN, length);
                 Log.println(priority, strTag, formattedLog.substring(i, endIndex));
                 i = endIndex;
             }
