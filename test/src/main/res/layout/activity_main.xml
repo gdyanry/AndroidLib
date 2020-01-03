@@ -6,6 +6,12 @@
     android:orientation="vertical"
     tools:context="com.lib.android.test.MainActivity">
 
+    <Button
+        android:id="@+id/btn_show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SHOW" />
+
     <RadioGroup
         android:id="@+id/rg_display"
         android:layout_width="match_parent"
@@ -108,10 +114,4 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="isInValidOndelayedShow" />
-
-    <Button
-        android:id="@+id/btn_show"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="USE BUILDER" />
 </LinearLayout>
