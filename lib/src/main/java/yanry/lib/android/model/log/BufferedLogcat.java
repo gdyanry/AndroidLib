@@ -2,6 +2,7 @@ package yanry.lib.android.model.log;
 
 import android.util.Log;
 
+import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.schedule.Display;
 import yanry.lib.java.model.schedule.Scheduler;
 import yanry.lib.java.model.schedule.SchedulerManager;
@@ -18,6 +19,7 @@ public class BufferedLogcat extends BufferedStringDisplay {
     private long minFlushInterval;
     private Scheduler bufferScheduler;
     private Scheduler regularizeScheduler;
+    private Logger schedulerLogger;
 
     /**
      * @param manager          应特别注意此SchedulerManager所使用的Logger不可再添加当前LogHandler！
@@ -37,6 +39,7 @@ public class BufferedLogcat extends BufferedStringDisplay {
         LogcatRegularizeDisplay regularizeDisplay = new LogcatRegularizeDisplay();
         regularizeScheduler = manager.get(regularizeDisplay);
         regularizeScheduler.setDisplay(LogcatRegularizeDisplay.class, regularizeDisplay);
+        schedulerLogger = manager.getLogger();
     }
 
     public void printLog(String logContent) {
@@ -53,7 +56,23 @@ public class BufferedLogcat extends BufferedStringDisplay {
             ShowData data = new ShowData().setExtra(segment).setDuration(minFlushInterval).setStrategy(ShowData.STRATEGY_APPEND_TAIL);
             regularizeScheduler.show(data, LogcatRegularizeDisplay.class);
         } else {
-            Log.println(logcatLevel, logcatTag, segment);
+            flush(segment);
+        }
+    }
+
+    private void flush(String msg) {
+        int len = msg.length();
+        int printed = 0;
+        while (true) {
+            printed = Log.println(logcatLevel, logcatTag, msg);
+            if (printed < len) {
+                if (schedulerLogger != null) {
+                    schedulerLogger.ww("flush message to logcat failed: msgLen=", len, ", printed=", printed);
+                }
+                Thread.yield();
+            } else {
+                break;
+            }
         }
     }
 
@@ -64,7 +83,7 @@ public class BufferedLogcat extends BufferedStringDisplay {
 
         @Override
         protected void show(ShowData data) {
-            Log.println(logcatLevel, logcatTag, data.getExtra().toString());
+            flush(data.getExtra().toString());
         }
     }
 }
