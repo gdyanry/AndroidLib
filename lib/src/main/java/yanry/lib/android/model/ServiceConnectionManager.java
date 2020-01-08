@@ -14,6 +14,11 @@ import yanry.lib.java.model.log.Logger;
  * Created by yanry on 2020/1/8.
  */
 public abstract class ServiceConnectionManager implements ServiceConnection, Runnable {
+    public static final int FAIL_ON_BIND = 1;
+    public static final int FAIL_ON_DISCONNECTED = 2;
+    public static final int FAIL_ON_DIED = 3;
+    public static final int FAIL_ON_NULL = 4;
+
     private Context context;
     private Intent serviceIntent;
     private int connectFlags;
@@ -61,6 +66,8 @@ public abstract class ServiceConnectionManager implements ServiceConnection, Run
 
     protected abstract void onConnected(IBinder service);
 
+    protected abstract void onConnectFail(int type);
+
     protected abstract long getReconnectDelay();
 
     @Override
@@ -69,6 +76,7 @@ public abstract class ServiceConnectionManager implements ServiceConnection, Run
             boolean bindService = context.bindService(serviceIntent, this, connectFlags);
             if (!bindService) {
                 Logger.getDefault().ww("bind service fail: ", serviceIntent.getComponent());
+                onConnectFail(FAIL_ON_BIND);
                 long delay = getReconnectDelay();
                 if (delay > 0) {
                     Logger.getDefault().vv("will retry connect in ", delay, " ms.");
@@ -92,6 +100,7 @@ public abstract class ServiceConnectionManager implements ServiceConnection, Run
         isConnected = false;
         if (isOpen) {
             Logger.getDefault().dd("disconnected: ", name);
+            onConnectFail(FAIL_ON_DISCONNECTED);
         }
     }
 
@@ -100,6 +109,7 @@ public abstract class ServiceConnectionManager implements ServiceConnection, Run
         isConnected = false;
         if (isOpen) {
             Logger.getDefault().dd("binding died: ", name);
+            onConnectFail(FAIL_ON_DIED);
             context.unbindService(this);
             doConnect();
         }
@@ -108,6 +118,7 @@ public abstract class ServiceConnectionManager implements ServiceConnection, Run
     @Override
     public void onNullBinding(ComponentName name) {
         Logger.getDefault().ee("null binding: ", name);
+        onConnectFail(FAIL_ON_NULL);
         disconnect();
     }
 }
