@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.IInterface;
 
 import yanry.lib.android.util.CommonUtils;
 import yanry.lib.java.model.log.LogLevel;
@@ -13,17 +14,19 @@ import yanry.lib.java.model.log.Logger;
 /**
  * Created by yanry on 2020/1/8.
  */
-public abstract class ServiceConnectionManager implements ServiceConnection, Runnable {
-    public static final int FAIL_ON_BIND = 1;
-    public static final int FAIL_ON_DISCONNECTED = 2;
-    public static final int FAIL_ON_DIED = 3;
-    public static final int FAIL_ON_NULL = 4;
+public abstract class ServiceConnectionManager<S extends IInterface> implements ServiceConnection, Runnable {
+    public static final int EVENT_BIND_FAILED = 1;
+    public static final int EVENT_DISCONNECTED = 2;
+    public static final int EVENT_BINDING_DIED = 3;
+    public static final int EVENT_NULL_BINDING = 4;
+    public static final int EVENT_CONNECTED = 5;
+    public static final int EVENT_EXIT = 6;
 
     private Context context;
     private Intent serviceIntent;
     private int connectFlags;
     private boolean isOpen;
-    private boolean isConnected;
+    private S service;
 
     public ServiceConnectionManager(Context context, Intent serviceIntent, int connectFlags) {
         this.context = context;
@@ -60,27 +63,30 @@ public abstract class ServiceConnectionManager implements ServiceConnection, Run
         return isOpen;
     }
 
-    public boolean isConnected() {
-        return isConnected;
+    public S getService() {
+        return service;
     }
 
-    protected abstract void onConnected(IBinder service);
+    protected abstract S getService(IBinder service);
 
-    protected abstract void onConnectFail(int type);
+    protected abstract void onInternalEvent(int event);
 
     protected abstract long getReconnectDelay();
 
     @Override
     public void run() {
-        if (isOpen && !isConnected) {
+        if (isOpen && service == null) {
             boolean bindService = context.bindService(serviceIntent, this, connectFlags);
             if (!bindService) {
                 Logger.getDefault().ww("bind service fail: ", serviceIntent.getComponent());
-                onConnectFail(FAIL_ON_BIND);
+                onInternalEvent(EVENT_BIND_FAILED);
                 long delay = getReconnectDelay();
                 if (delay > 0) {
                     Logger.getDefault().vv("will retry connect in ", delay, " ms.");
                     CommonUtils.scheduleTimeout(this, delay);
+                } else {
+                    onInternalEvent(EVENT_EXIT);
+                    isOpen = false;
                 }
             }
         }
@@ -88,28 +94,35 @@ public abstract class ServiceConnectionManager implements ServiceConnection, Run
 
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
-        isConnected = true;
         if (isOpen) {
             Logger.getDefault().dd("connected: ", name);
-            onConnected(service);
+            this.service = getService(service);
+            if (this.service != null) {
+                onInternalEvent(EVENT_CONNECTED);
+            } else {
+                Logger.getDefault().ee("cannot get service: ", name);
+                onInternalEvent(EVENT_EXIT);
+                isOpen = false;
+                context.unbindService(this);
+            }
         }
     }
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        isConnected = false;
+        service = null;
         if (isOpen) {
             Logger.getDefault().dd("disconnected: ", name);
-            onConnectFail(FAIL_ON_DISCONNECTED);
+            onInternalEvent(EVENT_DISCONNECTED);
         }
     }
 
     @Override
     public void onBindingDied(ComponentName name) {
-        isConnected = false;
+        service = null;
         if (isOpen) {
             Logger.getDefault().dd("binding died: ", name);
-            onConnectFail(FAIL_ON_DIED);
+            onInternalEvent(EVENT_BINDING_DIED);
             context.unbindService(this);
             doConnect();
         }
@@ -117,8 +130,12 @@ public abstract class ServiceConnectionManager implements ServiceConnection, Run
 
     @Override
     public void onNullBinding(ComponentName name) {
-        Logger.getDefault().ee("null binding: ", name);
-        onConnectFail(FAIL_ON_NULL);
-        disconnect();
+        if (isOpen) {
+            Logger.getDefault().ee("null binding: ", name);
+            onInternalEvent(EVENT_NULL_BINDING);
+            onInternalEvent(EVENT_EXIT);
+            isOpen = false;
+            context.unbindService(this);
+        }
     }
 }
