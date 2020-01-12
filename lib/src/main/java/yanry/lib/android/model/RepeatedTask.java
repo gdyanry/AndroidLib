@@ -1,33 +1,33 @@
 package yanry.lib.android.model;
 
-import yanry.lib.android.entity.MainHandler;
-import yanry.lib.android.util.CommonUtils;
-import yanry.lib.java.model.Singletons;
+import yanry.lib.java.model.runner.Runner;
 
 /**
  * rongyu.yan
  * 2019/5/27
  **/
-public abstract class RepeatedUiTask implements Runnable {
+public abstract class RepeatedTask implements Runnable {
+    private Runner runner;
     private boolean isActive;
     private long period;
 
-    public RepeatedUiTask(long period) {
+    public RepeatedTask(Runner runner, long period) {
+        this.runner = runner;
         this.period = period;
     }
 
     public void start() {
         if (!isActive) {
             isActive = true;
-            CommonUtils.cancelPendingTimeout(this);
-            Singletons.get(MainHandler.class).post(this);
+            runner.cancelPendingTimeout(this);
+            runner.run(this);
         }
     }
 
     public void stop() {
         if (isActive) {
             isActive = false;
-            CommonUtils.cancelPendingTimeout(this);
+            runner.cancelPendingTimeout(this);
         }
     }
 
@@ -35,7 +35,7 @@ public abstract class RepeatedUiTask implements Runnable {
     public final void run() {
         if (isActive) {
             doRun();
-            CommonUtils.scheduleTimeout(this, period);
+            runner.scheduleTimeout(this, period);
         }
     }
 

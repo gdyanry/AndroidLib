@@ -1,12 +1,12 @@
-package yanry.lib.android.view.pop;
+package yanry.lib.android.model.runner;
 
 import yanry.lib.android.util.CommonUtils;
-import yanry.lib.java.model.schedule.ScheduleRunner;
+import yanry.lib.java.model.runner.Runner;
 
 /**
  * Created by yanry on 2019/12/11.
  */
-public class UiScheduleRunner implements ScheduleRunner {
+public class UiScheduleRunner implements Runner {
     @Override
     public void run(Runnable runnable) {
         CommonUtils.runOnUiThread(runnable);
