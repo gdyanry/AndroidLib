@@ -1,7 +1,8 @@
 package yanry.lib.android.view.pop;
 
-import android.support.annotation.NonNull;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import yanry.lib.android.util.CommonUtils;
 import yanry.lib.java.model.schedule.imple.SyncDisplay;

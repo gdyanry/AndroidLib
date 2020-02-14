@@ -5,12 +5,13 @@ package yanry.lib.android.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.v4.widget.ViewDragHelper;
-import android.support.v4.widget.ViewDragHelper.Callback;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
+
+import androidx.customview.widget.ViewDragHelper;
+import androidx.customview.widget.ViewDragHelper.Callback;
 
 import java.util.HashMap;
 import java.util.Map;

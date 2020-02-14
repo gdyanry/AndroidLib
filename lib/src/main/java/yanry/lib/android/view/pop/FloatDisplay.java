@@ -1,9 +1,10 @@
 package yanry.lib.android.view.pop;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.view.WindowManager;
+
+import androidx.annotation.NonNull;
 
 import yanry.lib.java.model.schedule.imple.ReusableDisplay;
 

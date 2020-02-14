@@ -17,7 +17,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.ParcelUuid;
-import android.support.annotation.RequiresApi;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -41,7 +42,7 @@ public abstract class BleServer extends BluetoothGattServerCallback {
     private AdvertiseCallback advertiseCallback;
     private HashMap<BluetoothDevice, ByteArrayOutputStream> outputStreams;
 
-    @android.support.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public BleServer() {
         advertiseCallback = new AdvertiseCallback() {
             @Override
@@ -55,7 +56,7 @@ public abstract class BleServer extends BluetoothGattServerCallback {
         outputStreams = new HashMap<>();
     }
 
-    @android.support.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public BluetoothState init(Context context, BluetoothGattService... services) {
         if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             manager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
@@ -113,7 +114,7 @@ public abstract class BleServer extends BluetoothGattServerCallback {
         return false;
     }
 
-    @android.support.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @androidx.annotation.RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public void stop() {
         if (gattServer != null) {
             gattServer.close();

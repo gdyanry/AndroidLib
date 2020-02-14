@@ -3,11 +3,12 @@
  */
 package yanry.lib.android.model.adapter;
 
-import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 /**
  * @author yanry
