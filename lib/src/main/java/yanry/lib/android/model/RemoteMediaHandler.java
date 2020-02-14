@@ -57,6 +57,10 @@ public class RemoteMediaHandler extends MediaController.Callback implements Medi
         return null;
     }
 
+    public void addOnSessionChangedListener(OnValueChangeListener<MediaController> listener) {
+        sessionChangeListeners.add(listener);
+    }
+
     @Override
     public final void onActiveSessionsChanged(@Nullable List<MediaController> controllers) {
         MediaController old = this.controller;
