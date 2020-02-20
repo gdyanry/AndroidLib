@@ -7,17 +7,17 @@ import yanry.lib.java.model.schedule.imple.ReusableDisplay;
 /**
  * Created by yanry on 2020/2/20.
  */
-public abstract class ReactiveAnimateDisplay extends ReusableDisplay<ReactiveAnimateData, SegmentsHolder> {
+public abstract class ReactiveAnimateDisplay<D extends ReactiveAnimateData> extends ReusableDisplay<D, SegmentsHolder> {
 
     protected abstract ReactiveAnimateView getAnimateView();
 
     @Override
-    protected SegmentsHolder createView(ReactiveAnimateData data) {
+    protected SegmentsHolder createView(D data) {
         return new SegmentsHolder();
     }
 
     @Override
-    protected void setData(SegmentsHolder view, ReactiveAnimateData data) {
+    protected void setData(SegmentsHolder view, D data) {
         view.showSegment(data);
     }
 
