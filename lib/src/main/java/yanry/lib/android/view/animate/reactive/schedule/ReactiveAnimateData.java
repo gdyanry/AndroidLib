@@ -42,8 +42,8 @@ public class ReactiveAnimateData extends ShowData implements AnimateSegment, OnD
         return this;
     }
 
-    public int getSegmentsSize() {
-        return animateSegments.size();
+    protected LinkedList<AnimateSegment> getSegments() {
+        return animateSegments;
     }
 
     @Override
