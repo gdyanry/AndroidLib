@@ -29,9 +29,21 @@ public class ReactiveAnimateData extends ShowData implements AnimateSegment, OnD
         return this;
     }
 
+    public ReactiveAnimateData insertSegment(AnimateSegment segment) {
+        if (segment != null) {
+            segment.init();
+            animateSegments.addFirst(segment);
+        }
+        return this;
+    }
+
     public ReactiveAnimateData setZOrder(int zOrder) {
         this.zOrder = zOrder;
         return this;
+    }
+
+    public int getSegmentsSize() {
+        return animateSegments.size();
     }
 
     @Override
