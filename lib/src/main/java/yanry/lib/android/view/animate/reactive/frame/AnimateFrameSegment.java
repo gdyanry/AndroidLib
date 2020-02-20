@@ -59,6 +59,7 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
     private SparseArray<Bitmap> presetFrames;
     private int startIndex;
     private Executor executor;
+    private int zOrder;
 
     /**
      * @param source   序列帧数据源。
@@ -82,6 +83,17 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
                 "%s: %s%n(decodeState=%s,frameNum=%s,activeCount=%s,decodingIndex=%s,decodeCount=%s,drawCount=%s,repeatCount=%s,pause=%s) decodingThreadCount=%s%n%s",
                 msg, source, decodeState.get(), source.getFrameCount(), activeCount.get(), decodingIndex, decodeCount, drawCount, repeatCount, pause,
                 decodingThreadCount.get(), executor);
+    }
+
+    /**
+     * 设置z坐标值。
+     *
+     * @param zOrder
+     * @return
+     */
+    public AnimateFrameSegment zOrder(int zOrder) {
+        this.zOrder = zOrder;
+        return this;
     }
 
     /**
@@ -267,7 +279,7 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
 
     @Override
     public int getZOrder() {
-        return 0;
+        return zOrder;
     }
 
     @Override

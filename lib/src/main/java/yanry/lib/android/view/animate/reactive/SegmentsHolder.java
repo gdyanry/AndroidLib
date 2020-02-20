@@ -134,6 +134,8 @@ public class SegmentsHolder implements Runnable {
      * 结束并释放本容器中的所有动画片段。
      */
     public synchronized void release() {
+        pendingView = null;
+        renderView = null;
         for (AnimateSegment segment : segments) {
             segment.release();
         }
