@@ -254,8 +254,10 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
             } else {
                 refreshTimestamp = now;
                 decoder.enqueue(this, false);
-                for (OnValueChangeListener<Frame> listener : onFrameUpdateListeners) {
-                    listener.onValueChange(poll, currentFrame);
+                if (onFrameUpdateListeners != null) {
+                    for (OnValueChangeListener<Frame> listener : onFrameUpdateListeners) {
+                        listener.onValueChange(poll, currentFrame);
+                    }
                 }
                 // bitmap回收利用
                 if (currentFrame != null && currentFrame.isRecyclable()) {
