@@ -77,7 +77,7 @@ public class SegmentsHolder implements Runnable {
      */
     public synchronized boolean showSegment(AnimateSegment segment) {
         if (!segments.contains(segment)) {
-            segment.init();
+            segment.prepare(true);
             if (isPreparing) {
                 if (segment.hasNext()) {
                     segments.add(segment);

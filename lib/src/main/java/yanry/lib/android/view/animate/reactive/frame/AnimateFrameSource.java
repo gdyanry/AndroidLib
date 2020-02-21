@@ -7,13 +7,6 @@ import java.io.InputStream;
  */
 public interface AnimateFrameSource {
     /**
-     * 判断序列帧是否存在。
-     *
-     * @return
-     */
-    boolean exist();
-
-    /**
      * 获取帧数。
      *
      * @return

@@ -10,8 +10,10 @@ import androidx.annotation.NonNull;
 public interface AnimateSegment extends Comparable<AnimateSegment> {
     /**
      * 动画开始前的初始化。
+     *
+     * @param urgent true表示该动画片段已经放到{@link SegmentsHolder}中，马上就要开始绘制；false表示后面（可能）会进行绘制，时间上还不是那么紧急。
      */
-    void init();
+    void prepare(boolean urgent);
 
     /**
      * 该动画是否需要绘制下一帧，可通过此方法控制动画的结束。

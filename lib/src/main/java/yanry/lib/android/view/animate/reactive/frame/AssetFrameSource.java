@@ -112,23 +112,23 @@ public class AssetFrameSource implements AnimateFrameSource {
     }
 
     @Override
-    public boolean exist() {
-        return fileList != null;
-    }
-
-    @Override
     public int getFrameCount() {
-        return fileList.size();
+        if (fileList != null) {
+            return fileList.size();
+        }
+        return 0;
     }
 
     @Override
     public InputStream getFrameInputStream(int index) {
-        try {
-            return assetManager.open(new File(dir, fileList.get(index)).getPath());
-        } catch (IOException e) {
-            Logger.getDefault().catches(e);
-            return null;
+        if (fileList != null && index < fileList.size()) {
+            try {
+                return assetManager.open(new File(dir, fileList.get(index)).getPath());
+            } catch (IOException e) {
+                Logger.getDefault().catches(e);
+            }
         }
+        return null;
     }
 
     @Override

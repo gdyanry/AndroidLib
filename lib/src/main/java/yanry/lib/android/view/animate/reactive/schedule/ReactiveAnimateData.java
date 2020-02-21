@@ -10,6 +10,8 @@ import yanry.lib.java.model.schedule.OnDataStateChangeListener;
 import yanry.lib.java.model.schedule.ShowData;
 
 /**
+ * 为了保证帧动画启动流畅，对本实例调用{@link yanry.lib.java.model.schedule.Scheduler#show(ShowData, Class)}的时候应先调用prepare(false)。
+ * <p>
  * Created by yanry on 2020/2/20.
  */
 public class ReactiveAnimateData extends ShowData implements AnimateSegment, OnDataStateChangeListener {
@@ -23,7 +25,6 @@ public class ReactiveAnimateData extends ShowData implements AnimateSegment, OnD
 
     public ReactiveAnimateData appendSegment(AnimateSegment segment) {
         if (segment != null) {
-            segment.init();
             animateSegments.add(segment);
         }
         return this;
@@ -31,7 +32,6 @@ public class ReactiveAnimateData extends ShowData implements AnimateSegment, OnD
 
     public ReactiveAnimateData insertSegment(AnimateSegment segment) {
         if (segment != null) {
-            segment.init();
             animateSegments.addFirst(segment);
         }
         return this;
@@ -47,7 +47,25 @@ public class ReactiveAnimateData extends ShowData implements AnimateSegment, OnD
     }
 
     @Override
-    public void init() {
+    public void prepare(boolean urgent) {
+        boolean setUrgent = false;
+        for (AnimateSegment animateSegment : animateSegments) {
+            if (urgent) {
+                if (!setUrgent) {
+                    animateSegment.prepare(true);
+                    setUrgent = true;
+                    // 先不返回，还得准备替补
+                } else {
+                    // 准备好一个替补后返回
+                    animateSegment.prepare(false);
+                    return;
+                }
+            } else {
+                // 非紧急情况下只要准备一个替补就可以了
+                animateSegment.prepare(false);
+                return;
+            }
+        }
     }
 
     @Override
@@ -55,13 +73,23 @@ public class ReactiveAnimateData extends ShowData implements AnimateSegment, OnD
         int state = getState();
         if (state == 0 || state == STATE_ENQUEUE || state == STATE_SHOWING) {
             Iterator<AnimateSegment> iterator = animateSegments.iterator();
+            boolean needSetUrgent = false;
             while (iterator.hasNext()) {
                 AnimateSegment next = iterator.next();
+                if (needSetUrgent) {
+                    // 替补上场
+                    next.prepare(true);
+                }
                 if (next.hasNext()) {
+                    if (needSetUrgent && iterator.hasNext()) {
+                        // 准备下一个替补
+                        iterator.next().prepare(false);
+                    }
                     return true;
                 } else {
                     next.release();
                     iterator.remove();
+                    needSetUrgent = true;
                 }
             }
         }

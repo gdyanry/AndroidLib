@@ -7,82 +7,51 @@ import android.os.SystemClock;
 import android.util.SparseArray;
 
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Queue;
 
 import yanry.lib.android.entity.MainHandler;
 import yanry.lib.android.view.animate.reactive.AnimateSegment;
+import yanry.lib.java.interfaces.OnValueChangeListener;
 import yanry.lib.java.model.Singletons;
-import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
 
 /**
  * 使用序列帧实现的动画片段。具体实现上，使用线程池解码，每个处于活动状态的动画片段占用一个线程，使用队列长度为1的生产者消费者模式进行解码/绘制。
  * 功能上，支持指定播放次数、帧率、反序播放、任意帧开始等特性。
  */
-public class AnimateFrameSegment implements AnimateSegment, Runnable {
-    private static final int DECODE_STATE_IDLE = 0;
-    private static final int DECODE_STATE_STARTING = 1;
-    private static final int DECODE_STATE_STARTED = 2;
-    /**
-     * 当前正在解码的线程数量，记录该值用于日志输出。
-     */
-    private static final AtomicInteger decodingThreadCount = new AtomicInteger();
-
+public class AnimateFrameSegment extends BitmapFactory.Options implements AnimateSegment {
     private AnimateFrameSource source;
+    private AnimateFrameDecoder decoder;
+    private int cacheCapacity;
+
+    private Queue<Frame> cacheQueue;
+    private SparseArray<Frame> presetFrames;
+    private LinkedList<Bitmap> recycledPool;
+    private LinkedList<OnValueChangeListener<Frame>> onFrameUpdateListeners;
+
+    private boolean isActive;
+    private int decodeCounter;
+    private long refreshTimestamp;
+    private Frame currentFrame;
+
     private int left;
     private int top;
     private int repeatCount;
     private boolean reverse;
-    private int drawCount;
-    private int decodeCount;
-    private int drawIndex;
-    private int decodingIndex;
-    private AtomicInteger activeCount;
-    private ArrayBlockingQueue<Bitmap> bitmaps;
-    private Bitmap frameToDraw;
-    private BitmapFactory.Options options;
-    private List<Bitmap> recycledPool;
     private long refreshInterval;
-    private long lastDrawTime;
     private boolean pause;
     private boolean fillEnd;
-    private OnFrameUpdateListener onFrameUpdateListener;
-    /**
-     * 用于控制解码线程的进出
-     */
-    private AtomicInteger decodeState;
-    private SparseArray<Bitmap> presetFrames;
     private int startIndex;
-    private Executor executor;
     private int zOrder;
 
-    /**
-     * @param source   序列帧数据源。
-     * @param executor 用于解码序列帧的线程池。
-     */
-    public AnimateFrameSegment(AnimateFrameSource source, Executor executor) {
+    public AnimateFrameSegment(AnimateFrameSource source, AnimateFrameDecoder decoder, int cacheCapacity) {
         this.source = source;
-        this.executor = executor;
-        bitmaps = new ArrayBlockingQueue<>(1);
-        options = new BitmapFactory.Options();
-        options.inMutable = true;
-        recycledPool = Collections.synchronizedList(new LinkedList<Bitmap>());
-        activeCount = new AtomicInteger();
-        decodeState = new AtomicInteger();
+        this.decoder = decoder;
+        this.cacheCapacity = cacheCapacity;
+        this.cacheQueue = new LinkedList<>();
         presetFrames = new SparseArray<>();
-        decodingIndex = -1;
-    }
-
-    private void diagnose(LogLevel level, String msg) {
-        Logger.getDefault().format(-1, level,
-                "%s: %s%n(decodeState=%s,frameNum=%s,activeCount=%s,decodingIndex=%s,decodeCount=%s,drawCount=%s,repeatCount=%s,pause=%s) decodingThreadCount=%s%n%s",
-                msg, source, decodeState.get(), source.getFrameCount(), activeCount.get(), decodingIndex, decodeCount, drawCount, repeatCount, pause,
-                decodingThreadCount.get(), executor);
+        recycledPool = new LinkedList<>();
     }
 
     /**
@@ -127,7 +96,7 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
      */
     public AnimateFrameSegment presetFrame(int index, Bitmap frameBitmap) {
         if (frameBitmap != null) {
-            presetFrames.put(index, frameBitmap);
+            presetFrames.put(index, new Frame(frameBitmap, index, null));
         }
         return this;
     }
@@ -173,18 +142,73 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
      */
     public AnimateFrameSegment setStartIndex(int startIndex) {
         this.startIndex = startIndex;
-        this.decodeCount = startIndex;
-        this.drawCount = startIndex;
+        this.decodeCounter = startIndex;
         return this;
     }
 
     /**
-     * 设置动画帧变化监听。
+     * 添加动画帧变化监听。
      *
-     * @param onFrameUpdateListener
+     * @param listener
      */
-    public void setOnFrameUpdateListener(OnFrameUpdateListener onFrameUpdateListener) {
-        this.onFrameUpdateListener = onFrameUpdateListener;
+    public void addOnFrameUpdateListener(OnValueChangeListener<Frame> listener) {
+        if (onFrameUpdateListeners == null) {
+            onFrameUpdateListeners = new LinkedList<>();
+        }
+        onFrameUpdateListeners.add(listener);
+    }
+
+    /**
+     * 移除动画帧变化监听。
+     *
+     * @param listener
+     */
+    public void removeOnFrameUpdateListener(OnValueChangeListener<Frame> listener) {
+        if (onFrameUpdateListeners != null) {
+            onFrameUpdateListeners.remove(listener);
+        }
+    }
+
+    private boolean isEnd() {
+        return repeatCount > 0 && decodeCounter == repeatCount * source.getFrameCount();
+    }
+
+    void decode() {
+        if (isActive && source.getFrameCount() > 0 && cacheQueue.size() < cacheCapacity && !isEnd()) {
+            int frameCount = source.getFrameCount();
+            int decodeIndex = decodeCounter % frameCount;
+            if (reverse && (decodeCounter / frameCount) % 2 == 1) {
+                decodeIndex = frameCount - 1 - decodeIndex;
+            }
+            if (decodeIndex >= 0 && decodeIndex < frameCount) {
+                Frame presetFrame = presetFrames.get(decodeIndex);
+                if (presetFrame == null) {
+                    InputStream frameInputStream = source.getFrameInputStream(decodeIndex);
+                    if (frameInputStream != null) {
+                        Bitmap recycled = recycledPool.pollFirst();
+                        inBitmap = recycled;
+                        Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, this);
+                        if (decoded != null) {
+                            cacheQueue.offer(new Frame(decoded, decodeCounter, recycledPool));
+                        }
+                    }
+                } else {
+                    cacheQueue.offer(presetFrame);
+                }
+            } else {
+                Logger.getDefault().e("illegal index: %s(decodeCounter=%s, frameCount=%s)", decodeIndex, decodeCounter, frameCount);
+            }
+            decodeCounter++;
+        }
+    }
+
+    /**
+     * 获取动画序列帧数据源。
+     *
+     * @return
+     */
+    public AnimateFrameSource getSource() {
+        return source;
     }
 
     @Override
@@ -193,59 +217,42 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
     }
 
     @Override
-    public void init() {
-        activeCount.incrementAndGet();
-        if (decodeState.compareAndSet(DECODE_STATE_IDLE, DECODE_STATE_STARTING)) {
-            Logger.getDefault().v("init %s: %s", this, activeCount.get());
-            drawCount = startIndex;
-            decodeCount = startIndex;
-            bitmaps.clear();
-            executor.execute(this);
-        }
+    public void prepare(boolean urgent) {
+        isActive = true;
+        decodeCounter = startIndex;
+        decoder.enqueue(this, urgent);
     }
 
     @Override
     public boolean hasNext() {
-        int frameCount = source.getFrameCount();
-        boolean reachEnd = repeatCount > 0 && drawCount == repeatCount * frameCount;
-        if (fillEnd && reachEnd) {
-            return true;
-        }
-        if (activeCount.get() > 0 && source.exist() && !reachEnd) {
-            if (!pause) {
-                if (refreshInterval > 0) {
-                    long now = SystemClock.elapsedRealtime();
-                    if (now - lastDrawTime < refreshInterval) {
-                        return true;
-                    }
-                    lastDrawTime = now;
-                }
-                drawIndex = calculateIndex(drawCount);
-                Bitmap frame = presetFrames.get(drawIndex);
-                if (frame != null) {
-                    if (onFrameUpdateListener != null) {
-                        onFrameUpdateListener.onUpdateFrame(frame, drawCount, frameCount);
-                    }
-                    drawCount++;
+        if (isActive) {
+            if (pause && currentFrame != null) {
+                return true;
+            }
+            long now = SystemClock.elapsedRealtime();
+            if (refreshInterval > 0) {
+                if (now - refreshTimestamp < refreshInterval) {
+                    // 小于刷新间隔不需要刷新
                     return true;
                 }
-                Bitmap bitmap = bitmaps.poll();
-                if (bitmap != null) {
-                    if (onFrameUpdateListener != null) {
-                        onFrameUpdateListener.onUpdateFrame(bitmap, drawCount, frameCount);
-                    }
-                    drawCount++;
-                    Bitmap old = frameToDraw;
-                    frameToDraw = bitmap;
-                    if (old != null) {
-                        Singletons.get(MainHandler.class).post(() -> recycledPool.add(old));
-                    }
-                } else if (decodeState.get() != DECODE_STATE_IDLE) {
-                    // 解码线程被挂起，耐心等待
-                    diagnose(LogLevel.Warn, "poll null");
+            }
+            Frame poll = cacheQueue.poll();
+            if (poll == null) {
+                if (isEnd()) {
+                    return fillEnd;
                 } else {
-                    return false;
+                    Logger.getDefault().vv("decoding is slower than drawing: ", source, " - ", decodeCounter);
                 }
+            } else {
+                refreshTimestamp = now;
+                for (OnValueChangeListener<Frame> listener : onFrameUpdateListeners) {
+                    listener.onValueChange(poll, currentFrame);
+                }
+                // bitmap回收利用
+                if (currentFrame != null && currentFrame.isRecyclable()) {
+                    Singletons.get(MainHandler.class).post(currentFrame);
+                }
+                currentFrame = poll;
             }
             return true;
         }
@@ -254,27 +261,14 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
 
     @Override
     public void draw(Canvas canvas) {
-        Bitmap frame = presetFrames.get(drawIndex);
-        if (frame != null) {
-            canvas.drawBitmap(frame, left, top, null);
-            return;
-        }
-        if (frameToDraw != null) {
-            canvas.drawBitmap(frameToDraw, left, top, null);
-        } else if (!pause) {
-            diagnose(LogLevel.Warn, "no frame to draw");
+        if (currentFrame != null) {
+            canvas.drawBitmap(currentFrame.getBitmap(), left, top, null);
         }
     }
 
     @Override
     public void release() {
-        if (activeCount.decrementAndGet() == 0) {
-            Logger.getDefault().v("release %s: %s", this, activeCount.get());
-            onFrameUpdateListener = null;
-            frameToDraw = null;
-            bitmaps.clear();
-            recycledPool.clear();
-        }
+        isActive = false;
     }
 
     @Override
@@ -284,73 +278,6 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
 
     @Override
     public String toString() {
-        return source.toString();
-    }
-
-    private int calculateIndex(int count) {
-        int fileNum = source.getFrameCount();
-        if (fileNum <= 0) {
-            Logger.getDefault().ee("invalid source: ", source);
-            return 0;
-        }
-        int index = count % fileNum;
-        if (reverse && (count / fileNum) % 2 == 1) {
-            index = fileNum - 1 - index;
-        }
-        if (index < 0) {
-            Logger.getDefault().format(1, LogLevel.Error,
-                    "invalid index - %s: %s%n(decodeState=%s,frameCount=%s,activeCount=%s,decodeCount=%s,drawCount=%s,repeatCount=%s,pause=%s) runningCount=%s%n%s",
-                    index, source, decodeState.get(), fileNum, activeCount.get(), decodeCount, drawCount, repeatCount, pause,
-                    decodingThreadCount.get(), executor);
-        }
-        return index;
-    }
-
-    @Override
-    public void run() {
-        decodingThreadCount.incrementAndGet();
-        int fileNum = source.getFrameCount();
-        if (decodeState.compareAndSet(DECODE_STATE_STARTING, DECODE_STATE_STARTED)) {
-            Logger.getDefault().vv("enter decoding: ", source);
-            while (activeCount.get() > 0 && source.exist() && (repeatCount <= 0 || decodeCount < fileNum * repeatCount)) {
-                decodingIndex = calculateIndex(decodeCount);
-                if (presetFrames.get(decodingIndex) == null) {
-                    InputStream frameInputStream = source.getFrameInputStream(decodingIndex);
-                    if (frameInputStream != null) {
-                        Bitmap recycled = null;
-                        if (recycledPool.size() > 0) {
-                            recycled = recycledPool.get(0);
-                            if (recycled != null) {
-                                recycledPool.remove(recycled);
-                            }
-                        }
-                        try {
-                            options.inBitmap = recycled;
-                            Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, options);
-                            if (decoded != null) {
-                                bitmaps.put(decoded);
-                            }
-                        } catch (InterruptedException e) {
-                            Logger.getDefault().catches(e);
-                        }
-                    }
-                }
-                // 若有预置帧则跳过解码
-                decodeCount++;
-                decodingIndex = -1;
-            }
-            if (decodeState.compareAndSet(DECODE_STATE_STARTED, DECODE_STATE_IDLE)) {
-                Logger.getDefault().vv("exit decoding: ", source);
-            } else {
-                diagnose(LogLevel.Error, "illegal decode exit state");
-            }
-        } else {
-            diagnose(LogLevel.Error, "illegal decode enter state");
-        }
-        decodingThreadCount.decrementAndGet();
-    }
-
-    public interface OnFrameUpdateListener {
-        void onUpdateFrame(Bitmap frame, int frameIndex, int totalNum);
+        return source + "@" + Integer.toHexString(hashCode());
     }
 }
