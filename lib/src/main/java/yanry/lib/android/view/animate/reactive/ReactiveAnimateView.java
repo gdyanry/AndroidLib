@@ -38,8 +38,7 @@ public class ReactiveAnimateView extends View implements Runnable {
         if (this.freeze != freeze) {
             this.freeze = freeze;
             if (!freeze) {
-                removeCallbacks(this);
-                invalidate();
+                postInvalidate();
             }
         }
     }
@@ -52,13 +51,24 @@ public class ReactiveAnimateView extends View implements Runnable {
     protected final void onDraw(Canvas canvas) {
         boolean valid = segmentsHolder != null && segmentsHolder.check(this);
         if (valid) {
+            segmentsHolder.prepareNext();
+            segmentsHolder.draw(canvas);
             if (!freeze) {
                 postDelayed(this, refreshInterval);
             }
-            segmentsHolder.prepareNext();
-            segmentsHolder.draw(canvas);
-            removeCallbacks(this);
         }
+    }
+
+    @Override
+    public void invalidate() {
+        removeCallbacks(this);
+        super.invalidate();
+    }
+
+    @Override
+    public void postInvalidate() {
+        removeCallbacks(this);
+        super.postInvalidate();
     }
 
     @Override
