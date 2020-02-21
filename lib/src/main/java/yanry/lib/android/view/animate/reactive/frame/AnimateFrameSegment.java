@@ -188,9 +188,14 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
                         Bitmap recycled = recycledPool.pollFirst();
                         inBitmap = recycled;
                         Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, this);
+                        Logger.getDefault().vv("decode ", source, " - ", decodeIndex);
                         if (decoded != null) {
                             cacheQueue.offer(new Frame(decoded, decodeCounter, recycledPool));
+                        } else {
+                            Logger.getDefault().ww("decoded bitmap is null for %s on index %s", source, decodeIndex);
                         }
+                    } else {
+                        Logger.getDefault().ww("InputStream is null for %s on index %s", source, decodeIndex);
                     }
                 } else {
                     cacheQueue.offer(presetFrame);
@@ -199,6 +204,9 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
                 Logger.getDefault().e("illegal index: %s(decodeCounter=%s, frameCount=%s)", decodeIndex, decodeCounter, frameCount);
             }
             decodeCounter++;
+            if (cacheQueue.size() < cacheCapacity) {
+                decoder.enqueue(this, false);
+            }
         }
     }
 
@@ -245,6 +253,7 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
                 }
             } else {
                 refreshTimestamp = now;
+                decoder.enqueue(this, false);
                 for (OnValueChangeListener<Frame> listener : onFrameUpdateListeners) {
                     listener.onValueChange(poll, currentFrame);
                 }
