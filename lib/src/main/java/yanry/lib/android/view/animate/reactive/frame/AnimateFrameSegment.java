@@ -190,7 +190,7 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
                         Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, this);
                         Logger.getDefault().vv("decode ", source, " - ", decodeIndex);
                         if (decoded != null) {
-                            cacheQueue.offer(new Frame(decoded, decodeCounter, recycledPool));
+                            cacheQueue.offer(new Frame(decoded, decodeIndex, recycledPool));
                         } else {
                             Logger.getDefault().ww("decoded bitmap is null for %s on index %s", source, decodeIndex);
                         }
