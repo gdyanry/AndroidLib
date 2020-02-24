@@ -6,8 +6,12 @@ import android.graphics.Canvas;
 import android.os.SystemClock;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.InputStream;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 
 import yanry.lib.android.entity.MainHandler;
@@ -15,14 +19,15 @@ import yanry.lib.android.view.animate.reactive.AnimateSegment;
 import yanry.lib.java.interfaces.OnValueChangeListener;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
+import yanry.lib.java.model.task.SingleThreadExecutor;
 
 /**
  * 使用序列帧实现的动画片段。具体实现上，使用线程池解码，每个处于活动状态的动画片段占用一个线程，使用队列长度为1的生产者消费者模式进行解码/绘制。
  * 功能上，支持指定播放次数、帧率、反序播放、任意帧开始等特性。
  */
-public class AnimateFrameSegment extends BitmapFactory.Options implements AnimateSegment {
+public class AnimateFrameSegment extends BitmapFactory.Options implements AnimateSegment, Runnable {
     private AnimateFrameSource source;
-    private AnimateFrameDecoder decoder;
+    private SingleThreadExecutor decoder;
     private int cacheCapacity;
 
     private Queue<Frame> cacheQueue;
@@ -45,13 +50,28 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
     private int startIndex;
     private int zOrder;
 
-    public AnimateFrameSegment(AnimateFrameSource source, AnimateFrameDecoder decoder, int cacheCapacity) {
+    /**
+     * @param source
+     * @param decoder 序列帧解码执行线程。
+     */
+    public AnimateFrameSegment(@NonNull AnimateFrameSource source, @Nullable SingleThreadExecutor decoder) {
         this.source = source;
         this.decoder = decoder;
-        this.cacheCapacity = cacheCapacity;
+        this.cacheCapacity = 1;
         this.cacheQueue = new LinkedList<>();
         presetFrames = new SparseArray<>();
         recycledPool = new LinkedList<>();
+    }
+
+    /**
+     * 设置预解码缓存帧数，默认为1。当出现解码速度跟不上显示速度的问题时可适当调高缓存值，同时要注意避免造成非必要的内存占用。
+     *
+     * @param cacheCapacity
+     * @return
+     */
+    public AnimateFrameSegment cacheCapacity(int cacheCapacity) {
+        this.cacheCapacity = cacheCapacity;
+        return this;
     }
 
     /**
@@ -173,43 +193,6 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
         return repeatCount > 0 && decodeCounter == repeatCount * source.getFrameCount();
     }
 
-    void decode() {
-        if (isActive && source.getFrameCount() > 0 && cacheQueue.size() < cacheCapacity && !isEnd()) {
-            int frameCount = source.getFrameCount();
-            int decodeIndex = decodeCounter % frameCount;
-            if (reverse && (decodeCounter / frameCount) % 2 == 1) {
-                decodeIndex = frameCount - 1 - decodeIndex;
-            }
-            if (decodeIndex >= 0 && decodeIndex < frameCount) {
-                Frame presetFrame = presetFrames.get(decodeIndex);
-                if (presetFrame == null) {
-                    InputStream frameInputStream = source.getFrameInputStream(decodeIndex);
-                    if (frameInputStream != null) {
-                        Bitmap recycled = recycledPool.pollFirst();
-                        inBitmap = recycled;
-                        Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, this);
-                        Logger.getDefault().vv("decode ", source, " - ", decodeIndex);
-                        if (decoded != null) {
-                            cacheQueue.offer(new Frame(decoded, decodeIndex, recycledPool));
-                        } else {
-                            Logger.getDefault().ww("decoded bitmap is null for %s on index %s", source, decodeIndex);
-                        }
-                    } else {
-                        Logger.getDefault().ww("InputStream is null for %s on index %s", source, decodeIndex);
-                    }
-                } else {
-                    cacheQueue.offer(presetFrame);
-                }
-            } else {
-                Logger.getDefault().e("illegal index: %s(decodeCounter=%s, frameCount=%s)", decodeIndex, decodeCounter, frameCount);
-            }
-            decodeCounter++;
-            if (cacheQueue.size() < cacheCapacity) {
-                decoder.enqueue(this, false);
-            }
-        }
-    }
-
     /**
      * 获取动画序列帧数据源。
      *
@@ -249,7 +232,7 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
                 if (isEnd()) {
                     return fillEnd;
                 } else {
-                    Logger.getDefault().vv("decoding is slower than drawing: ", source, " - ", decodeCounter);
+                    Logger.getDefault().dd("decoding is slower than drawing: ", source, " - ", decodeCounter);
                 }
             } else {
                 refreshTimestamp = now;
@@ -290,5 +273,63 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
     @Override
     public String toString() {
         return source + "@" + Integer.toHexString(hashCode());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AnimateFrameSegment that = (AnimateFrameSegment) o;
+        return left == that.left &&
+                top == that.top &&
+                repeatCount == that.repeatCount &&
+                reverse == that.reverse &&
+                refreshInterval == that.refreshInterval &&
+                fillEnd == that.fillEnd &&
+                startIndex == that.startIndex &&
+                zOrder == that.zOrder &&
+                source.equals(that.source);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(source, left, top, repeatCount, reverse, refreshInterval, fillEnd, startIndex, zOrder);
+    }
+
+    @Override
+    public void run() {
+        if (isActive && source.getFrameCount() > 0 && cacheQueue.size() < cacheCapacity && !isEnd()) {
+            int frameCount = source.getFrameCount();
+            int decodeIndex = decodeCounter % frameCount;
+            if (reverse && (decodeCounter / frameCount) % 2 == 1) {
+                decodeIndex = frameCount - 1 - decodeIndex;
+            }
+            if (decodeIndex >= 0 && decodeIndex < frameCount) {
+                Frame presetFrame = presetFrames.get(decodeIndex);
+                if (presetFrame == null) {
+                    InputStream frameInputStream = source.getFrameInputStream(decodeIndex);
+                    if (frameInputStream != null) {
+                        Bitmap recycled = recycledPool.pollFirst();
+                        inBitmap = recycled;
+                        Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, this);
+                        if (decoded != null) {
+                            cacheQueue.offer(new Frame(decoded, decodeIndex, recycledPool));
+                        } else {
+                            Logger.getDefault().ww("decoded bitmap is null for %s on index %s", source, decodeIndex);
+                        }
+                    } else {
+                        Logger.getDefault().ww("InputStream is null for %s on index %s", source, decodeIndex);
+                    }
+                } else {
+                    cacheQueue.offer(presetFrame);
+                }
+            } else {
+                Logger.getDefault().e("illegal index: %s(decodeCounter=%s, frameCount=%s)", decodeIndex, decodeCounter, frameCount);
+            }
+            decodeCounter++;
+            if (cacheQueue.size() < cacheCapacity) {
+                decoder.enqueue(this, false);
+            }
+        }
     }
 }
