@@ -14,30 +14,30 @@ import yanry.lib.java.model.schedule.ShowData;
  * <p>
  * Created by yanry on 2020/2/20.
  */
-public class ReactiveAnimateData extends ShowData implements AnimateSegment, OnDataStateChangeListener {
+public class AnimateData extends ShowData implements AnimateSegment, OnDataStateChangeListener {
     private LinkedList<AnimateSegment> animateSegments;
     private int zOrder;
 
-    public ReactiveAnimateData() {
+    public AnimateData() {
         animateSegments = new LinkedList<>();
         addOnStateChangeListener(this);
     }
 
-    public ReactiveAnimateData appendSegment(AnimateSegment segment) {
+    public AnimateData appendSegment(AnimateSegment segment) {
         if (segment != null) {
             animateSegments.add(segment);
         }
         return this;
     }
 
-    public ReactiveAnimateData insertSegment(AnimateSegment segment) {
+    public AnimateData insertSegment(AnimateSegment segment) {
         if (segment != null) {
             animateSegments.addFirst(segment);
         }
         return this;
     }
 
-    public ReactiveAnimateData setZOrder(int zOrder) {
+    public AnimateData setZOrder(int zOrder) {
         this.zOrder = zOrder;
         return this;
     }

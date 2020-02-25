@@ -81,6 +81,8 @@ public class ReactiveAnimateView extends View implements Runnable {
 
     @Override
     public void run() {
-        invalidate();
+        if (!freeze) {
+            invalidate();
+        }
     }
 }
