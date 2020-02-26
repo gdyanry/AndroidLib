@@ -61,6 +61,7 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
         this.cacheQueue = new LinkedList<>();
         presetFrames = new SparseArray<>();
         recycledPool = new LinkedList<>();
+        inMutable = true;
     }
 
     /**
