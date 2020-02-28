@@ -2,7 +2,7 @@ package yanry.lib.android.view.animate.reactive.frame;
 
 import android.graphics.Bitmap;
 
-import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * 动画帧。
@@ -11,9 +11,9 @@ import java.util.LinkedList;
 public class Frame implements Runnable {
     private Bitmap bitmap;
     private int index;
-    private LinkedList<Bitmap> recycledPool;
+    private Queue<Bitmap> recycledPool;
 
-    Frame(Bitmap bitmap, int index, LinkedList<Bitmap> recycledPool) {
+    Frame(Bitmap bitmap, int index, Queue<Bitmap> recycledPool) {
         this.bitmap = bitmap;
         this.index = index;
         this.recycledPool = recycledPool;
@@ -44,7 +44,7 @@ public class Frame implements Runnable {
     @Override
     public void run() {
         if (recycledPool != null) {
-            recycledPool.add(bitmap);
+            recycledPool.offer(bitmap);
         }
     }
 }

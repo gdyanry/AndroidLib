@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import yanry.lib.android.entity.MainHandler;
 import yanry.lib.android.view.animate.reactive.AnimateSegment;
@@ -32,7 +33,7 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
 
     private Queue<Frame> cacheQueue;
     private SparseArray<Frame> presetFrames;
-    private LinkedList<Bitmap> recycledPool;
+    private Queue<Bitmap> recycledPool;
     private LinkedList<OnValueChangeListener<Frame>> onFrameUpdateListeners;
 
     private boolean isActive;
@@ -58,9 +59,9 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
         this.source = source;
         this.decoder = decoder;
         this.cacheCapacity = 1;
-        this.cacheQueue = new LinkedList<>();
+        this.cacheQueue = new ConcurrentLinkedQueue<>();
         presetFrames = new SparseArray<>();
-        recycledPool = new LinkedList<>();
+        recycledPool = new ConcurrentLinkedQueue<>();
         inMutable = true;
     }
 
@@ -310,7 +311,7 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
                 if (presetFrame == null) {
                     InputStream frameInputStream = source.getFrameInputStream(decodeIndex);
                     if (frameInputStream != null) {
-                        Bitmap recycled = recycledPool.pollFirst();
+                        Bitmap recycled = recycledPool.poll();
                         inBitmap = recycled;
                         Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, this);
                         if (decoded != null) {
