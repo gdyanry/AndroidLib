@@ -6,21 +6,21 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import yanry.lib.android.view.animate.reactive.AnimateSegment;
-import yanry.lib.java.model.schedule.OnDataStateChangeListener;
 import yanry.lib.java.model.schedule.ShowData;
+import yanry.lib.java.model.watch.ValueWatcher;
 
 /**
  * 为了保证帧动画启动流畅，对本实例调用{@link yanry.lib.java.model.schedule.Scheduler#show(ShowData, Class)}的时候应先调用prepare(false)。
  * <p>
  * Created by yanry on 2020/2/20.
  */
-public class AnimateData extends ShowData implements AnimateSegment, OnDataStateChangeListener {
+public class AnimateData extends ShowData implements AnimateSegment, ValueWatcher<Integer> {
     private LinkedList<AnimateSegment> animateSegments;
     private int zOrder;
 
     public AnimateData() {
         animateSegments = new LinkedList<>();
-        addOnStateChangeListener(this);
+        getState().addWatcher(this);
     }
 
     public AnimateData appendSegment(AnimateSegment segment) {
@@ -70,7 +70,7 @@ public class AnimateData extends ShowData implements AnimateSegment, OnDataState
 
     @Override
     public boolean hasNext() {
-        int state = getState();
+        int state = getState().getValue();
         if (state == 0 || state == STATE_ENQUEUE || state == STATE_SHOWING) {
             Iterator<AnimateSegment> iterator = animateSegments.iterator();
             boolean needSetUrgent = false;
@@ -106,7 +106,7 @@ public class AnimateData extends ShowData implements AnimateSegment, OnDataState
 
     @Override
     public void release() {
-        if (getState() != 0) {
+        if (getState().getValue() != 0) {
             dismiss(0);
         } else {
             releaseSegments();
@@ -133,8 +133,8 @@ public class AnimateData extends ShowData implements AnimateSegment, OnDataState
     }
 
     @Override
-    public void onDataStateChange(int toState) {
-        if (toState == STATE_DEQUEUE || toState == STATE_DISMISS) {
+    public void onValueChange(Integer newValue, Integer oldValue) {
+        if (newValue == STATE_DEQUEUE || newValue == STATE_DISMISS) {
             releaseSegments();
         }
     }

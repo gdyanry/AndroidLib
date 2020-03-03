@@ -10,36 +10,35 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.InputStream;
-import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import yanry.lib.android.entity.MainHandler;
 import yanry.lib.android.view.animate.reactive.AnimateSegment;
-import yanry.lib.java.interfaces.OnValueChangeListener;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.task.SingleThreadExecutor;
+import yanry.lib.java.model.watch.ValueHolder;
 
 /**
  * 使用序列帧实现的动画片段。具体实现上，使用线程池解码，每个处于活动状态的动画片段占用一个线程，使用队列长度为1的生产者消费者模式进行解码/绘制。
  * 功能上，支持指定播放次数、帧率、反序播放、任意帧开始等特性。
  */
-public class AnimateFrameSegment extends BitmapFactory.Options implements AnimateSegment, Runnable {
+public class AnimateFrameSegment implements AnimateSegment, Runnable {
     private AnimateFrameSource source;
     private SingleThreadExecutor decoder;
     private int cacheCapacity;
+    private BitmapFactory.Options options;
+    private ValueHolder<Frame> currentFrame;
 
     private Queue<Frame> cacheQueue;
     private SparseArray<Frame> presetFrames;
     private Queue<Bitmap> recycledPool;
-    private LinkedList<OnValueChangeListener<Frame>> onFrameUpdateListeners;
 
     private boolean isActive;
     private int decodeCounter;
     private long refreshTimestamp;
-    private Frame currentFrame;
 
     private int left;
     private int top;
@@ -62,7 +61,9 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
         this.cacheQueue = new ConcurrentLinkedQueue<>();
         presetFrames = new SparseArray<>();
         recycledPool = new ConcurrentLinkedQueue<>();
-        inMutable = true;
+        options = new BitmapFactory.Options();
+        options.inMutable = true;
+        currentFrame = new ValueHolder<>();
     }
 
     /**
@@ -168,29 +169,6 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
         return this;
     }
 
-    /**
-     * 添加动画帧变化监听。
-     *
-     * @param listener
-     */
-    public void addOnFrameUpdateListener(OnValueChangeListener<Frame> listener) {
-        if (onFrameUpdateListeners == null) {
-            onFrameUpdateListeners = new LinkedList<>();
-        }
-        onFrameUpdateListeners.add(listener);
-    }
-
-    /**
-     * 移除动画帧变化监听。
-     *
-     * @param listener
-     */
-    public void removeOnFrameUpdateListener(OnValueChangeListener<Frame> listener) {
-        if (onFrameUpdateListeners != null) {
-            onFrameUpdateListeners.remove(listener);
-        }
-    }
-
     private boolean isEnd() {
         return repeatCount > 0 && decodeCounter == repeatCount * source.getFrameCount();
     }
@@ -202,6 +180,10 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
      */
     public AnimateFrameSource getSource() {
         return source;
+    }
+
+    public ValueHolder<Frame> getCurrentFrame() {
+        return currentFrame;
     }
 
     @Override
@@ -219,7 +201,8 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
     @Override
     public boolean hasNext() {
         if (isActive) {
-            if (pause && currentFrame != null) {
+            Frame previousFrame = currentFrame.getValue();
+            if (pause && previousFrame != null) {
                 return true;
             }
             long now = SystemClock.elapsedRealtime();
@@ -239,16 +222,11 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
             } else {
                 refreshTimestamp = now;
                 decoder.enqueue(this, false);
-                if (onFrameUpdateListeners != null) {
-                    for (OnValueChangeListener<Frame> listener : onFrameUpdateListeners) {
-                        listener.onValueChange(poll, currentFrame);
-                    }
-                }
+                currentFrame.setValue(poll);
                 // bitmap回收利用
-                if (currentFrame != null && currentFrame.isRecyclable()) {
-                    Singletons.get(MainHandler.class).post(currentFrame);
+                if (previousFrame != null && previousFrame.isRecyclable()) {
+                    Singletons.get(MainHandler.class).post(previousFrame);
                 }
-                currentFrame = poll;
             }
             return true;
         }
@@ -257,8 +235,9 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
 
     @Override
     public void draw(Canvas canvas) {
-        if (currentFrame != null) {
-            canvas.drawBitmap(currentFrame.getBitmap(), left, top, null);
+        Frame frame = currentFrame.getValue();
+        if (frame != null) {
+            canvas.drawBitmap(frame.getBitmap(), left, top, null);
         }
     }
 
@@ -312,8 +291,8 @@ public class AnimateFrameSegment extends BitmapFactory.Options implements Animat
                     InputStream frameInputStream = source.getFrameInputStream(decodeIndex);
                     if (frameInputStream != null) {
                         Bitmap recycled = recycledPool.poll();
-                        inBitmap = recycled;
-                        Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, this);
+                        options.inBitmap = recycled;
+                        Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, options);
                         if (decoded != null) {
                             cacheQueue.offer(new Frame(decoded, decodeIndex, recycledPool));
                         } else {

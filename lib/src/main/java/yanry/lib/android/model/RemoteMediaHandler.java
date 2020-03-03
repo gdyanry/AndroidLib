@@ -7,33 +7,31 @@ import android.media.session.MediaSessionManager;
 
 import androidx.annotation.Nullable;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
 import yanry.lib.android.entity.MainHandler;
-import yanry.lib.java.interfaces.OnValueChangeListener;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
+import yanry.lib.java.model.watch.ValueHolder;
 
 /**
  * Created by yanry on 2020/2/10.
  */
 public class RemoteMediaHandler extends MediaController.Callback implements MediaSessionManager.OnActiveSessionsChangedListener {
     private String pkgName;
-    private MediaController controller;
-    private LinkedList<OnValueChangeListener<MediaController>> sessionChangeListeners;
+    private ValueHolder<MediaController> controllerHolder;
 
     public RemoteMediaHandler(Context context, String pkgName) {
         this.pkgName = pkgName;
-        sessionChangeListeners = new LinkedList<>();
+        controllerHolder = new ValueHolder<>();
         MediaSessionManager mediaSessionManager = (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
         mediaSessionManager.addOnActiveSessionsChangedListener(this, null);
         onActiveSessionsChanged(mediaSessionManager.getActiveSessions(null));
     }
 
-    public MediaController getController() {
-        return controller;
+    public ValueHolder<MediaController> getControllerHolder() {
+        return controllerHolder;
     }
 
     /**
@@ -43,6 +41,7 @@ public class RemoteMediaHandler extends MediaController.Callback implements Medi
      * @return
      */
     public String getMetadata(String... keys) {
+        MediaController controller = controllerHolder.getValue();
         if (controller != null) {
             MediaMetadata metadata = controller.getMetadata();
             if (metadata != null) {
@@ -57,36 +56,24 @@ public class RemoteMediaHandler extends MediaController.Callback implements Medi
         return null;
     }
 
-    public void addOnSessionChangedListener(OnValueChangeListener<MediaController> listener) {
-        sessionChangeListeners.add(listener);
-    }
-
     @Override
     public final void onActiveSessionsChanged(@Nullable List<MediaController> controllers) {
-        MediaController old = this.controller;
+        MediaController newController = controllerHolder.getValue();
         if (controllers != null) {
             for (MediaController controller : controllers) {
                 if (Objects.equals(pkgName, controller.getPackageName())) {
                     controller.registerCallback(this, Singletons.get(MainHandler.class));
-                    this.controller = controller;
+                    newController = controller;
                     break;
                 }
             }
         }
-        if (!Objects.equals(old, controller) && sessionChangeListeners != null) {
-            for (OnValueChangeListener listener : sessionChangeListeners) {
-                listener.onValueChange(controller, old);
-            }
-        }
+        controllerHolder.setValue(newController);
     }
 
     @Override
     public void onSessionDestroyed() {
         Logger.getDefault().dd("media session destroyed: ", pkgName);
-        MediaController old = controller;
-        controller = null;
-        for (OnValueChangeListener<MediaController> listener : sessionChangeListeners) {
-            listener.onValueChange(null, old);
-        }
+        controllerHolder.setValue(null);
     }
 }
