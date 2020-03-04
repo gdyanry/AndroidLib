@@ -10,23 +10,18 @@ import android.os.IInterface;
 import yanry.lib.android.util.CommonUtils;
 import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
+import yanry.lib.java.model.watch.BooleanHolder;
 
 /**
  * Created by yanry on 2020/1/8.
  */
-public abstract class ServiceConnectionManager<S extends IInterface> implements ServiceConnection, Runnable {
-    public static final int EVENT_BIND_FAILED = 1;
-    public static final int EVENT_DISCONNECTED = 2;
-    public static final int EVENT_BINDING_DIED = 3;
-    public static final int EVENT_NULL_BINDING = 4;
-    public static final int EVENT_CONNECTED = 5;
-    public static final int EVENT_EXIT = 6;
-
+public abstract class ServiceConnector<S extends IInterface> implements ServiceConnection, Runnable {
     private Context context;
     private Intent serviceIntent;
     private int connectFlags;
-    private boolean isOpen;
     private S service;
+    private BooleanHolder isAvailable;
+    private BooleanHolder isAlive;
 
     /**
      * @param context
@@ -38,22 +33,23 @@ public abstract class ServiceConnectionManager<S extends IInterface> implements 
      *                      {@link Context#BIND_ALLOW_OOM_MANAGEMENT}, or
      *                      {@link Context#BIND_WAIVE_PRIORITY}.
      */
-    public ServiceConnectionManager(Context context, Intent serviceIntent, int connectFlags) {
+    public ServiceConnector(Context context, Intent serviceIntent, int connectFlags) {
         this.context = context;
         this.serviceIntent = serviceIntent;
         this.connectFlags = connectFlags;
+        isAvailable = new BooleanHolder();
+        isAlive = new BooleanHolder();
     }
 
     /**
      * 发起连接。
      */
     public void connect() {
-        if (isOpen) {
-            Logger.getDefault().ww(serviceIntent, " has already connected.");
-        } else {
-            isOpen = true;
+        if (isAlive.setValue(true)) {
             Logger.getDefault().concat(1, LogLevel.Debug, "bind: ", serviceIntent);
             doConnect();
+        } else {
+            Logger.getDefault().ww(serviceIntent, " has already connected.");
         }
     }
 
@@ -66,8 +62,7 @@ public abstract class ServiceConnectionManager<S extends IInterface> implements 
      * 断开连接。
      */
     public void disconnect() {
-        if (isOpen) {
-            isOpen = false;
+        if (isAlive.setValue(false)) {
             Logger.getDefault().concat(1, LogLevel.Debug, "unbind: ", serviceIntent);
             context.unbindService(this);
         } else {
@@ -75,17 +70,12 @@ public abstract class ServiceConnectionManager<S extends IInterface> implements 
         }
     }
 
-    /**
-     * open状态指的是调用{@link #connect()}之后、直到发生如下事件之间的状态：
-     * 调用{@link #disconnect()}；
-     * 连接失败且{@link #getReconnectDelay()}返回0；
-     * 触发{@link #onNullBinding(ComponentName)}回调；
-     * {@link #getService(IBinder)}返回null。
-     *
-     * @return 当前是否处理open状态。
-     */
-    public boolean isOpen() {
-        return isOpen;
+    public BooleanHolder getIsAlive() {
+        return isAlive;
+    }
+
+    public BooleanHolder getIsAvailable() {
+        return isAvailable;
     }
 
     public S getService() {
@@ -100,43 +90,32 @@ public abstract class ServiceConnectionManager<S extends IInterface> implements 
      */
     protected abstract S getService(IBinder service);
 
-    /**
-     * open状态中的事件回调。
-     *
-     * @param event 可取值为{@link #EVENT_BIND_FAILED}、{@link #EVENT_DISCONNECTED}、{@link #EVENT_BINDING_DIED}、
-     *              {@link #EVENT_NULL_BINDING}、{@link #EVENT_CONNECTED}、{@link #EVENT_EXIT}。
-     */
-    protected abstract void onInternalEvent(int event);
-
     protected abstract long getReconnectDelay();
 
     @Override
     public final void run() {
-        if (isOpen && !context.bindService(serviceIntent, this, connectFlags)) {
+        if (isAlive.getValue() && !context.bindService(serviceIntent, this, connectFlags)) {
             Logger.getDefault().ww("bind service fail: ", serviceIntent);
-            onInternalEvent(EVENT_BIND_FAILED);
             long delay = getReconnectDelay();
             if (delay > 0) {
                 Logger.getDefault().vv("will retry connect in ", delay, " ms.");
                 CommonUtils.scheduleTimeout(this, delay);
             } else {
-                onInternalEvent(EVENT_EXIT);
-                isOpen = false;
+                isAlive.setValue(false);
             }
         }
     }
 
     @Override
     public final void onServiceConnected(ComponentName name, IBinder service) {
-        if (isOpen) {
+        if (isAlive.getValue()) {
             Logger.getDefault().dd("connected: ", name);
             this.service = getService(service);
             if (this.service != null) {
-                onInternalEvent(EVENT_CONNECTED);
+                isAvailable.setValue(true);
             } else {
                 Logger.getDefault().ee("cannot get service: ", name);
-                onInternalEvent(EVENT_EXIT);
-                isOpen = false;
+                isAlive.setValue(false);
                 context.unbindService(this);
             }
         }
@@ -149,9 +128,9 @@ public abstract class ServiceConnectionManager<S extends IInterface> implements 
          * to {@link #onServiceConnected} when the Service is next running.
          */
         service = null;
-        if (isOpen) {
+        if (isAlive.getValue()) {
             Logger.getDefault().dd("disconnected: ", name);
-            onInternalEvent(EVENT_DISCONNECTED);
+            isAvailable.setValue(false);
             // 按照官方文档的说法，当目标服务重新起来后会自动连接，所以这里就不执行重连了
         }
     }
@@ -159,9 +138,9 @@ public abstract class ServiceConnectionManager<S extends IInterface> implements 
     @Override
     public final void onBindingDied(ComponentName name) {
         service = null;
-        if (isOpen) {
+        if (isAlive.getValue()) {
             Logger.getDefault().dd("binding died: ", name);
-            onInternalEvent(EVENT_BINDING_DIED);
+            isAvailable.setValue(false);
             context.unbindService(this);
             doConnect();
         }
@@ -169,11 +148,9 @@ public abstract class ServiceConnectionManager<S extends IInterface> implements 
 
     @Override
     public final void onNullBinding(ComponentName name) {
-        if (isOpen) {
+        if (isAlive.setValue(false)) {
             Logger.getDefault().ee("null binding: ", name);
-            onInternalEvent(EVENT_NULL_BINDING);
-            onInternalEvent(EVENT_EXIT);
-            isOpen = false;
+            isAvailable.setValue(false);
             context.unbindService(this);
         }
     }
