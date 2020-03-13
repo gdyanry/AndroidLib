@@ -25,8 +25,7 @@ android {
 }
 
 dependencies {
-    compileOnly 'androidx.appcompat:appcompat:1.0.0'
-    api 'com.github.gdyanry:CommonLib:v0.2003.040'
+    api 'com.github.gdyanry:CommonLib:v0.2003.130'
 //    api project(path: ':CommonLib')
     compileOnly 'androidx.recyclerview:recyclerview:1.0.0'
     compileOnly 'androidx.appcompat:appcompat:1.1.0'

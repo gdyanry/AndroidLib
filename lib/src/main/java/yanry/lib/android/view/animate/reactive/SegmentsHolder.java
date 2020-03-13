@@ -32,11 +32,10 @@ public class SegmentsHolder implements Runnable {
      * @param view
      */
     public void bindRenderView(ReactiveAnimateView view) {
-        view.setSegmentsHolder(this);
+        view.segmentsHolder = this;
         if (pendingView != view && renderView != view) {
             pendingView = view;
-            view.removeCallbacks(view);
-            view.invalidate();
+            view.postInvalidate();
         }
     }
 
@@ -89,6 +88,9 @@ public class SegmentsHolder implements Runnable {
                 segments.add(segment);
             }
             Collections.sort(segments);
+            if (renderView != null) {
+                renderView.postInvalidate();
+            }
             return true;
         }
         return false;
@@ -112,22 +114,28 @@ public class SegmentsHolder implements Runnable {
     }
 
     synchronized void prepareNext() {
-        temp.addAll(segments);
-        isPreparing = true;
-        for (AnimateSegment segment : temp) {
-            if (!segment.hasNext()) {
-                segment.release();
-                segments.remove(segment);
+        if (segments.size() > 0) {
+            temp.addAll(segments);
+            isPreparing = true;
+            for (AnimateSegment segment : temp) {
+                if (!segment.hasNext()) {
+                    segment.release();
+                    segments.remove(segment);
+                }
             }
+            isPreparing = false;
+            temp.clear();
         }
-        isPreparing = false;
-        temp.clear();
     }
 
-    synchronized void draw(Canvas canvas) {
-        for (AnimateSegment segment : segments) {
-            segment.draw(canvas);
+    synchronized boolean draw(Canvas canvas) {
+        if (segments.size() > 0) {
+            for (AnimateSegment segment : segments) {
+                segment.draw(canvas);
+            }
+            return true;
         }
+        return false;
     }
 
     /**
