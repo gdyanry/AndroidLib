@@ -3,7 +3,7 @@ package yanry.lib.android.model;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import yanry.lib.android.entity.MainHandler;
-import yanry.lib.android.interfaces.BooleanSupplier;
+import yanry.lib.java.interfaces.BooleanSupplier;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 

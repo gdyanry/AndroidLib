@@ -26,8 +26,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 
 import yanry.lib.android.entity.MainHandler;
-import yanry.lib.android.interfaces.BooleanSupplier;
-import yanry.lib.android.interfaces.Consumer;
+import yanry.lib.java.interfaces.BooleanSupplier;
+import yanry.lib.java.interfaces.Consumer;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 

@@ -3,7 +3,7 @@ package yanry.lib.android.util;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import yanry.lib.android.interfaces.Consumer;
+import yanry.lib.java.interfaces.Consumer;
 
 class RunOnUiHandler implements InvocationHandler, Runnable {
     private Object target;

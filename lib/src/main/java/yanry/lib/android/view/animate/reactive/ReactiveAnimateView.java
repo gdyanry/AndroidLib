@@ -7,6 +7,9 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
+import yanry.lib.java.model.log.Logger;
+import yanry.lib.java.model.watch.BooleanHolder;
+
 /**
  * 承载绘制动画的View，适用于播放帧动画（结合{@link yanry.lib.android.view.animate.reactive.frame.AnimateFrameSegment}）或可交互动画的场景。
  */
@@ -14,7 +17,7 @@ public class ReactiveAnimateView extends View implements Runnable {
     SegmentsHolder segmentsHolder;
     private boolean freeze;
     private long refreshInterval = 30;
-    private boolean idle;
+    private BooleanHolder activeState = new BooleanHolder(true);
 
     public ReactiveAnimateView(Context context) {
         this(context, null);
@@ -54,22 +57,28 @@ public class ReactiveAnimateView extends View implements Runnable {
                 return;
             }
         }
-        idle = true;
+        setActiveState(false);
+    }
+
+    private boolean setActiveState(boolean isActive) {
+        if (activeState.setValue(isActive)) {
+            Logger.getDefault().dd("active state of animate view: ", this, ' ', isActive);
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void invalidate() {
-        if (idle) {
-            idle = false;
+        if (setActiveState(true)) {
             super.invalidate();
         }
     }
 
     @Override
     public void postInvalidate() {
-        if (idle) {
-            idle = false;
-            super.postInvalidate();
+        if (setActiveState(true)) {
+            Logger.getDefault().dd("active state of animate view: ", this, ' ', true);
         }
     }
 
