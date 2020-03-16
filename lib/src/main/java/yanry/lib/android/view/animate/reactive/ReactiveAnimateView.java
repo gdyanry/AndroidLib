@@ -78,7 +78,7 @@ public class ReactiveAnimateView extends View implements Runnable {
     @Override
     public void postInvalidate() {
         if (setActiveState(true)) {
-            Logger.getDefault().dd("active state of animate view: ", this, ' ', true);
+            super.postInvalidate();
         }
     }
 
