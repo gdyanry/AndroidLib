@@ -76,13 +76,6 @@ public class ReactiveAnimateView extends View implements Runnable {
     }
 
     @Override
-    public void postInvalidate() {
-        if (setActiveState(true)) {
-            super.postInvalidate();
-        }
-    }
-
-    @Override
     protected void onDetachedFromWindow() {
         if (segmentsHolder != null) {
             segmentsHolder.unbindRenderView(this);
