@@ -43,6 +43,9 @@ public class ReactiveAnimateView extends View implements Runnable {
             this.freeze = freeze;
             if (!freeze) {
                 postInvalidate();
+            } else {
+                // 实测存在以下情况：setFreeze(true)->onDraw()未回调->setActiveState(false)未调用->invalidate()无效，所以此处需要调用setActiveState(false)。
+                setActiveState(false);
             }
         }
     }
@@ -87,7 +90,6 @@ public class ReactiveAnimateView extends View implements Runnable {
     @Override
     public void run() {
         if (!freeze) {
-            removeCallbacks(this);
             super.invalidate();
         }
     }
