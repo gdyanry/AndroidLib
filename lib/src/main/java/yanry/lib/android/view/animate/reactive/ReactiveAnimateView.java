@@ -90,6 +90,7 @@ public class ReactiveAnimateView extends View implements Runnable {
     @Override
     public void run() {
         if (!freeze) {
+            removeCallbacks(this);
             super.invalidate();
         }
     }
