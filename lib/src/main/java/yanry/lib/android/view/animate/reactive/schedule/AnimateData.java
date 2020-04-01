@@ -138,4 +138,9 @@ public class AnimateData extends ShowData implements AnimateSegment, ValueWatche
             releaseSegments();
         }
     }
+
+    @Override
+    public String toString() {
+        return animateSegments + "@" + hashCode();
+    }
 }
