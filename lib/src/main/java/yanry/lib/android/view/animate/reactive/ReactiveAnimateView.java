@@ -7,6 +7,7 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
+import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.BooleanHolder;
 
@@ -65,7 +66,7 @@ public class ReactiveAnimateView extends View implements Runnable {
 
     private boolean setActiveState(boolean isActive) {
         if (activeState.setValue(isActive)) {
-            Logger.getDefault().dd("active state of animate view: ", this, ' ', isActive);
+            Logger.getDefault().concat(1, LogLevel.Debug, "active state of animate view: ", this, ' ', isActive);
             return true;
         }
         return false;

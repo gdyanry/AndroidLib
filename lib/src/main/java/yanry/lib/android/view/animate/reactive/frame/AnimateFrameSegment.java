@@ -253,7 +253,7 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
 
     @Override
     public String toString() {
-        return source + "@" + Integer.toHexString(hashCode());
+        return source + "@" + hashCode();
     }
 
     @Override
