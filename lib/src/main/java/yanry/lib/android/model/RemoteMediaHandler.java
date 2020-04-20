@@ -14,17 +14,18 @@ import yanry.lib.android.entity.MainHandler;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.ValueHolder;
+import yanry.lib.java.model.watch.ValueHolderImpl;
 
 /**
  * Created by yanry on 2020/2/10.
  */
 public class RemoteMediaHandler extends MediaController.Callback implements MediaSessionManager.OnActiveSessionsChangedListener {
     private String pkgName;
-    private ValueHolder<MediaController> controllerHolder;
+    private ValueHolderImpl<MediaController> controllerHolder;
 
     public RemoteMediaHandler(Context context, String pkgName) {
         this.pkgName = pkgName;
-        controllerHolder = new ValueHolder<>();
+        controllerHolder = new ValueHolderImpl<>();
         MediaSessionManager mediaSessionManager = (MediaSessionManager) context.getSystemService(Context.MEDIA_SESSION_SERVICE);
         mediaSessionManager.addOnActiveSessionsChangedListener(this, null);
         onActiveSessionsChanged(mediaSessionManager.getActiveSessions(null));

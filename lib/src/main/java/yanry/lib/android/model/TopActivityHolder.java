@@ -13,13 +13,14 @@ import java.util.Map;
 
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.ValueHolder;
+import yanry.lib.java.model.watch.ValueHolderImpl;
 import yanry.lib.java.model.watch.ValueWatcher;
 
 /**
  * Created by yanry on 2020/3/1.
  */
-public class TopActivityHolder extends ValueHolder<Activity> implements Application.ActivityLifecycleCallbacks {
-    private LinkedHashMap<Activity, ValueHolder<Lifecycle.State>> activityStates;
+public class TopActivityHolder extends ValueHolderImpl<Activity> implements Application.ActivityLifecycleCallbacks {
+    private LinkedHashMap<Activity, ValueHolderImpl<Lifecycle.State>> activityStates;
 
     public void init(Application application) {
         try {
@@ -40,13 +41,13 @@ public class TopActivityHolder extends ValueHolder<Activity> implements Applicat
 
     public boolean removeActivityStateWatcher(Activity activity, ValueWatcher<Lifecycle.State> watcher) {
         ValueHolder<Lifecycle.State> activityState = activityStates.get(activity);
-        return activityState != null && activityState.remove(watcher);
+        return activityState != null && activityState.removeWatcher(watcher);
     }
 
     private boolean refreshTopActivity() {
         Activity currentTop = null;
         Lifecycle.State topState = null;
-        for (Map.Entry<Activity, ValueHolder<Lifecycle.State>> entry : activityStates.entrySet()) {
+        for (Map.Entry<Activity, ValueHolderImpl<Lifecycle.State>> entry : activityStates.entrySet()) {
             ValueHolder<Lifecycle.State> state = entry.getValue();
             if (topState == null || state.getValue().isAtLeast(topState)) {
                 topState = state.getValue();
@@ -58,9 +59,9 @@ public class TopActivityHolder extends ValueHolder<Activity> implements Applicat
 
     private void handleActivityState(Activity activity, Lifecycle.State state) {
         if (activityStates != null) {
-            ValueHolder<Lifecycle.State> activityState = activityStates.get(activity);
+            ValueHolderImpl<Lifecycle.State> activityState = activityStates.get(activity);
             if (activityState == null) {
-                activityState = new ValueHolder<>(Lifecycle.State.INITIALIZED);
+                activityState = new ValueHolderImpl<>(Lifecycle.State.INITIALIZED);
                 activityStates.put(activity, activityState);
             }
             if (activityState.setValue(state) && refreshTopActivity() && getValue() == activity && state == Lifecycle.State.DESTROYED) {

@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 
 import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
-import yanry.lib.java.model.watch.BooleanHolder;
+import yanry.lib.java.model.watch.BooleanHolderImpl;
 
 /**
  * 承载绘制动画的View，适用于播放帧动画（结合{@link yanry.lib.android.view.animate.reactive.frame.AnimateFrameSegment}）或可交互动画的场景。
@@ -18,7 +18,7 @@ public class ReactiveAnimateView extends View implements Runnable {
     SegmentsHolder segmentsHolder;
     private boolean freeze;
     private long refreshInterval = 30;
-    private BooleanHolder activeState = new BooleanHolder(true);
+    private BooleanHolderImpl activeState = new BooleanHolderImpl(true);
 
     public ReactiveAnimateView(Context context) {
         this(context, null);

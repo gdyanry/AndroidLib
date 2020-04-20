@@ -19,6 +19,7 @@ import yanry.lib.android.view.animate.reactive.AnimateSegment;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.task.SingleThreadExecutor;
 import yanry.lib.java.model.watch.ValueHolder;
+import yanry.lib.java.model.watch.ValueHolderImpl;
 
 /**
  * 使用序列帧实现的动画片段。具体实现上，使用线程池解码，每个处于活动状态的动画片段占用一个线程，使用队列长度为1的生产者消费者模式进行解码/绘制。
@@ -29,7 +30,7 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
     private SingleThreadExecutor decoder;
     private int cacheCapacity;
     private BitmapFactory.Options options;
-    private ValueHolder<Frame> currentFrame;
+    private ValueHolderImpl<Frame> currentFrame;
 
     private Queue<Frame> cacheQueue;
     private SparseArray<Frame> presetFrames;
@@ -62,7 +63,7 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
         recycledPool = new LinkedList<>();
         options = new BitmapFactory.Options();
         options.inMutable = true;
-        currentFrame = new ValueHolder<>();
+        currentFrame = new ValueHolderImpl<>();
     }
 
     /**

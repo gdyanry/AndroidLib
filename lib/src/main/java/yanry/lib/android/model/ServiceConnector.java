@@ -7,23 +7,28 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import yanry.lib.android.util.CommonUtils;
+import androidx.annotation.NonNull;
+
 import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
+import yanry.lib.java.model.runner.Runner;
 import yanry.lib.java.model.watch.BooleanHolder;
+import yanry.lib.java.model.watch.BooleanHolderImpl;
 
 /**
  * Created by yanry on 2020/1/8.
  */
 public abstract class ServiceConnector<S extends IInterface> implements ServiceConnection, Runnable {
+    private Runner runner;
     private Context context;
     private Intent serviceIntent;
     private int connectFlags;
     private S service;
-    private BooleanHolder isAvailable;
-    private BooleanHolder isAlive;
+    private BooleanHolderImpl isAvailable;
+    private BooleanHolderImpl isAlive;
 
     /**
+     * @param runner
      * @param context
      * @param serviceIntent Identifies the service to connect to.  The Intent must
      *                      specify an explicit component name.
@@ -33,29 +38,29 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
      *                      {@link Context#BIND_ALLOW_OOM_MANAGEMENT}, or
      *                      {@link Context#BIND_WAIVE_PRIORITY}.
      */
-    public ServiceConnector(Context context, Intent serviceIntent, int connectFlags) {
+    public ServiceConnector(@NonNull Runner runner, @NonNull Context context, @NonNull Intent serviceIntent, int connectFlags) {
+        this.runner = runner;
         this.context = context;
         this.serviceIntent = serviceIntent;
         this.connectFlags = connectFlags;
-        isAvailable = new BooleanHolder();
-        isAlive = new BooleanHolder();
+        isAvailable = new BooleanHolderImpl();
+        isAlive = new BooleanHolderImpl();
     }
 
     /**
      * 发起连接。
      */
-    public void connect() {
+    public void connect(long delay) {
         if (isAlive.setValue(true)) {
             Logger.getDefault().concat(1, LogLevel.Debug, "bind: ", serviceIntent);
-            doConnect();
+            doConnect(delay);
         } else {
             Logger.getDefault().ww(serviceIntent, " has already connected.");
         }
     }
 
-    private void doConnect() {
-        CommonUtils.cancelPendingTimeout(this);
-        run();
+    private void doConnect(long delay) {
+        runner.scheduleTimeout(this, delay);
     }
 
     /**
@@ -99,7 +104,7 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
             long delay = getReconnectDelay();
             if (delay > 0) {
                 Logger.getDefault().vv("will retry connect in ", delay, " ms.");
-                CommonUtils.scheduleTimeout(this, delay);
+                runner.scheduleTimeout(this, delay);
             } else {
                 isAlive.setValue(false);
             }
@@ -142,7 +147,7 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
             Logger.getDefault().dd("binding died: ", name);
             isAvailable.setValue(false);
             context.unbindService(this);
-            doConnect();
+            doConnect(0);
         }
     }
 
