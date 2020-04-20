@@ -10,13 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.InputStream;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import yanry.lib.android.entity.MainHandler;
 import yanry.lib.android.view.animate.reactive.AnimateSegment;
-import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.task.SingleThreadExecutor;
 import yanry.lib.java.model.watch.ValueHolder;
@@ -60,7 +59,7 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
         this.cacheCapacity = 1;
         this.cacheQueue = new ConcurrentLinkedQueue<>();
         presetFrames = new SparseArray<>();
-        recycledPool = new ConcurrentLinkedQueue<>();
+        recycledPool = new LinkedList<>();
         options = new BitmapFactory.Options();
         options.inMutable = true;
         currentFrame = new ValueHolder<>();
@@ -222,10 +221,9 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
             } else {
                 refreshTimestamp = now;
                 decoder.enqueue(this, false);
-                currentFrame.setValue(poll);
-                // bitmap回收利用
-                if (previousFrame != null && previousFrame.isRecyclable()) {
-                    Singletons.get(MainHandler.class).post(previousFrame);
+                if (currentFrame.setValue(poll) && previousFrame != null && previousFrame.isRecyclable()) {
+                    // bitmap回收利用
+                    decoder.enqueue(previousFrame, true);
                 }
             }
             return true;
@@ -285,7 +283,10 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
             if (reverse && (decodeCounter / frameCount) % 2 == 1) {
                 decodeIndex = frameCount - 1 - decodeIndex;
             }
-            if (decodeIndex >= 0 && decodeIndex < frameCount) {
+            Frame current = currentFrame.getValue();
+            if (current != null && current.getIndex() == decodeIndex) {
+                cacheQueue.offer(new Frame(current.getBitmap(), decodeIndex, current.isRecyclable() ? recycledPool : null));
+            } else if (decodeIndex >= 0 && decodeIndex < frameCount) {
                 Frame presetFrame = presetFrames.get(decodeIndex);
                 if (presetFrame == null) {
                     InputStream frameInputStream = source.getFrameInputStream(decodeIndex);

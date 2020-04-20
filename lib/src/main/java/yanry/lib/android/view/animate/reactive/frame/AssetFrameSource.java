@@ -3,6 +3,8 @@ package yanry.lib.android.view.animate.reactive.frame;
 import android.content.Context;
 import android.content.res.AssetManager;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -85,7 +87,7 @@ public class AssetFrameSource implements AnimateFrameSource {
      * @param assetsDirPath 以assets为基准的相对目录路径，该目录除了序列帧文件不应再包含子目录。
      * @return
      */
-    public static AssetFrameSource get(String assetsDirPath) {
+    public static AssetFrameSource get(@NonNull String assetsDirPath) {
         AssetFrameSource source = cache.get(assetsDirPath);
         if (source == null) {
             source = new AssetFrameSource(assetsDirPath);
