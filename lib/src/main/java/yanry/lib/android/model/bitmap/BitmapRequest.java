@@ -16,8 +16,8 @@ import android.widget.ImageView;
 import java.io.File;
 
 import yanry.lib.android.R;
-import yanry.lib.android.entity.MainHandler;
 import yanry.lib.android.model.bitmap.access.BitmapAccess;
+import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.android.util.CommonUtils;
 import yanry.lib.android.util.ViewUtil;
 import yanry.lib.java.model.Singletons;
@@ -244,7 +244,7 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
     public void onGenerateException(Exception e) {
         if (download != null) {
             download.action = DownloadHook.ACTION_ERROR;
-            CommonUtils.runOnUiThread(download);
+            Singletons.get(UiScheduleRunner.class).run(download);
         }
         if (isAlive(e.getMessage())) {
             dispatch(null, ACTION_ERROR);
@@ -291,7 +291,7 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
         if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
             show(bm, action);
         } else {
-            Singletons.get(MainHandler.class).post(new Runnable() {
+            Singletons.get(UiScheduleRunner.class).post(new Runnable() {
                 public void run() {
                     show(bm, action);
                 }
@@ -356,7 +356,7 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
         if (download != null) {
             download.action = DownloadHook.ACTION_UPDATE;
             download.currentPos = download.startPos + transferedBytes;
-            CommonUtils.runOnUiThread(download);
+            Singletons.get(UiScheduleRunner.class).run(download);
         }
     }
 
@@ -364,7 +364,7 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
     public void onFinish(boolean isStopped) {
         if (download != null) {
             download.action = DownloadHook.ACTION_FINISH;
-            CommonUtils.runOnUiThread(download);
+            Singletons.get(UiScheduleRunner.class).run(download);
         }
     }
 
@@ -379,7 +379,7 @@ public class BitmapRequest implements AccessHook<Bitmap>, BitmapOption {
             download.action = DownloadHook.ACTION_START;
             download.startPos = startPos;
             download.totalLen = totalLen;
-            CommonUtils.runOnUiThread(download);
+            Singletons.get(UiScheduleRunner.class).run(download);
         }
         return true;
     }

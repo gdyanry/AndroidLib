@@ -3,7 +3,7 @@
  */
 package yanry.lib.android.model;
 
-import yanry.lib.android.entity.MainHandler;
+import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.java.model.Singletons;
 
 /**
@@ -31,7 +31,7 @@ public abstract class SimpleCountDown {
 		if (stop) {
 			return;
 		}
-		Singletons.get(MainHandler.class).postDelayed(new Runnable() {
+		Singletons.get(UiScheduleRunner.class).postDelayed(new Runnable() {
 			public void run() {
 				if (--counter < 0) {
 					onFinish();

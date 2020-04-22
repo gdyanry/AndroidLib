@@ -4,7 +4,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
-import yanry.lib.android.util.CommonUtils;
+import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.schedule.imple.SyncDisplay;
 
 public class ToastDisplay extends SyncDisplay<ContextShowData, Toast> {
@@ -16,7 +17,7 @@ public class ToastDisplay extends SyncDisplay<ContextShowData, Toast> {
         }
         Toast toast = Toast.makeText(data.getContext(), data.toString(), Toast.LENGTH_LONG);
         toast.show();
-        CommonUtils.scheduleTimeout(() -> notifyDismiss(toast), 3500);
+        Singletons.get(UiScheduleRunner.class).scheduleTimeout(() -> notifyDismiss(toast), (long) 3500);
         return toast;
     }
 

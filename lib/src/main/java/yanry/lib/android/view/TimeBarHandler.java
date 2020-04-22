@@ -6,7 +6,7 @@ package yanry.lib.android.view;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-import yanry.lib.android.entity.MainHandler;
+import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.java.model.Singletons;
 
 /**
@@ -37,7 +37,7 @@ public abstract class TimeBarHandler implements Runnable, OnSeekBarChangeListene
 	
 	public void start() {
 		inProgress = true;
-		Singletons.get(MainHandler.class).postDelayed(this, updatePeriod);
+		Singletons.get(UiScheduleRunner.class).postDelayed(this, updatePeriod);
 	}
 	
 	public void stop() {
@@ -55,7 +55,7 @@ public abstract class TimeBarHandler implements Runnable, OnSeekBarChangeListene
 		if (inProgress) {
 			int newProgress = getCurrentProgress();
 			if (newProgress < bar.getMax()) {
-				Singletons.get(MainHandler.class).postDelayed(this, updatePeriod);
+				Singletons.get(UiScheduleRunner.class).postDelayed(this, updatePeriod);
 				if (newProgress >= 0) {
 					bar.setProgress(newProgress);
 				}

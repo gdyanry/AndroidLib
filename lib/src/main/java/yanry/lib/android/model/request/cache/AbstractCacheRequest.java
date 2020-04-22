@@ -3,7 +3,8 @@
  */
 package yanry.lib.android.model.request.cache;
 
-import yanry.lib.android.util.CommonUtils;
+import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.cache.CacheDataHook;
 import yanry.lib.java.model.cache.CacheDataManager;
 import yanry.lib.java.model.cache.http.DataSource;
@@ -61,7 +62,7 @@ abstract class AbstractCacheRequest implements RequestDataHook, ResponseParser, 
 
 	@Override
 	public void onResponse(final Object responseData) {
-		CommonUtils.runOnUiThread(() -> {
+		Singletons.get(UiScheduleRunner.class).run(() -> {
 			Object bzData = getBusinessSuccessData(responseData);
 			if (bzData != null) {
 				String cacheKey = getCacheKey();

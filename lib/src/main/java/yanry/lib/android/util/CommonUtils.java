@@ -14,7 +14,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Environment;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.telephony.TelephonyManager;
 import android.util.TypedValue;
@@ -23,11 +22,9 @@ import android.view.inputmethod.InputMethodManager;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Proxy;
 
-import yanry.lib.android.entity.MainHandler;
+import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.java.interfaces.BooleanSupplier;
-import yanry.lib.java.interfaces.Consumer;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 
@@ -75,11 +72,6 @@ public class CommonUtils {
         return tm.getLine1Number();
     }
 
-    public <T> T getRunOnUiProxy(T target, Class<T> targetInterface, Consumer<Exception> exceptionHandler) {
-        Class<?>[] interfaces = {targetInterface};
-        return (T) Proxy.newProxyInstance(target.getClass().getClassLoader(), interfaces, new RunOnUiHandler(target, exceptionHandler));
-    }
-
     public static int dip2px(float dipValue) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue,
                 Resources.getSystem().getDisplayMetrics());
@@ -111,15 +103,6 @@ public class CommonUtils {
         return bm;
     }
 
-    public static void runOnUiThread(Runnable task) {
-        if (Thread.currentThread().equals(Looper.getMainLooper().getThread())) {
-            task.run();
-        } else {
-            Singletons.get(MainHandler.class).removeCallbacks(task);
-            Singletons.get(MainHandler.class).post(task);
-        }
-    }
-
     public static Activity getActivity(Context context) {
         if (context == null) {
             return null;
@@ -136,21 +119,11 @@ public class CommonUtils {
         if (!action.get()) {
             if (--tryTimes > 0) {
                 int finalTryTimes = tryTimes;
-                Singletons.get(MainHandler.class).postDelayed(() -> retryOnFail(finalTryTimes, interval, action, onFail), interval);
+                Singletons.get(UiScheduleRunner.class).postDelayed(() -> retryOnFail(finalTryTimes, interval, action, onFail), interval);
             } else {
                 onFail.run();
             }
         }
-    }
-
-    public static void scheduleTimeout(Runnable task, long delay) {
-        MainHandler mainHandler = Singletons.get(MainHandler.class);
-        mainHandler.removeCallbacks(task);
-        mainHandler.postDelayed(task, delay);
-    }
-
-    public static void cancelPendingTimeout(Runnable task) {
-        Singletons.get(MainHandler.class).removeCallbacks(task);
     }
 
     /**

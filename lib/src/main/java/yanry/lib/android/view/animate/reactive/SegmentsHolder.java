@@ -5,7 +5,7 @@ import android.graphics.Canvas;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import yanry.lib.android.entity.MainHandler;
+import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.java.model.Singletons;
 
 /**
@@ -48,7 +48,7 @@ public class SegmentsHolder implements Runnable {
         if (this.renderView == renderView) {
             this.renderView = null;
             // 清理
-            Singletons.get(MainHandler.class).post(this);
+            Singletons.get(UiScheduleRunner.class).post(this);
         }
     }
 
