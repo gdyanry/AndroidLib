@@ -19,7 +19,7 @@ import yanry.lib.java.model.watch.BooleanWatcher;
 /**
  * Created by yanry on 2020/1/8.
  */
-public abstract class ServiceConnector<S extends IInterface> implements ServiceConnection, Runnable {
+public abstract class AidlConnector<S extends IInterface> implements ServiceConnection, Runnable {
     private Runner runner;
     private Context context;
     private Intent serviceIntent;
@@ -39,7 +39,7 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
      *                      {@link Context#BIND_ALLOW_OOM_MANAGEMENT}, or
      *                      {@link Context#BIND_WAIVE_PRIORITY}.
      */
-    public ServiceConnector(@NonNull Runner runner, @NonNull Context context, @NonNull Intent serviceIntent, int connectFlags) {
+    public AidlConnector(@NonNull Runner runner, @NonNull Context context, @NonNull Intent serviceIntent, int connectFlags) {
         this.runner = runner;
         this.context = context;
         this.serviceIntent = serviceIntent;
