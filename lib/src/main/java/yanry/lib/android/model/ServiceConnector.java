@@ -14,6 +14,7 @@ import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.runner.Runner;
 import yanry.lib.java.model.watch.BooleanHolder;
 import yanry.lib.java.model.watch.BooleanHolderImpl;
+import yanry.lib.java.model.watch.BooleanWatcher;
 
 /**
  * Created by yanry on 2020/1/8.
@@ -24,7 +25,7 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
     private Intent serviceIntent;
     private int connectFlags;
     private S service;
-    private BooleanHolderImpl isAvailable;
+    private Availability availability;
     private BooleanHolderImpl isAlive;
 
     /**
@@ -43,8 +44,9 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
         this.context = context;
         this.serviceIntent = serviceIntent;
         this.connectFlags = connectFlags;
-        isAvailable = new BooleanHolderImpl();
         isAlive = new BooleanHolderImpl();
+        availability = new Availability();
+        isAlive.addWatcher(availability);
     }
 
     /**
@@ -79,8 +81,8 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
         return isAlive;
     }
 
-    public BooleanHolder getIsAvailable() {
-        return isAvailable;
+    public BooleanHolder getAvailability() {
+        return availability;
     }
 
     public S getService() {
@@ -117,7 +119,7 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
             Logger.getDefault().dd("connected: ", name);
             this.service = getService(service);
             if (this.service != null) {
-                isAvailable.setValue(true);
+                availability.setValue(true);
             } else {
                 Logger.getDefault().ee("cannot get service: ", name);
                 isAlive.setValue(false);
@@ -132,20 +134,18 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
          * this binding to the service will remain active, and you will receive a call
          * to {@link #onServiceConnected} when the Service is next running.
          */
-        service = null;
         if (isAlive.getValue()) {
             Logger.getDefault().dd("disconnected: ", name);
-            isAvailable.setValue(false);
+            availability.setValue(false);
             // 按照官方文档的说法，当目标服务重新起来后会自动连接，所以这里就不执行重连了
         }
     }
 
     @Override
     public final void onBindingDied(ComponentName name) {
-        service = null;
         if (isAlive.getValue()) {
             Logger.getDefault().dd("binding died: ", name);
-            isAvailable.setValue(false);
+            availability.setValue(false);
             context.unbindService(this);
             doConnect(0);
         }
@@ -155,8 +155,17 @@ public abstract class ServiceConnector<S extends IInterface> implements ServiceC
     public final void onNullBinding(ComponentName name) {
         if (isAlive.setValue(false)) {
             Logger.getDefault().ee("null binding: ", name);
-            isAvailable.setValue(false);
             context.unbindService(this);
+        }
+    }
+
+    private class Availability extends BooleanHolderImpl implements BooleanWatcher {
+        @Override
+        public void onValueChange(boolean to) {
+            if (!to) {
+                setValue(false);
+                service = null;
+            }
         }
     }
 }
