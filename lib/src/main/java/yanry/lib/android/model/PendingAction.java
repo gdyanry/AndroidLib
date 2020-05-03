@@ -29,7 +29,7 @@ public abstract class PendingAction implements Runnable {
             Logger.getDefault().vv("setup fail, action is pending currently!");
         } else {
             mark = atomicInteger.incrementAndGet();
-            Singletons.get(UiScheduleRunner.class).scheduleTimeout(this, timeout);
+            Singletons.get(UiScheduleRunner.class).schedule(this, timeout);
             Logger.getDefault().v("[%s]setup: %s.", mark, timeout);
         }
     }

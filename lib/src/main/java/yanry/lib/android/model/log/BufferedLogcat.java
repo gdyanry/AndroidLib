@@ -32,12 +32,12 @@ public class BufferedLogcat extends BufferedStringDisplay {
         this.logcatTag = logcatTag;
         this.maxIdleTime = maxIdleTime;
         bufferScheduler = manager.get(this);
-        bufferScheduler.setDisplay(BufferedLogcat.class, this);
+        bufferScheduler.addDisplay(this);
         if (minFlushInterval > 0) {
             this.minFlushInterval = minFlushInterval;
             LogcatRegularizeDisplay regularizeDisplay = new LogcatRegularizeDisplay();
             regularizeScheduler = manager.get(regularizeDisplay);
-            regularizeScheduler.setDisplay(LogcatRegularizeDisplay.class, regularizeDisplay);
+            regularizeScheduler.addDisplay(regularizeDisplay);
         }
     }
 

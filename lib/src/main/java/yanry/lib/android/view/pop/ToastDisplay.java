@@ -17,7 +17,7 @@ public class ToastDisplay extends SyncDisplay<ContextShowData, Toast> {
         }
         Toast toast = Toast.makeText(data.getContext(), data.toString(), Toast.LENGTH_LONG);
         toast.show();
-        Singletons.get(UiScheduleRunner.class).scheduleTimeout(() -> notifyDismiss(toast), (long) 3500);
+        Singletons.get(UiScheduleRunner.class).schedule(() -> notifyDismiss(toast), (long) 3500);
         return toast;
     }
 

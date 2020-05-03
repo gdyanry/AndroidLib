@@ -62,7 +62,7 @@ public abstract class AidlConnector<S extends IInterface> implements ServiceConn
     }
 
     private void doConnect(long delay) {
-        runner.scheduleTimeout(this, delay);
+        runner.schedule(this, delay);
     }
 
     /**
@@ -106,7 +106,7 @@ public abstract class AidlConnector<S extends IInterface> implements ServiceConn
             long delay = getReconnectDelay();
             if (delay > 0) {
                 Logger.getDefault().vv("will retry connect in ", delay, " ms.");
-                runner.scheduleTimeout(this, delay);
+                runner.schedule(this, delay);
             } else {
                 isAlive.setValue(false);
             }
@@ -115,8 +115,8 @@ public abstract class AidlConnector<S extends IInterface> implements ServiceConn
 
     @Override
     public final void onServiceConnected(ComponentName name, IBinder service) {
+        Logger.getDefault().dd("aidl onServiceConnected: ", name);
         if (isAlive.getValue()) {
-            Logger.getDefault().dd("connected: ", name);
             this.service = getService(service);
             if (this.service != null) {
                 availability.setValue(true);
@@ -134,8 +134,8 @@ public abstract class AidlConnector<S extends IInterface> implements ServiceConn
          * this binding to the service will remain active, and you will receive a call
          * to {@link #onServiceConnected} when the Service is next running.
          */
+        Logger.getDefault().dd("aidl onServiceDisconnected: ", name);
         if (isAlive.getValue()) {
-            Logger.getDefault().dd("disconnected: ", name);
             availability.setValue(false);
             // 按照官方文档的说法，当目标服务重新起来后会自动连接，所以这里就不执行重连了
         }
@@ -143,8 +143,8 @@ public abstract class AidlConnector<S extends IInterface> implements ServiceConn
 
     @Override
     public final void onBindingDied(ComponentName name) {
+        Logger.getDefault().dd("aidl onBindingDied: ", name);
         if (isAlive.getValue()) {
-            Logger.getDefault().dd("binding died: ", name);
             availability.setValue(false);
             context.unbindService(this);
             doConnect(0);
@@ -153,8 +153,8 @@ public abstract class AidlConnector<S extends IInterface> implements ServiceConn
 
     @Override
     public final void onNullBinding(ComponentName name) {
+        Logger.getDefault().ee("aidl onNullBinding: ", name);
         if (isAlive.setValue(false)) {
-            Logger.getDefault().ee("null binding: ", name);
             context.unbindService(this);
         }
     }

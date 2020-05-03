@@ -36,13 +36,13 @@ public class HandlerThreadRunner extends HandlerThread implements Runner {
     }
 
     @Override
-    public void scheduleTimeout(Runnable runnable, long delay) {
+    public void schedule(Runnable runnable, long delay) {
         handler.removeCallbacks(runnable);
         handler.postDelayed(runnable, delay);
     }
 
     @Override
-    public void cancelPendingTimeout(Runnable runnable) {
+    public void cancel(Runnable runnable) {
         handler.removeCallbacks(runnable);
     }
 }

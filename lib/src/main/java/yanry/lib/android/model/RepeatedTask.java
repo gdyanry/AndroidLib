@@ -19,7 +19,7 @@ public abstract class RepeatedTask implements Runnable {
     public void start() {
         if (!isActive) {
             isActive = true;
-            runner.cancelPendingTimeout(this);
+            runner.cancel(this);
             runner.run(this);
         }
     }
@@ -27,7 +27,7 @@ public abstract class RepeatedTask implements Runnable {
     public void stop() {
         if (isActive) {
             isActive = false;
-            runner.cancelPendingTimeout(this);
+            runner.cancel(this);
         }
     }
 
@@ -35,7 +35,7 @@ public abstract class RepeatedTask implements Runnable {
     public final void run() {
         if (isActive) {
             doRun();
-            runner.scheduleTimeout(this, period);
+            runner.schedule(this, period);
         }
     }
 

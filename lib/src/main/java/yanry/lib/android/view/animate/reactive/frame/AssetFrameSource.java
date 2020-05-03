@@ -2,6 +2,7 @@ package yanry.lib.android.view.animate.reactive.frame;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 
@@ -11,7 +12,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -53,6 +56,7 @@ public class AssetFrameSource implements AnimateFrameSource {
         try {
             File root = new File(assetsDir);
             loadDir(root, assetManager.list(root.getPath()));
+            Logger.getDefault().dd("success load frames from assets dir: ", assetsDir);
         } catch (IOException e) {
             Logger.getDefault().catches(e);
         }
@@ -94,6 +98,22 @@ public class AssetFrameSource implements AnimateFrameSource {
             cache.put(assetsDirPath, source);
         }
         return source;
+    }
+
+    public static void clearCache(String assetsDir) {
+        if (TextUtils.isEmpty(assetsDir)) {
+            cache.clear();
+        } else {
+            if (!assetsDir.endsWith("/")) {
+                assetsDir = assetsDir + "/";
+            }
+            Iterator<Map.Entry<String, AssetFrameSource>> iterator = cache.entrySet().iterator();
+            while (iterator.hasNext()) {
+                if (iterator.next().getKey().startsWith(assetsDir)) {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     private File dir;

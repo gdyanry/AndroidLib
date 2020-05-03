@@ -3,29 +3,23 @@ package yanry.lib.android.view.animate.reactive.frame;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.os.SystemClock;
 import android.util.SparseArray;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.io.InputStream;
 import java.util.LinkedList;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import yanry.lib.android.view.animate.reactive.AnimateSegment;
-import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.task.SingleThreadExecutor;
 import yanry.lib.java.model.watch.ValueHolder;
 import yanry.lib.java.model.watch.ValueHolderImpl;
 
 /**
- * 使用序列帧实现的动画片段。具体实现上，使用线程池解码，每个处于活动状态的动画片段占用一个线程，使用队列长度为1的生产者消费者模式进行解码/绘制。
+ * 使用序列帧实现的动画片段。具体实现上，使用指定线程解码，多个处于活动状态的动画片段可以共用一个解码线程，使用队列长度为1的生产者消费者模式进行解码/绘制。
  * 功能上，支持指定播放次数、帧率、反序播放、任意帧开始等特性。
  */
-public class AnimateFrameSegment implements AnimateSegment, Runnable {
+public abstract class AnimateFrameSegment extends AnimateSegment implements Runnable {
     private AnimateFrameSource source;
     private SingleThreadExecutor decoder;
     private int cacheCapacity;
@@ -35,32 +29,29 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
     private Queue<Frame> cacheQueue;
     private SparseArray<Frame> presetFrames;
     private Queue<Bitmap> recycledPool;
+    private Decode decode;
 
-    private boolean isActive;
     private int decodeCounter;
-    private long refreshTimestamp;
 
     private int left;
     private int top;
     private int repeatCount;
     private boolean reverse;
-    private long refreshInterval;
-    private boolean pause;
     private boolean fillEnd;
     private int startIndex;
-    private int zOrder;
 
     /**
      * @param source
      * @param decoder 序列帧解码执行线程。
      */
-    public AnimateFrameSegment(@NonNull AnimateFrameSource source, @Nullable SingleThreadExecutor decoder) {
+    public AnimateFrameSegment(AnimateFrameSource source, SingleThreadExecutor decoder) {
         this.source = source;
         this.decoder = decoder;
         this.cacheCapacity = 1;
         this.cacheQueue = new ConcurrentLinkedQueue<>();
         presetFrames = new SparseArray<>();
         recycledPool = new LinkedList<>();
+        decode = new Decode();
         options = new BitmapFactory.Options();
         options.inMutable = true;
         currentFrame = new ValueHolderImpl<>();
@@ -78,17 +69,6 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
     }
 
     /**
-     * 设置z坐标值。
-     *
-     * @param zOrder
-     * @return
-     */
-    public AnimateFrameSegment zOrder(int zOrder) {
-        this.zOrder = zOrder;
-        return this;
-    }
-
-    /**
      * @param count 动画重复播放次数，只有大于0才生效，默认无限重复播放。
      * @return
      */
@@ -98,15 +78,6 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
         } else {
             repeatCount = count;
         }
-        return this;
-    }
-
-    /**
-     * @param interval 序列帧切换的最小时间间隔毫秒，若不指定则跟随AnimateView的刷新率。
-     * @return
-     */
-    public AnimateFrameSegment refreshInterval(long interval) {
-        refreshInterval = interval;
         return this;
     }
 
@@ -186,68 +157,44 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
         return currentFrame;
     }
 
-    @Override
-    public void setPause(boolean pause) {
-        this.pause = pause;
-    }
+    /**
+     * 获取当前帧的显示时间。
+     *
+     * @param frame
+     * @return
+     */
+    protected abstract long getFrameDuration(Frame frame);
 
     @Override
-    public void prepare(boolean urgent) {
-        isActive = true;
+    protected void prepare() {
+        super.prepare();
         decodeCounter = startIndex;
-        decoder.enqueue(this, urgent);
+        decoder.enqueue(decode, true);
     }
 
     @Override
-    public boolean hasNext() {
-        if (isActive) {
-            Frame previousFrame = currentFrame.getValue();
-            if (pause && previousFrame != null) {
-                return true;
-            }
-            long now = SystemClock.elapsedRealtime();
-            if (refreshInterval > 0) {
-                if (now - refreshTimestamp < refreshInterval) {
-                    // 小于刷新间隔不需要刷新
-                    return true;
-                }
-            }
-            Frame poll = cacheQueue.poll();
-            if (poll == null) {
-                if (isEnd()) {
-                    return fillEnd;
-                } else {
-                    Logger.getDefault().dd("decoding is slower than drawing: ", source, " - ", decodeCounter);
-                }
+    protected long draw(Canvas canvas) {
+        Frame poll = cacheQueue.poll();
+        if (poll == null) {
+            if (isEnd()) {
+                // 若fillEnd为true则停留在最后一帧，否则结束动画
+                return fillEnd ? 0 : -1;
             } else {
-                refreshTimestamp = now;
-                decoder.enqueue(this, false);
-                if (currentFrame.setValue(poll) && previousFrame != null && previousFrame.isRecyclable()) {
-                    // bitmap回收利用
-                    decoder.enqueue(previousFrame, true);
-                }
+                getLogger().dd("decoding is slower than drawing: ", source, " - ", decodeCounter, '/', source.getFrameCount());
             }
-            return true;
+        } else {
+            decoder.enqueue(decode, false);
+            Frame previousFrame = currentFrame.getValue();
+            if (currentFrame.setValue(poll) && previousFrame != null && previousFrame.isRecyclable()) {
+                // bitmap回收利用
+                decoder.enqueue(previousFrame, false);
+            }
         }
-        return false;
-    }
-
-    @Override
-    public void draw(Canvas canvas) {
         Frame frame = currentFrame.getValue();
         if (frame != null) {
             canvas.drawBitmap(frame.getBitmap(), left, top, null);
         }
-    }
-
-    @Override
-    public void release() {
-        isActive = false;
-    }
-
-    @Override
-    public int getZOrder() {
-        return zOrder;
+        return getFrameDuration(frame);
     }
 
     @Override
@@ -255,63 +202,45 @@ public class AnimateFrameSegment implements AnimateSegment, Runnable {
         return source + "@" + hashCode();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        AnimateFrameSegment that = (AnimateFrameSegment) o;
-        return left == that.left &&
-                top == that.top &&
-                repeatCount == that.repeatCount &&
-                reverse == that.reverse &&
-                refreshInterval == that.refreshInterval &&
-                fillEnd == that.fillEnd &&
-                startIndex == that.startIndex &&
-                zOrder == that.zOrder &&
-                source.equals(that.source);
-    }
+    private class Decode implements Runnable {
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(source, left, top, repeatCount, reverse, refreshInterval, fillEnd, startIndex, zOrder);
-    }
-
-    @Override
-    public void run() {
-        if (isActive && source.getFrameCount() > 0 && cacheQueue.size() < cacheCapacity && !isEnd()) {
-            int frameCount = source.getFrameCount();
-            int decodeIndex = decodeCounter % frameCount;
-            if (reverse && (decodeCounter / frameCount) % 2 == 1) {
-                decodeIndex = frameCount - 1 - decodeIndex;
-            }
-            Frame current = currentFrame.getValue();
-            if (current != null && current.getIndex() == decodeIndex) {
-                cacheQueue.offer(new Frame(current.getBitmap(), decodeIndex, current.isRecyclable() ? recycledPool : null));
-            } else if (decodeIndex >= 0 && decodeIndex < frameCount) {
-                Frame presetFrame = presetFrames.get(decodeIndex);
-                if (presetFrame == null) {
-                    InputStream frameInputStream = source.getFrameInputStream(decodeIndex);
-                    if (frameInputStream != null) {
-                        Bitmap recycled = recycledPool.poll();
-                        options.inBitmap = recycled;
-                        Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, options);
-                        if (decoded != null) {
-                            cacheQueue.offer(new Frame(decoded, decodeIndex, recycledPool));
+        @Override
+        public void run() {
+            if (getAnimateState() != ANIMATE_STATE_STOPPED && source.getFrameCount() > 0 && cacheQueue.size() < cacheCapacity && !isEnd()) {
+                int frameCount = source.getFrameCount();
+                int decodeIndex = decodeCounter % frameCount;
+                if (reverse && (decodeCounter / frameCount) % 2 == 1) {
+                    decodeIndex = frameCount - 1 - decodeIndex;
+                }
+                Frame current = currentFrame.getValue();
+                if (current != null && current.getIndex() == decodeIndex) {
+                    cacheQueue.offer(new Frame(current.getBitmap(), decodeIndex, current.isRecyclable() ? recycledPool : null));
+                } else if (decodeIndex >= 0 && decodeIndex < frameCount) {
+                    Frame presetFrame = presetFrames.get(decodeIndex);
+                    if (presetFrame == null) {
+                        InputStream frameInputStream = source.getFrameInputStream(decodeIndex);
+                        if (frameInputStream != null) {
+                            Bitmap recycled = recycledPool.poll();
+                            options.inBitmap = recycled;
+                            Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, options);
+                            if (decoded != null) {
+                                cacheQueue.offer(new Frame(decoded, decodeIndex, recycledPool));
+                            } else {
+                                getLogger().ww("decoded bitmap is null for %s on index %s", source, decodeIndex);
+                            }
                         } else {
-                            Logger.getDefault().ww("decoded bitmap is null for %s on index %s", source, decodeIndex);
+                            getLogger().ww("InputStream is null for %s on index %s", source, decodeIndex);
                         }
                     } else {
-                        Logger.getDefault().ww("InputStream is null for %s on index %s", source, decodeIndex);
+                        cacheQueue.offer(presetFrame);
                     }
                 } else {
-                    cacheQueue.offer(presetFrame);
+                    getLogger().e("illegal index: %s(decodeCounter=%s, frameCount=%s)", decodeIndex, decodeCounter, frameCount);
                 }
-            } else {
-                Logger.getDefault().e("illegal index: %s(decodeCounter=%s, frameCount=%s)", decodeIndex, decodeCounter, frameCount);
-            }
-            decodeCounter++;
-            if (cacheQueue.size() < cacheCapacity) {
-                decoder.enqueue(this, false);
+                decodeCounter++;
+                if (cacheQueue.size() < cacheCapacity) {
+                    decoder.enqueue(this, false);
+                }
             }
         }
     }

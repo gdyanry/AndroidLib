@@ -26,13 +26,13 @@ public class UiScheduleRunner extends Handler implements Runner, Executor {
     }
 
     @Override
-    public void scheduleTimeout(Runnable runnable, long delay) {
+    public void schedule(Runnable runnable, long delay) {
         removeCallbacks(runnable);
         postDelayed(runnable, delay);
     }
 
     @Override
-    public void cancelPendingTimeout(Runnable runnable) {
+    public void cancel(Runnable runnable) {
         removeCallbacks(runnable);
     }
 

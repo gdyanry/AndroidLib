@@ -2,54 +2,125 @@ package yanry.lib.android.view.animate.reactive;
 
 import android.graphics.Canvas;
 
-import androidx.annotation.NonNull;
+import java.util.ArrayList;
+import java.util.LinkedList;
+
+import yanry.lib.java.model.log.LogLevel;
+import yanry.lib.java.model.log.Logger;
+import yanry.lib.java.model.schedule.Display;
+import yanry.lib.java.model.schedule.Scheduler;
+import yanry.lib.java.model.schedule.ShowData;
+import yanry.lib.java.model.watch.ValueWatcher;
 
 /**
  * 动画片段。
  */
-public interface AnimateSegment extends Comparable<AnimateSegment> {
-    /**
-     * 动画开始前的初始化。
-     *
-     * @param urgent true表示该动画片段已经放到{@link SegmentsHolder}中，马上就要开始绘制；false表示后面（可能）会进行绘制，时间上还不是那么紧急。
-     */
-    void prepare(boolean urgent);
+public abstract class AnimateSegment extends ShowData implements ValueWatcher<Integer> {
+    public static final int ANIMATE_STATE_PLAYING = 1;
+    public static final int ANIMATE_STATE_PAUSED = 2;
+    public static final int ANIMATE_STATE_STOPPED = 3;
+
+    public static <T extends AnimateSegment> void schedule(Scheduler scheduler, Class<? extends Display<T>> displayType, T... segments) {
+        for (int i = 0; i < segments.length; i++) {
+            T segment = segments[i];
+            if (i == 0) {
+                segment.addFlag(FLAG_EXPEL_WAITING_DATA);
+                segment.setStrategy(STRATEGY_SHOW_IMMEDIATELY);
+            } else {
+                segment.setStrategy(STRATEGY_APPEND_TAIL);
+            }
+            scheduler.show(segment, displayType);
+        }
+    }
+
+    private int animateState;
+    private LinkedList<AnimateStateWatcher> animateStateWatchers;
+
+    public AnimateSegment() {
+        animateStateWatchers = new LinkedList<>();
+        getState().addWatcher(this);
+    }
+
+    public int getAnimateState() {
+        return animateState;
+    }
+
+    public boolean addAnimateStateWatcher(AnimateStateWatcher watcher) {
+        if (!animateStateWatchers.contains(watcher)) {
+            animateStateWatchers.add(watcher);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean removeAnimateStateWatcher(AnimateStateWatcher watcher) {
+        return animateStateWatchers.remove(watcher);
+    }
+
+    public boolean pauseAnimate() {
+        if (animateState != ANIMATE_STATE_STOPPED) {
+            return setAnimateState(ANIMATE_STATE_PAUSED);
+        }
+        getLogger().concat(LogLevel.Warn, "fail to pause a stopped animate: ", this);
+        return false;
+    }
+
+    public boolean resumeAnimate() {
+        if (animateState != ANIMATE_STATE_STOPPED) {
+            return setAnimateState(ANIMATE_STATE_PLAYING);
+        }
+        getLogger().concat(LogLevel.Warn, "fail to resume a stopped animate: ", this);
+        return false;
+    }
+
+    public boolean stopAnimate() {
+        return setAnimateState(ANIMATE_STATE_STOPPED);
+    }
 
     /**
-     * 该动画是否需要绘制下一帧，可通过此方法控制动画的结束。
-     *
-     * @return 若返回true则执行{@link #draw(Canvas)}方法，否则结束动画
+     * 准备开始绘制。
      */
-    boolean hasNext();
+    protected void prepare() {
+        animateState = 0;
+    }
+
+    boolean setAnimateState(int animateState) {
+        int oldState = this.animateState;
+        if (oldState != animateState) {
+            this.animateState = animateState;
+            if (animateState == ANIMATE_STATE_STOPPED) {
+                dismiss(0);
+            }
+            if (animateStateWatchers.size() > 0) {
+                ArrayList<AnimateStateWatcher> temp = new ArrayList<>(animateStateWatchers);
+                for (AnimateStateWatcher watcher : temp) {
+                    watcher.onAnimateStateChange(this, animateState, oldState);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    protected abstract Logger getLogger();
+
+    /**
+     * @return 该动画所在的z轴坐标，z值大的动画会覆盖在z值小的动画上面。
+     */
+    protected abstract int getZOrder();
 
     /**
      * 绘制动画的当前帧。
      *
      * @param canvas
+     * @return 正数表示该时间（毫秒）后绘制下一帧，0表示没有下一帧，负数表示动画结束。
      */
-    void draw(Canvas canvas);
-
-    /**
-     * 动画结束后释放资源。
-     */
-    void release();
-
-    /**
-     * 该动画所在的z轴坐标，z值大的动画会覆盖在z值小的动画上面。
-     *
-     * @return
-     */
-    int getZOrder();
-
-    /**
-     * 控制动画的暂停与播放。
-     *
-     * @param pause
-     */
-    void setPause(boolean pause);
+    protected abstract long draw(Canvas canvas);
 
     @Override
-    default int compareTo(@NonNull AnimateSegment o) {
-        return getZOrder() - o.getZOrder();
+    public final void onValueChange(Integer to, Integer from) {
+        if (to == STATE_DISMISS) {
+            setAnimateState(ANIMATE_STATE_STOPPED);
+        }
     }
 }
