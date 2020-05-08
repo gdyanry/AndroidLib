@@ -19,10 +19,12 @@ import yanry.lib.java.model.watch.ValueWatcher;
 /**
  * Created by yanry on 2020/3/1.
  */
-public class TopActivityHolder extends ValueHolderImpl<Activity> implements Application.ActivityLifecycleCallbacks {
+public class NativeActivityManager implements Application.ActivityLifecycleCallbacks {
+    private ValueHolderImpl<Activity> topActivity;
     private LinkedHashMap<Activity, ValueHolderImpl<Lifecycle.State>> activityStates;
 
     public void init(Application application) {
+        topActivity = new ValueHolderImpl<>();
         try {
             ActivityInfo[] activities = application.getPackageManager().getPackageInfo(application.getPackageName(), PackageManager.GET_ACTIVITIES).activities;
             int activityCount = activities == null ? 0 : activities.length;
@@ -32,6 +34,10 @@ public class TopActivityHolder extends ValueHolderImpl<Activity> implements Appl
         } catch (PackageManager.NameNotFoundException e) {
             Logger.getDefault().catches(e);
         }
+    }
+
+    public ValueHolderImpl<Activity> getTopActivity() {
+        return topActivity;
     }
 
     public boolean addActivityStateWatcher(Activity activity, ValueWatcher<Lifecycle.State> watcher) {
@@ -54,7 +60,7 @@ public class TopActivityHolder extends ValueHolderImpl<Activity> implements Appl
                 currentTop = entry.getKey();
             }
         }
-        return setValue(currentTop);
+        return topActivity.setValue(currentTop) != currentTop;
     }
 
     private void handleActivityState(Activity activity, Lifecycle.State state) {
@@ -64,8 +70,8 @@ public class TopActivityHolder extends ValueHolderImpl<Activity> implements Appl
                 activityState = new ValueHolderImpl<>(Lifecycle.State.INITIALIZED);
                 activityStates.put(activity, activityState);
             }
-            if (activityState.setValue(state) && refreshTopActivity() && getValue() == activity && state == Lifecycle.State.DESTROYED) {
-                setValue(null);
+            if (activityState.setValue(state) != state && refreshTopActivity() && topActivity.getValue() == activity && state == Lifecycle.State.DESTROYED) {
+                topActivity.setValue(null);
             }
         }
     }

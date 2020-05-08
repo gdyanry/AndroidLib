@@ -7,6 +7,7 @@ import android.util.SparseArray;
 
 import java.io.InputStream;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -33,8 +34,6 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
 
     private int decodeCounter;
 
-    private int left;
-    private int top;
     private int repeatCount;
     private boolean reverse;
     private boolean fillEnd;
@@ -116,19 +115,6 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
     }
 
     /**
-     * 设置动画帧左上角的位置（相对于AnimateView）。
-     *
-     * @param left
-     * @param top
-     * @return
-     */
-    public AnimateFrameSegment location(int left, int top) {
-        this.left = left;
-        this.top = top;
-        return this;
-    }
-
-    /**
      * 设置动画从指定序号的帧开始播放。
      *
      * @param startIndex
@@ -157,13 +143,17 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
         return currentFrame;
     }
 
+    protected abstract float getFrameLeft(int frameIndex);
+
+    protected abstract float getFrameTop(int frameIndex);
+
     /**
-     * 获取当前帧的显示时间。
+     * 获取指定帧的显示时间。
      *
-     * @param frame
-     * @return
+     * @param frameIndex
+     * @return 返回0表示一直停留在这一帧；返回-1表示结束动画。
      */
-    protected abstract long getFrameDuration(Frame frame);
+    protected abstract long getFrameDuration(int frameIndex);
 
     @Override
     protected void prepare() {
@@ -184,17 +174,19 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
             }
         } else {
             decoder.enqueue(decode, false);
-            Frame previousFrame = currentFrame.getValue();
-            if (currentFrame.setValue(poll) && previousFrame != null && previousFrame.isRecyclable()) {
+            Frame previousFrame = currentFrame.setValue(poll);
+            if (!Objects.equals(previousFrame, poll) && previousFrame != null && previousFrame.isRecyclable()) {
                 // bitmap回收利用
                 decoder.enqueue(previousFrame, false);
             }
         }
         Frame frame = currentFrame.getValue();
         if (frame != null) {
-            canvas.drawBitmap(frame.getBitmap(), left, top, null);
+            int index = frame.getIndex();
+            canvas.drawBitmap(frame.getBitmap(), getFrameLeft(index), getFrameTop(index), null);
+            return getFrameDuration(index);
         }
-        return getFrameDuration(frame);
+        return getFrameDuration(startIndex);
     }
 
     @Override

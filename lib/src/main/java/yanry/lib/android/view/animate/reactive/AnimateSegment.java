@@ -2,9 +2,7 @@ package yanry.lib.android.view.animate.reactive;
 
 import android.graphics.Canvas;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-
+import yanry.lib.java.model.Registry;
 import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.schedule.Display;
@@ -34,10 +32,10 @@ public abstract class AnimateSegment extends ShowData implements ValueWatcher<In
     }
 
     private int animateState;
-    private LinkedList<AnimateStateWatcher> animateStateWatchers;
+    private Registry<AnimateStateWatcher> animateStateRegistry;
 
     public AnimateSegment() {
-        animateStateWatchers = new LinkedList<>();
+        animateStateRegistry = new Registry<>();
         getState().addWatcher(this);
     }
 
@@ -46,15 +44,11 @@ public abstract class AnimateSegment extends ShowData implements ValueWatcher<In
     }
 
     public boolean addAnimateStateWatcher(AnimateStateWatcher watcher) {
-        if (!animateStateWatchers.contains(watcher)) {
-            animateStateWatchers.add(watcher);
-            return true;
-        }
-        return false;
+        return animateStateRegistry.register(watcher);
     }
 
     public boolean removeAnimateStateWatcher(AnimateStateWatcher watcher) {
-        return animateStateWatchers.remove(watcher);
+        return animateStateRegistry.unregister(watcher);
     }
 
     public boolean pauseAnimate() {
@@ -91,9 +85,8 @@ public abstract class AnimateSegment extends ShowData implements ValueWatcher<In
             if (animateState == ANIMATE_STATE_STOPPED) {
                 dismiss(0);
             }
-            if (animateStateWatchers.size() > 0) {
-                ArrayList<AnimateStateWatcher> temp = new ArrayList<>(animateStateWatchers);
-                for (AnimateStateWatcher watcher : temp) {
+            if (animateStateRegistry.size() > 0) {
+                for (AnimateStateWatcher watcher : animateStateRegistry.getCopy()) {
                     watcher.onAnimateStateChange(this, animateState, oldState);
                 }
             }
