@@ -8,12 +8,11 @@ import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.schedule.Display;
 import yanry.lib.java.model.schedule.Scheduler;
 import yanry.lib.java.model.schedule.ShowData;
-import yanry.lib.java.model.watch.ValueWatcher;
 
 /**
  * 动画片段。
  */
-public abstract class AnimateSegment extends ShowData implements ValueWatcher<Integer> {
+public abstract class AnimateSegment extends ShowData {
     public static final int ANIMATE_STATE_PLAYING = 1;
     public static final int ANIMATE_STATE_PAUSED = 2;
     public static final int ANIMATE_STATE_STOPPED = 3;
@@ -36,7 +35,6 @@ public abstract class AnimateSegment extends ShowData implements ValueWatcher<In
 
     public AnimateSegment() {
         animateStateRegistry = new Registry<>();
-        getState().addWatcher(this);
     }
 
     public int getAnimateState() {
@@ -111,7 +109,7 @@ public abstract class AnimateSegment extends ShowData implements ValueWatcher<In
     protected abstract long draw(Canvas canvas);
 
     @Override
-    public final void onValueChange(Integer to, Integer from) {
+    protected void onStateChange(int to, int from) {
         if (to == STATE_DISMISS) {
             setAnimateState(ANIMATE_STATE_STOPPED);
         }
