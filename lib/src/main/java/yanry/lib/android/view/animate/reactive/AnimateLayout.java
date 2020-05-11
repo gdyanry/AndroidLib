@@ -78,6 +78,42 @@ public class AnimateLayout extends FrameLayout {
         return true;
     }
 
+    public void pauseAnimate() {
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof AnimateView) {
+                AnimateSegment animateSegment = ((AnimateView) child).animateSegment;
+                if (animateSegment != null) {
+                    animateSegment.pauseAnimate();
+                }
+            }
+        }
+    }
+
+    public void resumeAnimate() {
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof AnimateView) {
+                AnimateSegment animateSegment = ((AnimateView) child).animateSegment;
+                if (animateSegment != null) {
+                    animateSegment.resumeAnimate();
+                }
+            }
+        }
+    }
+
+    public void stopAnimate() {
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof AnimateView) {
+                AnimateSegment animateSegment = ((AnimateView) child).animateSegment;
+                if (animateSegment != null) {
+                    animateSegment.stopAnimate();
+                }
+            }
+        }
+    }
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -145,7 +181,7 @@ public class AnimateLayout extends FrameLayout {
                         break;
                     case AnimateSegment.ANIMATE_STATE_STOPPED:
                         dropTimer.refresh(this);
-                        Singletons.get(UiScheduleRunner.class).cancel(this);
+                        Singletons.get(UiScheduleRunner.class).run(this);
                         animateSegment.removeAnimateStateWatcher(this);
                         this.animateSegment = null;
                         break;

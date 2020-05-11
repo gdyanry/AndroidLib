@@ -5,30 +5,20 @@ import android.graphics.Canvas;
 import yanry.lib.java.model.Registry;
 import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
-import yanry.lib.java.model.schedule.Display;
-import yanry.lib.java.model.schedule.Scheduler;
 import yanry.lib.java.model.schedule.ShowData;
+import yanry.lib.java.model.watch.ValueWatcher;
+
+import static yanry.lib.java.model.schedule.ShowData.STATE_DEQUEUE;
+import static yanry.lib.java.model.schedule.ShowData.STATE_DISMISS;
+import static yanry.lib.java.model.schedule.ShowData.STATE_SHOWING;
 
 /**
  * 动画片段。
  */
-public abstract class AnimateSegment extends ShowData {
+public abstract class AnimateSegment extends Registry<AnimateStateWatcher> {
     public static final int ANIMATE_STATE_PLAYING = 1;
     public static final int ANIMATE_STATE_PAUSED = 2;
     public static final int ANIMATE_STATE_STOPPED = 3;
-
-    public static <T extends AnimateSegment> void schedule(Scheduler scheduler, Class<? extends Display<T>> displayType, T... segments) {
-        for (int i = 0; i < segments.length; i++) {
-            T segment = segments[i];
-            if (i == 0) {
-                segment.addFlag(FLAG_EXPEL_WAITING_DATA);
-                segment.setStrategy(STRATEGY_SHOW_IMMEDIATELY);
-            } else {
-                segment.setStrategy(STRATEGY_APPEND_TAIL);
-            }
-            scheduler.show(segment, displayType);
-        }
-    }
 
     private int animateState;
     private Registry<AnimateStateWatcher> animateStateRegistry;
@@ -69,6 +59,10 @@ public abstract class AnimateSegment extends ShowData {
         return setAnimateState(ANIMATE_STATE_STOPPED);
     }
 
+    public ScheduleBinding bindShowData(ShowData bindingData, AnimateLayout animateLayout) {
+        return new ScheduleBinding(bindingData, animateLayout);
+    }
+
     /**
      * 准备开始绘制。
      */
@@ -80,9 +74,6 @@ public abstract class AnimateSegment extends ShowData {
         int oldState = this.animateState;
         if (oldState != animateState) {
             this.animateState = animateState;
-            if (animateState == ANIMATE_STATE_STOPPED) {
-                dismiss(0);
-            }
             if (animateStateRegistry.size() > 0) {
                 for (AnimateStateWatcher watcher : animateStateRegistry.getCopy()) {
                     watcher.onAnimateStateChange(this, animateState, oldState);
@@ -103,15 +94,55 @@ public abstract class AnimateSegment extends ShowData {
     /**
      * 绘制动画的当前帧。
      *
-     * @param canvas
+     * @param canvas 画布
      * @return 正数表示该时间（毫秒）后绘制下一帧，0表示没有下一帧，负数表示动画结束。
      */
     protected abstract long draw(Canvas canvas);
 
-    @Override
-    protected void onStateChange(int to, int from) {
-        if (to == STATE_DISMISS) {
-            setAnimateState(ANIMATE_STATE_STOPPED);
+    public class ScheduleBinding implements ValueWatcher<Integer>, AnimateStateWatcher {
+        private ShowData bindingData;
+        private AnimateLayout animateLayout;
+
+        public ScheduleBinding(ShowData bindingData, AnimateLayout animateLayout) {
+            this.bindingData = bindingData;
+            this.animateLayout = animateLayout;
+            bindingData.getState().addWatcher(this);
+            addAnimateStateWatcher(this);
+        }
+
+        public void unbind() {
+            if (bindingData != null) {
+                bindingData.getState().removeWatcher(this);
+            }
+            removeAnimateStateWatcher(this);
+            bindingData = null;
+            animateLayout = null;
+        }
+
+        @Override
+        public void onValueChange(Integer to, Integer from) {
+            switch (to.intValue()) {
+                case STATE_SHOWING:
+                    if (animateLayout != null) {
+                        animateLayout.showAnimate(AnimateSegment.this);
+                    }
+                    break;
+                case STATE_DEQUEUE:
+                case STATE_DISMISS:
+                    setAnimateState(ANIMATE_STATE_STOPPED);
+                    unbind();
+                    break;
+            }
+        }
+
+        @Override
+        public void onAnimateStateChange(AnimateSegment animateSegment, int toState, int fromState) {
+            if (animateState == ANIMATE_STATE_STOPPED) {
+                if (bindingData != null) {
+                    bindingData.dismiss(0);
+                }
+                unbind();
+            }
         }
     }
 }

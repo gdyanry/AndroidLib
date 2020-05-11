@@ -17,10 +17,10 @@ public class UiScheduleRunner extends Handler implements Runner, Executor {
 
     @Override
     public void run(Runnable runnable) {
+        removeCallbacks(runnable);
         if (Thread.currentThread().equals(getLooper().getThread())) {
             runnable.run();
         } else {
-            removeCallbacks(runnable);
             post(runnable);
         }
     }

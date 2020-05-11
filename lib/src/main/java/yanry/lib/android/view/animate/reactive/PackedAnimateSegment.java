@@ -1,62 +1,113 @@
 package yanry.lib.android.view.animate.reactive;
 
-import yanry.lib.java.model.schedule.Display;
-import yanry.lib.java.model.schedule.Scheduler;
-import yanry.lib.java.model.schedule.ShowData;
-import yanry.lib.java.model.watch.ValueHolder;
-import yanry.lib.java.model.watch.ValueHolderImpl;
-import yanry.lib.java.model.watch.ValueWatcher;
+import android.graphics.Canvas;
 
-import static yanry.lib.java.model.schedule.ShowData.FLAG_EXPEL_WAITING_DATA;
-import static yanry.lib.java.model.schedule.ShowData.STRATEGY_APPEND_TAIL;
-import static yanry.lib.java.model.schedule.ShowData.STRATEGY_SHOW_IMMEDIATELY;
+import java.util.LinkedList;
+
+import yanry.lib.java.model.log.Logger;
 
 /**
  * Created by yanry on 2020/5/8.
  */
-public class PackedAnimateSegment implements AnimateStateWatcher, ValueWatcher<Integer> {
-    private AnimateSegment[] segments;
-    private ValueHolderImpl<Integer> animateState;
+public class PackedAnimateSegment extends AnimateSegment implements AnimateStateWatcher {
+    private LinkedList<AnimateSegment> segments;
+    private Logger logger;
+    private int zOrder;
 
-    public PackedAnimateSegment(AnimateSegment... segments) {
-        this.segments = segments;
-        animateState = new ValueHolderImpl<>();
-        int i = 0;
-        for (AnimateSegment segment : segments) {
-            segment.addAnimateStateWatcher(this);
-            if (i == 0) {
-                segment.addFlag(FLAG_EXPEL_WAITING_DATA);
-                segment.setStrategy(STRATEGY_SHOW_IMMEDIATELY);
+    public PackedAnimateSegment(Logger logger, int zOrder) {
+        this.logger = logger;
+        this.zOrder = zOrder;
+        segments = new LinkedList<>();
+    }
+
+    public PackedAnimateSegment insertSegment(AnimateSegment animateSegment) {
+        segments.addFirst(animateSegment);
+        animateSegment.addAnimateStateWatcher(this);
+        return this;
+    }
+
+    public PackedAnimateSegment appendSegment(AnimateSegment... animateSegments) {
+        for (AnimateSegment animateSegment : animateSegments) {
+            segments.addLast(animateSegment);
+            animateSegment.addAnimateStateWatcher(this);
+        }
+        return this;
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
+    }
+
+    @Override
+    protected int getZOrder() {
+        return zOrder;
+    }
+
+    @Override
+    protected void prepare() {
+        AnimateSegment animateSegment = segments.peekFirst();
+        if (animateSegment != null) {
+            animateSegment.prepare();
+        }
+    }
+
+    @Override
+    protected long draw(Canvas canvas) {
+        AnimateSegment animateSegment = segments.peekFirst();
+        while (animateSegment != null) {
+            long duration = animateSegment.draw(canvas);
+            if (duration < 0) {
+                segments.pollFirst();
+                animateSegment = segments.peekFirst();
+                if (animateSegment != null) {
+                    animateSegment.prepare();
+                }
             } else {
-                segment.setStrategy(STRATEGY_APPEND_TAIL);
-            }
-            if (i == segments.length - 1) {
-                segment.getState().addWatcher(this);
+                return duration;
             }
         }
+        return -1;
     }
 
-    public ValueHolder<Integer> getAnimateState() {
-        return animateState;
+    @Override
+    public boolean pauseAnimate() {
+        AnimateSegment first = segments.peekFirst();
+        return first != null && first.pauseAnimate();
     }
 
-    public void show(Scheduler scheduler, Class<? extends Display<? extends AnimateSegment>> displayType) {
-        for (AnimateSegment segment : segments) {
-            scheduler.show(segment, displayType);
+    @Override
+    public boolean resumeAnimate() {
+        AnimateSegment first = segments.peekFirst();
+        return first != null && first.resumeAnimate();
+    }
+
+    @Override
+    public boolean stopAnimate() {
+        AnimateSegment first;
+        while ((first = segments.pollFirst()) != null) {
+            first.stopAnimate();
         }
+        return true;
     }
 
     @Override
     public void onAnimateStateChange(AnimateSegment animateSegment, int toState, int fromState) {
-        if (toState != AnimateSegment.ANIMATE_STATE_STOPPED) {
-            animateState.setValue(toState);
+        switch (toState) {
+            case AnimateSegment.ANIMATE_STATE_PAUSED:
+            case AnimateSegment.ANIMATE_STATE_PLAYING:
+                setAnimateState(toState);
+                break;
+            case AnimateSegment.ANIMATE_STATE_STOPPED:
+                if (animateSegment == segments.peekLast()) {
+                    setAnimateState(toState);
+                }
+                break;
         }
     }
 
     @Override
-    public void onValueChange(Integer to, Integer from) {
-        if (to == ShowData.STATE_DEQUEUE || to == ShowData.STATE_DISMISS) {
-            animateState.setValue(AnimateSegment.ANIMATE_STATE_STOPPED);
-        }
+    public String toString() {
+        return segments.toString();
     }
 }

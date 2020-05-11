@@ -6,10 +6,12 @@ import android.graphics.Canvas;
 import android.util.SparseArray;
 
 import java.io.InputStream;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import yanry.lib.android.view.animate.reactive.AnimateSegment;
 import yanry.lib.java.model.task.SingleThreadExecutor;
@@ -21,6 +23,10 @@ import yanry.lib.java.model.watch.ValueHolderImpl;
  * 功能上，支持指定播放次数、帧率、反序播放、任意帧开始等特性。
  */
 public abstract class AnimateFrameSegment extends AnimateSegment implements Runnable {
+    static final int BMP_STATE_IDLE = 0;
+    static final int BMP_STATE_IN_USE = 1;
+    static final int BMP_STATE_TO_BE_IDLE = 2;
+
     private AnimateFrameSource source;
     private SingleThreadExecutor decoder;
     private int cacheCapacity;
@@ -29,8 +35,7 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
 
     private Queue<Frame> cacheQueue;
     private SparseArray<Frame> presetFrames;
-    private Queue<Bitmap> recycledPool;
-    private Decode decode;
+    private HashMap<Bitmap, AtomicInteger> bmpLock;
 
     private int decodeCounter;
 
@@ -49,11 +54,11 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
         this.cacheCapacity = 1;
         this.cacheQueue = new ConcurrentLinkedQueue<>();
         presetFrames = new SparseArray<>();
-        recycledPool = new LinkedList<>();
-        decode = new Decode();
+        bmpLock = new HashMap<>();
         options = new BitmapFactory.Options();
         options.inMutable = true;
         currentFrame = new ValueHolderImpl<>();
+        decoder.enqueue(this, false);
     }
 
     /**
@@ -159,11 +164,11 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
     protected void prepare() {
         super.prepare();
         decodeCounter = startIndex;
-        decoder.enqueue(decode, true);
+        decoder.enqueue(this, true);
     }
 
     @Override
-    protected long draw(Canvas canvas) {
+    protected final long draw(Canvas canvas) {
         Frame poll = cacheQueue.poll();
         if (poll == null) {
             if (isEnd()) {
@@ -173,10 +178,11 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
                 getLogger().dd("decoding is slower than drawing: ", source, " - ", decodeCounter, '/', source.getFrameCount());
             }
         } else {
-            decoder.enqueue(decode, false);
+            decoder.enqueue(this, false);
             Frame previousFrame = currentFrame.setValue(poll);
             if (!Objects.equals(previousFrame, poll) && previousFrame != null && previousFrame.isRecyclable()) {
                 // bitmap回收利用
+                bmpLock.get(previousFrame.getBitmap()).compareAndSet(BMP_STATE_IN_USE, BMP_STATE_TO_BE_IDLE);
                 decoder.enqueue(previousFrame, false);
             }
         }
@@ -194,45 +200,48 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
         return source + "@" + hashCode();
     }
 
-    private class Decode implements Runnable {
-
-        @Override
-        public void run() {
-            if (getAnimateState() != ANIMATE_STATE_STOPPED && source.getFrameCount() > 0 && cacheQueue.size() < cacheCapacity && !isEnd()) {
-                int frameCount = source.getFrameCount();
-                int decodeIndex = decodeCounter % frameCount;
-                if (reverse && (decodeCounter / frameCount) % 2 == 1) {
-                    decodeIndex = frameCount - 1 - decodeIndex;
-                }
-                Frame current = currentFrame.getValue();
-                if (current != null && current.getIndex() == decodeIndex) {
-                    cacheQueue.offer(new Frame(current.getBitmap(), decodeIndex, current.isRecyclable() ? recycledPool : null));
-                } else if (decodeIndex >= 0 && decodeIndex < frameCount) {
-                    Frame presetFrame = presetFrames.get(decodeIndex);
-                    if (presetFrame == null) {
-                        InputStream frameInputStream = source.getFrameInputStream(decodeIndex);
-                        if (frameInputStream != null) {
-                            Bitmap recycled = recycledPool.poll();
-                            options.inBitmap = recycled;
-                            Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, options);
-                            if (decoded != null) {
-                                cacheQueue.offer(new Frame(decoded, decodeIndex, recycledPool));
-                            } else {
-                                getLogger().ww("decoded bitmap is null for %s on index %s", source, decodeIndex);
+    @Override
+    public void run() {
+        if (getAnimateState() != ANIMATE_STATE_STOPPED && source.getFrameCount() > 0 && cacheQueue.size() < cacheCapacity && !isEnd()) {
+            int frameCount = source.getFrameCount();
+            int decodeIndex = decodeCounter % frameCount;
+            if (reverse && (decodeCounter / frameCount) % 2 == 1) {
+                decodeIndex = frameCount - 1 - decodeIndex;
+            }
+            Frame current = currentFrame.getValue();
+            if (current != null && current.getIndex() == decodeIndex) {
+                cacheQueue.offer(new Frame(current.getBitmap(), decodeIndex, current.isRecyclable() ? bmpLock : null));
+            } else if (decodeIndex >= 0 && decodeIndex < frameCount) {
+                Frame presetFrame = presetFrames.get(decodeIndex);
+                if (presetFrame == null) {
+                    InputStream frameInputStream = source.getFrameInputStream(decodeIndex);
+                    if (frameInputStream != null) {
+                        Bitmap recycled = null;
+                        for (Map.Entry<Bitmap, AtomicInteger> entry : bmpLock.entrySet()) {
+                            if (entry.getValue().compareAndSet(BMP_STATE_IDLE, BMP_STATE_IN_USE)) {
+                                recycled = entry.getKey();
+                                break;
                             }
+                        }
+                        options.inBitmap = recycled;
+                        Bitmap decoded = BitmapFactory.decodeStream(frameInputStream, null, options);
+                        if (decoded != null) {
+                            cacheQueue.offer(new Frame(decoded, decodeIndex, bmpLock));
                         } else {
-                            getLogger().ww("InputStream is null for %s on index %s", source, decodeIndex);
+                            getLogger().ww("decoded bitmap is null for %s on index %s", source, decodeIndex);
                         }
                     } else {
-                        cacheQueue.offer(presetFrame);
+                        getLogger().ww("InputStream is null for %s on index %s", source, decodeIndex);
                     }
                 } else {
-                    getLogger().e("illegal index: %s(decodeCounter=%s, frameCount=%s)", decodeIndex, decodeCounter, frameCount);
+                    cacheQueue.offer(presetFrame);
                 }
-                decodeCounter++;
-                if (cacheQueue.size() < cacheCapacity) {
-                    decoder.enqueue(this, false);
-                }
+            } else {
+                getLogger().e("illegal index: %s(decodeCounter=%s, frameCount=%s)", decodeIndex, decodeCounter, frameCount);
+            }
+            decodeCounter++;
+            if (cacheQueue.size() < cacheCapacity) {
+                decoder.enqueue(this, false);
             }
         }
     }

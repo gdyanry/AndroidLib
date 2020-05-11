@@ -2,7 +2,8 @@ package yanry.lib.android.view.animate.reactive.frame;
 
 import android.graphics.Bitmap;
 
-import java.util.Queue;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 动画帧。
@@ -11,12 +12,20 @@ import java.util.Queue;
 public class Frame implements Runnable {
     private Bitmap bitmap;
     private int index;
-    private Queue<Bitmap> recycledPool;
+    private HashMap<Bitmap, AtomicInteger> bmpLock;
 
-    Frame(Bitmap bitmap, int index, Queue<Bitmap> recycledPool) {
+    Frame(Bitmap bitmap, int index, HashMap<Bitmap, AtomicInteger> bmpLock) {
         this.bitmap = bitmap;
         this.index = index;
-        this.recycledPool = recycledPool;
+        this.bmpLock = bmpLock;
+        if (bmpLock != null) {
+            AtomicInteger state = bmpLock.get(bitmap);
+            if (state == null) {
+                state = new AtomicInteger();
+                bmpLock.put(bitmap, state);
+            }
+            state.set(AnimateFrameSegment.BMP_STATE_IN_USE);
+        }
     }
 
     /**
@@ -38,13 +47,13 @@ public class Frame implements Runnable {
     }
 
     boolean isRecyclable() {
-        return recycledPool != null;
+        return bmpLock != null;
     }
 
     @Override
     public void run() {
-        if (recycledPool != null) {
-            recycledPool.offer(bitmap);
+        if (bmpLock != null) {
+            bmpLock.get(bitmap).compareAndSet(AnimateFrameSegment.BMP_STATE_TO_BE_IDLE, AnimateFrameSegment.BMP_STATE_IDLE);
         }
     }
 }
