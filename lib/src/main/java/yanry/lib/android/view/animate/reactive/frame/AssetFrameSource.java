@@ -54,9 +54,10 @@ public class AssetFrameSource implements AnimateFrameSource {
 
     private static void load(String assetsDir) {
         try {
+            long start = System.currentTimeMillis();
             File root = new File(assetsDir);
             loadDir(root, assetManager.list(root.getPath()));
-            Logger.getDefault().dd("success load frames from assets dir: ", assetsDir);
+            Logger.getDefault().dd("success load frames from assets dir: ", assetsDir, ", ", System.currentTimeMillis() - start, "ms");
         } catch (IOException e) {
             Logger.getDefault().catches(e);
         }

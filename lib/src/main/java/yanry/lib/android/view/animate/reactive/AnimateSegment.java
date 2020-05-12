@@ -63,6 +63,19 @@ public abstract class AnimateSegment extends Registry<AnimateStateWatcher> {
         return new ScheduleBinding(bindingData, animateLayout);
     }
 
+    boolean setAnimateState(int animateState) {
+        int oldState = this.animateState;
+        if (oldState != animateState) {
+            this.animateState = animateState;
+            onStateChange(animateState, oldState);
+            for (AnimateStateWatcher watcher : animateStateRegistry.getCopy()) {
+                watcher.onAnimateStateChange(this, animateState, oldState);
+            }
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 准备开始绘制。
      */
@@ -70,18 +83,7 @@ public abstract class AnimateSegment extends Registry<AnimateStateWatcher> {
         animateState = 0;
     }
 
-    boolean setAnimateState(int animateState) {
-        int oldState = this.animateState;
-        if (oldState != animateState) {
-            this.animateState = animateState;
-            if (animateStateRegistry.size() > 0) {
-                for (AnimateStateWatcher watcher : animateStateRegistry.getCopy()) {
-                    watcher.onAnimateStateChange(this, animateState, oldState);
-                }
-            }
-            return true;
-        }
-        return false;
+    protected void onStateChange(int to, int from) {
     }
 
     protected abstract Logger getLogger();

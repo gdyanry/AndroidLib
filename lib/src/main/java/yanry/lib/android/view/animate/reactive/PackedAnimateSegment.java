@@ -11,12 +11,8 @@ import yanry.lib.java.model.log.Logger;
  */
 public class PackedAnimateSegment extends AnimateSegment implements AnimateStateWatcher {
     private LinkedList<AnimateSegment> segments;
-    private Logger logger;
-    private int zOrder;
 
-    public PackedAnimateSegment(Logger logger, int zOrder) {
-        this.logger = logger;
-        this.zOrder = zOrder;
+    public PackedAnimateSegment() {
         segments = new LinkedList<>();
     }
 
@@ -36,12 +32,20 @@ public class PackedAnimateSegment extends AnimateSegment implements AnimateState
 
     @Override
     protected Logger getLogger() {
-        return logger;
+        AnimateSegment first = segments.peekFirst();
+        if (first != null) {
+            return first.getLogger();
+        }
+        return Logger.getDefault();
     }
 
     @Override
     protected int getZOrder() {
-        return zOrder;
+        AnimateSegment first = segments.peekFirst();
+        if (first != null) {
+            return first.getZOrder();
+        }
+        return 0;
     }
 
     @Override
@@ -54,14 +58,14 @@ public class PackedAnimateSegment extends AnimateSegment implements AnimateState
 
     @Override
     protected long draw(Canvas canvas) {
-        AnimateSegment animateSegment = segments.peekFirst();
-        while (animateSegment != null) {
-            long duration = animateSegment.draw(canvas);
+        AnimateSegment first = segments.peekFirst();
+        while (first != null) {
+            long duration = first.draw(canvas);
             if (duration < 0) {
                 segments.pollFirst();
-                animateSegment = segments.peekFirst();
-                if (animateSegment != null) {
-                    animateSegment.prepare();
+                first = segments.peekFirst();
+                if (first != null) {
+                    first.prepare();
                 }
             } else {
                 return duration;

@@ -50,7 +50,7 @@ public class AnimateLayout extends FrameLayout {
             if (child instanceof AnimateView) {
                 AnimateView animateView = (AnimateView) child;
                 index = i;
-                if (animateView.animateSegment == null || animateView.animateSegment.getAnimateState() == AnimateSegment.ANIMATE_STATE_STOPPED) {
+                if (!animateView.isShowing()) {
                     availableView = animateView;
                 } else {
                     if (segment == animateView.animateSegment) {
@@ -114,6 +114,19 @@ public class AnimateLayout extends FrameLayout {
         }
     }
 
+    public boolean containsAnimate() {
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof AnimateView) {
+                AnimateView animateView = (AnimateView) child;
+                if (animateView.isShowing()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -140,6 +153,10 @@ public class AnimateLayout extends FrameLayout {
             segment.prepare();
             segment.addAnimateStateWatcher(this);
             segment.setAnimateState(AnimateSegment.ANIMATE_STATE_PLAYING);
+        }
+
+        private boolean isShowing() {
+            return animateSegment != null && animateSegment.getAnimateState() != AnimateSegment.ANIMATE_STATE_STOPPED;
         }
 
         @Override
