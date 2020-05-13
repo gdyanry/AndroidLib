@@ -7,13 +7,12 @@ import yanry.lib.java.model.schedule.imple.ReusableDisplay;
 /**
  * Created by yanry on 2020/5/12.
  */
-public abstract class AnimateDisplay extends ReusableDisplay<AnimateData, AnimateLayout> {
+public abstract class AnimateDisplay<D extends AnimateData> extends ReusableDisplay<D, AnimateLayout> {
 
-    protected void onBindAnimateSegment(AnimateLayout view, AnimateData data, AnimateSegment.ScheduleBinding binding) {
-    }
+    protected abstract void onBindAnimateSegment(AnimateLayout view, D data, AnimateSegment.ScheduleBinding binding);
 
     @Override
-    protected final void setData(AnimateLayout view, AnimateData data) {
+    protected final void setData(AnimateLayout view, D data) {
         AnimateSegment animateSegment = data.getAnimateSegment();
         if (animateSegment != null) {
             onBindAnimateSegment(view, data, animateSegment.bindShowData(data, view));
