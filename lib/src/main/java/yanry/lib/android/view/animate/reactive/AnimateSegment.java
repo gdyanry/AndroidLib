@@ -83,7 +83,14 @@ public abstract class AnimateSegment extends Registry<AnimateStateWatcher> {
         animateState = 0;
     }
 
+    /**
+     * 动画状态变化回调。
+     *
+     * @param to
+     * @param from
+     */
     protected void onStateChange(int to, int from) {
+
     }
 
     protected abstract Logger getLogger();

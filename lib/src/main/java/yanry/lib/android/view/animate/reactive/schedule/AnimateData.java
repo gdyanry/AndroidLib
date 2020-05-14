@@ -11,17 +11,22 @@ public class AnimateData extends ShowData {
     private AnimateSegment animateSegment;
 
     public AnimateData(AnimateSegment... animateSegments) {
-        if (animateSegments == null || animateSegments.length == 0) {
-            addFlag(FLAG_DISMISS_ON_SHOW);
-        } else if (animateSegments.length == 1) {
+        if (animateSegments.length == 1) {
             animateSegment = animateSegments[0];
-        } else {
+        } else if (animateSegments.length > 1) {
             animateSegment = new PackedAnimateSegment().appendSegment(animateSegments);
         }
     }
 
     public AnimateSegment getAnimateSegment() {
         return animateSegment;
+    }
+
+    @Override
+    protected void onStateChange(int to, int from) {
+        if (to == STATE_SHOWING && animateSegment == null) {
+            dismiss(0);
+        }
     }
 
     @Override

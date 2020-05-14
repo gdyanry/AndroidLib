@@ -40,9 +40,6 @@ public class AnimateLayout extends FrameLayout {
     }
 
     public boolean showAnimate(@NonNull AnimateSegment segment) {
-        if (segment.getAnimateState() == AnimateSegment.ANIMATE_STATE_PAUSED || segment.getAnimateState() == AnimateSegment.ANIMATE_STATE_PLAYING) {
-            return false;
-        }
         int index = 0;
         AnimateView availableView = null;
         for (int i = 0; i < getChildCount(); i++) {
