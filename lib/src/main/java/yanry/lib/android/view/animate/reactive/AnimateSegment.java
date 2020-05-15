@@ -3,6 +3,7 @@ package yanry.lib.android.view.animate.reactive;
 import android.graphics.Canvas;
 
 import yanry.lib.java.model.Registry;
+import yanry.lib.java.model.animate.TimeController;
 import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.schedule.ShowData;
@@ -15,7 +16,7 @@ import static yanry.lib.java.model.schedule.ShowData.STATE_SHOWING;
 /**
  * 动画片段。
  */
-public abstract class AnimateSegment extends Registry<AnimateStateWatcher> {
+public abstract class AnimateSegment extends TimeController {
     public static final int ANIMATE_STATE_PLAYING = 1;
     public static final int ANIMATE_STATE_PAUSED = 2;
     public static final int ANIMATE_STATE_STOPPED = 3;
@@ -37,22 +38,6 @@ public abstract class AnimateSegment extends Registry<AnimateStateWatcher> {
 
     public boolean removeAnimateStateWatcher(AnimateStateWatcher watcher) {
         return animateStateRegistry.unregister(watcher);
-    }
-
-    public boolean pauseAnimate() {
-        if (animateState != ANIMATE_STATE_STOPPED) {
-            return setAnimateState(ANIMATE_STATE_PAUSED);
-        }
-        getLogger().concat(LogLevel.Warn, "fail to pause a stopped animate: ", this);
-        return false;
-    }
-
-    public boolean resumeAnimate() {
-        if (animateState != ANIMATE_STATE_STOPPED) {
-            return setAnimateState(ANIMATE_STATE_PLAYING);
-        }
-        getLogger().concat(LogLevel.Warn, "fail to resume a stopped animate: ", this);
-        return false;
     }
 
     public boolean stopAnimate() {
@@ -81,6 +66,7 @@ public abstract class AnimateSegment extends Registry<AnimateStateWatcher> {
      */
     protected void prepare() {
         animateState = 0;
+        seekTo(0);
     }
 
     /**
@@ -90,7 +76,20 @@ public abstract class AnimateSegment extends Registry<AnimateStateWatcher> {
      * @param from
      */
     protected void onStateChange(int to, int from) {
+        if (to == ANIMATE_STATE_PAUSED) {
+            super.setPause(true);
+        } else if (to == ANIMATE_STATE_PLAYING) {
+            super.setPause(false);
+        }
+    }
 
+    @Override
+    public void setPause(boolean pause) {
+        if (animateState != ANIMATE_STATE_STOPPED) {
+            setAnimateState(pause ? ANIMATE_STATE_PAUSED : ANIMATE_STATE_PLAYING);
+        } else {
+            getLogger().concat(LogLevel.Warn, "fail to ", pause ? "pause" : "resume", " a stopped animate: ", this);
+        }
     }
 
     protected abstract Logger getLogger();

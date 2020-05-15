@@ -81,7 +81,7 @@ public class AnimateLayout extends FrameLayout {
             if (child instanceof AnimateView) {
                 AnimateSegment animateSegment = ((AnimateView) child).animateSegment;
                 if (animateSegment != null) {
-                    animateSegment.pauseAnimate();
+                    animateSegment.setPause(true);
                 }
             }
         }
@@ -93,7 +93,7 @@ public class AnimateLayout extends FrameLayout {
             if (child instanceof AnimateView) {
                 AnimateSegment animateSegment = ((AnimateView) child).animateSegment;
                 if (animateSegment != null) {
-                    animateSegment.resumeAnimate();
+                    animateSegment.setPause(false);
                 }
             }
         }

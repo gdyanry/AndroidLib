@@ -75,15 +75,11 @@ public class PackedAnimateSegment extends AnimateSegment implements AnimateState
     }
 
     @Override
-    public boolean pauseAnimate() {
+    public void setPause(boolean pause) {
         AnimateSegment first = segments.peekFirst();
-        return first != null && first.pauseAnimate();
-    }
-
-    @Override
-    public boolean resumeAnimate() {
-        AnimateSegment first = segments.peekFirst();
-        return first != null && first.resumeAnimate();
+        if (first != null) {
+            first.setPause(pause);
+        }
     }
 
     @Override
