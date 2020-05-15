@@ -51,7 +51,7 @@ public class AnimateLayout extends FrameLayout {
                     availableView = animateView;
                 } else {
                     if (segment == animateView.animateSegment) {
-                        segment.getLogger().ww("segment is already showing: ", segment);
+                        segment.getLogger().ww("segment has been shown: ", segment);
                         return false;
                     }
                     int zOrder = animateView.animateSegment.getZOrder();
