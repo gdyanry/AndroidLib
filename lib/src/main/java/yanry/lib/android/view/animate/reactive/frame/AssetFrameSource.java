@@ -117,6 +117,10 @@ public class AssetFrameSource implements AnimateFrameSource {
         }
     }
 
+    public static InputStream getInputStream(String filePath) throws IOException {
+        return assetManager.open(filePath);
+    }
+
     private File dir;
     private List<String> fileList;
 
