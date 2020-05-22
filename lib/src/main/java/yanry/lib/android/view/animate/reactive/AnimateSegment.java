@@ -2,6 +2,8 @@ package yanry.lib.android.view.animate.reactive;
 
 import android.graphics.Canvas;
 
+import androidx.annotation.NonNull;
+
 import yanry.lib.java.model.Registry;
 import yanry.lib.java.model.animate.TimeController;
 import yanry.lib.java.model.log.LogLevel;
@@ -53,13 +55,16 @@ public abstract class AnimateSegment extends TimeController {
     }
 
     public void setLogger(Logger logger) {
-        this.logger = logger;
+        if (logger != null) {
+            this.logger = logger;
+        }
     }
 
     public int getZOrder() {
         return zOrder;
     }
 
+    @NonNull
     public Logger getLogger() {
         return logger;
     }

@@ -31,21 +31,25 @@ public class PackedAnimateSegment extends AnimateSegment implements AnimateState
     }
 
     @Override
-    protected Logger getLogger() {
+    public Logger getLogger() {
+        Logger logger = super.getLogger();
+        if (logger != Logger.getDefault()) {
+            return logger;
+        }
         AnimateSegment first = segments.peekFirst();
         if (first != null) {
             return first.getLogger();
         }
-        return Logger.getDefault();
+        return logger;
     }
 
     @Override
-    protected int getZOrder() {
+    public int getZOrder() {
         AnimateSegment first = segments.peekFirst();
         if (first != null) {
             return first.getZOrder();
         }
-        return 0;
+        return super.getZOrder();
     }
 
     @Override
