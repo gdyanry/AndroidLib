@@ -19,6 +19,10 @@ public abstract class SingleFrameSegment extends AnimateSegment implements Runna
         decoder.enqueue(this, false);
     }
 
+    protected void drawFrame(Canvas canvas, Drawable bitmap) {
+        bitmap.draw(canvas);
+    }
+
     protected abstract Drawable decodeFrame();
 
     @Override
@@ -32,7 +36,7 @@ public abstract class SingleFrameSegment extends AnimateSegment implements Runna
     @Override
     protected long draw(Canvas canvas) {
         if (frame != null) {
-            frame.draw(canvas);
+            drawFrame(canvas, frame);
         } else {
             getLogger().dd("decoding is slower than drawing: ", this);
         }

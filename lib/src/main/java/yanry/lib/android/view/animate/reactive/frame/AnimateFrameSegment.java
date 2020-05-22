@@ -148,17 +148,13 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
         return currentFrame;
     }
 
-    protected abstract float getFrameLeft(int frameIndex);
-
-    protected abstract float getFrameTop(int frameIndex);
-
     /**
-     * 获取指定帧的显示时间。
-     *
-     * @param frameIndex
-     * @return 返回0表示一直停留在这一帧；返回-1表示结束动画。
+     * @param canvas
+     * @param bitmap
+     * @param index  当前帧序号。
+     * @return 返回当前帧的显示时间。返回0表示一直停留在这一帧；返回-1表示结束动画。
      */
-    protected abstract long getFrameDuration(int frameIndex);
+    protected abstract long drawBitmap(Canvas canvas, Bitmap bitmap, int index);
 
     @Override
     protected void prepare() {
@@ -189,10 +185,9 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
         Frame frame = currentFrame.getValue();
         if (frame != null) {
             int index = frame.getIndex();
-            canvas.drawBitmap(frame.getBitmap(), getFrameLeft(index), getFrameTop(index), null);
-            return getFrameDuration(index);
+            return drawBitmap(canvas, frame.getBitmap(), index);
         }
-        return getFrameDuration(startIndex);
+        return 16;
     }
 
     @Override

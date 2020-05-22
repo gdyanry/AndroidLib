@@ -21,11 +21,14 @@ public abstract class AnimateSegment extends TimeController {
     public static final int ANIMATE_STATE_PAUSED = 2;
     public static final int ANIMATE_STATE_STOPPED = 3;
 
+    private int zOrder;
+    private Logger logger;
     private int animateState;
     private Registry<AnimateStateWatcher> animateStateRegistry;
 
     public AnimateSegment() {
         animateStateRegistry = new Registry<>();
+        logger = Logger.getDefault();
     }
 
     public int getAnimateState() {
@@ -38,6 +41,27 @@ public abstract class AnimateSegment extends TimeController {
 
     public boolean removeAnimateStateWatcher(AnimateStateWatcher watcher) {
         return animateStateRegistry.unregister(watcher);
+    }
+
+    /**
+     * 设置该动画所在的z轴坐标，z值大的动画会覆盖在z值小的动画上面。
+     *
+     * @param zOrder
+     */
+    public void setZOrder(int zOrder) {
+        this.zOrder = zOrder;
+    }
+
+    public void setLogger(Logger logger) {
+        this.logger = logger;
+    }
+
+    public int getZOrder() {
+        return zOrder;
+    }
+
+    public Logger getLogger() {
+        return logger;
     }
 
     public boolean stopAnimate() {
@@ -83,22 +107,6 @@ public abstract class AnimateSegment extends TimeController {
         }
     }
 
-    @Override
-    public void setPause(boolean pause) {
-        if (animateState != ANIMATE_STATE_STOPPED) {
-            setAnimateState(pause ? ANIMATE_STATE_PAUSED : ANIMATE_STATE_PLAYING);
-        } else {
-            getLogger().concat(LogLevel.Warn, "fail to ", pause ? "pause" : "resume", " a stopped animate: ", this);
-        }
-    }
-
-    protected abstract Logger getLogger();
-
-    /**
-     * @return 该动画所在的z轴坐标，z值大的动画会覆盖在z值小的动画上面。
-     */
-    protected abstract int getZOrder();
-
     /**
      * 绘制动画的当前帧。
      *
@@ -107,6 +115,15 @@ public abstract class AnimateSegment extends TimeController {
      */
     protected abstract long draw(Canvas canvas);
 
+    @Override
+    public void setPause(boolean pause) {
+        if (animateState != ANIMATE_STATE_STOPPED) {
+            setAnimateState(pause ? ANIMATE_STATE_PAUSED : ANIMATE_STATE_PLAYING);
+        } else {
+            logger.concat(LogLevel.Warn, "fail to ", pause ? "pause" : "resume", " a stopped animate: ", this);
+        }
+    }
+
     public class ScheduleBinding implements ValueWatcher<Integer>, AnimateStateWatcher {
         private ShowData bindingData;
         private AnimateLayout animateLayout;
@@ -114,6 +131,16 @@ public abstract class AnimateSegment extends TimeController {
         public ScheduleBinding(ShowData bindingData, AnimateLayout animateLayout) {
             this.bindingData = bindingData;
             this.animateLayout = animateLayout;
+            Integer dataState = bindingData.getState().getValue();
+            switch (dataState) {
+                case STATE_SHOWING:
+                    animateLayout.showAnimate(AnimateSegment.this);
+                    break;
+                case STATE_DISMISS:
+                case STATE_DEQUEUE:
+                    AnimateSegment.this.stopAnimate();
+                    break;
+            }
             bindingData.getState().addWatcher(this);
             addAnimateStateWatcher(this);
         }
