@@ -24,7 +24,7 @@ public class Frame implements Runnable {
                 state = new AtomicInteger();
                 bmpLock.put(bitmap, state);
             }
-            state.set(AnimateFrameSegment.BMP_STATE_IN_USE);
+            state.set(FrameAnimate.BMP_STATE_IN_USE);
         }
     }
 
@@ -53,7 +53,7 @@ public class Frame implements Runnable {
     @Override
     public void run() {
         if (bmpLock != null) {
-            bmpLock.get(bitmap).compareAndSet(AnimateFrameSegment.BMP_STATE_TO_BE_IDLE, AnimateFrameSegment.BMP_STATE_IDLE);
+            bmpLock.get(bitmap).compareAndSet(FrameAnimate.BMP_STATE_TO_BE_IDLE, FrameAnimate.BMP_STATE_IDLE);
         }
     }
 }

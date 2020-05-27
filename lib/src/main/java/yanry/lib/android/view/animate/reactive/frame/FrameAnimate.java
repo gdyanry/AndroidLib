@@ -22,7 +22,7 @@ import yanry.lib.java.model.watch.ValueHolderImpl;
  * 使用序列帧实现的动画片段。具体实现上，使用指定线程解码，多个处于活动状态的动画片段可以共用一个解码线程，使用队列长度为1的生产者消费者模式进行解码/绘制。
  * 功能上，支持指定播放次数、帧率、反序播放、任意帧开始等特性。
  */
-public abstract class AnimateFrameSegment extends AnimateSegment implements Runnable {
+public abstract class FrameAnimate extends AnimateSegment implements Runnable {
     static final int BMP_STATE_IDLE = 0;
     static final int BMP_STATE_IN_USE = 1;
     static final int BMP_STATE_TO_BE_IDLE = 2;
@@ -48,7 +48,7 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
      * @param source
      * @param decoder 序列帧解码执行线程。
      */
-    public AnimateFrameSegment(AnimateFrameSource source, SingleThreadExecutor decoder) {
+    public FrameAnimate(AnimateFrameSource source, SingleThreadExecutor decoder) {
         this.source = source;
         this.decoder = decoder;
         this.cacheCapacity = 1;
@@ -67,7 +67,7 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
      * @param cacheCapacity
      * @return
      */
-    public AnimateFrameSegment cacheCapacity(int cacheCapacity) {
+    public FrameAnimate cacheCapacity(int cacheCapacity) {
         this.cacheCapacity = cacheCapacity;
         return this;
     }
@@ -76,7 +76,7 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
      * @param count 动画重复播放次数，只有大于0才生效，默认无限重复播放。
      * @return
      */
-    public AnimateFrameSegment repeatCount(int count) {
+    public FrameAnimate repeatCount(int count) {
         if (count == Integer.MAX_VALUE) {
             repeatCount = -1;
         } else {
@@ -92,7 +92,7 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
      * @param frameBitmap
      * @return
      */
-    public AnimateFrameSegment presetFrame(int index, Bitmap frameBitmap) {
+    public FrameAnimate presetFrame(int index, Bitmap frameBitmap) {
         if (frameBitmap != null) {
             presetFrames.put(index, new Frame(frameBitmap, index, null));
         }
@@ -104,7 +104,7 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
      *
      * @return
      */
-    public AnimateFrameSegment reverse() {
+    public FrameAnimate reverse() {
         reverse = true;
         return this;
     }
@@ -114,7 +114,7 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
      *
      * @return
      */
-    public AnimateFrameSegment fillEnd() {
+    public FrameAnimate fillEnd() {
         fillEnd = true;
         return this;
     }
@@ -125,7 +125,7 @@ public abstract class AnimateFrameSegment extends AnimateSegment implements Runn
      * @param startIndex
      * @return
      */
-    public AnimateFrameSegment setStartIndex(int startIndex) {
+    public FrameAnimate setStartIndex(int startIndex) {
         this.startIndex = startIndex;
         this.decodeCounter = startIndex;
         return this;

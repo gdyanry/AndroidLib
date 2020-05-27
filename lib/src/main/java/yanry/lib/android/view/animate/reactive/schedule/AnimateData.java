@@ -1,7 +1,7 @@
 package yanry.lib.android.view.animate.reactive.schedule;
 
 import yanry.lib.android.view.animate.reactive.AnimateSegment;
-import yanry.lib.android.view.animate.reactive.PackedAnimateSegment;
+import yanry.lib.android.view.animate.reactive.SequentialAnimateSet;
 import yanry.lib.java.model.schedule.ShowData;
 
 /**
@@ -14,7 +14,7 @@ public class AnimateData extends ShowData {
         if (animateSegments.length == 1) {
             animateSegment = animateSegments[0];
         } else if (animateSegments.length > 1) {
-            animateSegment = new PackedAnimateSegment().appendSegment(animateSegments);
+            animateSegment = new SequentialAnimateSet().appendSegment(animateSegments);
         }
     }
 

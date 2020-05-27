@@ -7,22 +7,24 @@ import java.util.LinkedList;
 import yanry.lib.java.model.log.Logger;
 
 /**
+ * 由多个子动画顺序播放组成的动画。
+ * <p>
  * Created by yanry on 2020/5/8.
  */
-public class PackedAnimateSegment extends AnimateSegment implements AnimateStateWatcher {
+public class SequentialAnimateSet extends AnimateSegment implements AnimateStateWatcher {
     private LinkedList<AnimateSegment> segments;
 
-    public PackedAnimateSegment() {
+    public SequentialAnimateSet() {
         segments = new LinkedList<>();
     }
 
-    public PackedAnimateSegment insertSegment(AnimateSegment animateSegment) {
+    public SequentialAnimateSet insertSegment(AnimateSegment animateSegment) {
         segments.addFirst(animateSegment);
         animateSegment.addAnimateStateWatcher(this);
         return this;
     }
 
-    public PackedAnimateSegment appendSegment(AnimateSegment... animateSegments) {
+    public SequentialAnimateSet appendSegment(AnimateSegment... animateSegments) {
         for (AnimateSegment animateSegment : animateSegments) {
             segments.addLast(animateSegment);
             animateSegment.addAnimateStateWatcher(this);
