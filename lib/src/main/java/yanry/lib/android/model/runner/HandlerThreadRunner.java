@@ -3,12 +3,14 @@ package yanry.lib.android.model.runner;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import java.util.concurrent.Executor;
+
 import yanry.lib.java.model.runner.Runner;
 
 /**
  * Created by yanry on 2019/12/12.
  */
-public class HandlerThreadRunner extends HandlerThread implements Runner {
+public class HandlerThreadRunner extends HandlerThread implements Runner, Executor {
     private Handler handler;
 
     public HandlerThreadRunner(String name) {
@@ -24,6 +26,10 @@ public class HandlerThreadRunner extends HandlerThread implements Runner {
     private void init() {
         start();
         handler = new Handler(getLooper());
+    }
+
+    public Handler getHandler() {
+        return handler;
     }
 
     @Override
@@ -44,5 +50,10 @@ public class HandlerThreadRunner extends HandlerThread implements Runner {
     @Override
     public void cancel(Runnable runnable) {
         handler.removeCallbacks(runnable);
+    }
+
+    @Override
+    public void execute(Runnable command) {
+        handler.post(command);
     }
 }
