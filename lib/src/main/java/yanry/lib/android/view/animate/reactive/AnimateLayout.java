@@ -43,6 +43,12 @@ public class AnimateLayout extends FrameLayout {
         temp = new ArrayList<>();
     }
 
+    /**
+     * 显示动画，需要在主线程中调用。
+     *
+     * @param segment
+     * @return 如果该动画已经在显示，则返回false，否则返回true。
+     */
     public boolean showAnimate(@NonNull AnimateSegment segment) {
         int index = 0;
         for (int i = 0; i < getChildCount(); i++) {
@@ -72,6 +78,7 @@ public class AnimateLayout extends FrameLayout {
             AnimateView selectedView = temp.get(size / 2);
             segment.getLogger().concat(LogLevel.Verbose, "select available view ", selectedView, " out of ", size, " to render segment: ", segment);
             selectedView.bind(segment);
+            temp.clear();
         } else {
             AnimateView animateView = new AnimateView(getContext());
             addView(animateView, index, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
