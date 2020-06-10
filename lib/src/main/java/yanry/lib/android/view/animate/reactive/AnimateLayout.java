@@ -50,6 +50,10 @@ public class AnimateLayout extends FrameLayout {
      * @return 如果该动画已经在显示，则返回false，否则返回true。
      */
     public boolean showAnimate(@NonNull AnimateSegment segment) {
+        if (segment.renderer != null && segment.renderer != this) {
+            segment.getLogger().concat(LogLevel.Error, "segment (", segment, ") is showing in another layout: ", segment.renderer);
+            return false;
+        }
         int index = 0;
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
@@ -60,7 +64,7 @@ public class AnimateLayout extends FrameLayout {
                     temp.add(animateView);
                 } else {
                     if (segment == animateView.animateSegment) {
-                        segment.getLogger().ww("segment has been shown: ", segment);
+                        segment.getLogger().ww("segment (", segment, ") is already showing.");
                         temp.clear();
                         return false;
                     }
@@ -82,7 +86,7 @@ public class AnimateLayout extends FrameLayout {
         } else {
             AnimateView animateView = new AnimateView(getContext());
             addView(animateView, index, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView, " at index ", index, " to render segment: ", segment);
+            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView, " at index ", index, "/", getChildCount(), " to render segment: ", segment);
             animateView.bind(segment);
         }
         return true;
@@ -159,6 +163,7 @@ public class AnimateLayout extends FrameLayout {
 
         private void bind(AnimateSegment segment) {
             dropTimer.invalid(this);
+            segment.renderer = AnimateLayout.this;
             this.animateSegment = segment;
             segment.prepare();
             segment.addAnimateStateWatcher(this);

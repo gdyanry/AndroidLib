@@ -27,6 +27,8 @@ public abstract class AnimateSegment extends TimeController {
     private Logger logger;
     private int animateState;
     private Registry<AnimateStateWatcher> animateStateRegistry;
+    AnimateLayout renderer;
+    private ScheduleBinding binding;
 
     public AnimateSegment() {
         animateStateRegistry = new Registry<>();
@@ -74,13 +76,24 @@ public abstract class AnimateSegment extends TimeController {
     }
 
     public ScheduleBinding bindShowData(ShowData bindingData, AnimateLayout animateLayout) {
-        return new ScheduleBinding(bindingData, animateLayout);
+        if (renderer != null && renderer != animateLayout) {
+            logger.concat(LogLevel.Error, "failed to bind animate segment(", this, ") to show data: ", bindingData);
+            return null;
+        }
+        if (binding != null) {
+            binding.unbind();
+        }
+        binding = new ScheduleBinding(bindingData, animateLayout);
+        return binding;
     }
 
     boolean setAnimateState(int animateState) {
         int oldState = this.animateState;
         if (oldState != animateState) {
             this.animateState = animateState;
+            if (animateState == ANIMATE_STATE_STOPPED) {
+                renderer = null;
+            }
             onStateChange(animateState, oldState);
             for (AnimateStateWatcher watcher : animateStateRegistry.getCopy()) {
                 watcher.onAnimateStateChange(this, animateState, oldState);
@@ -157,6 +170,7 @@ public abstract class AnimateSegment extends TimeController {
             removeAnimateStateWatcher(this);
             bindingData = null;
             animateLayout = null;
+            binding = null;
         }
 
         @Override
