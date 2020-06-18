@@ -24,12 +24,12 @@ public abstract class AndroidSuite extends LoginHandler {
 	private static final String SHARED_PREF_NAME = "android.suite.shared.preferences";
 
 	private ContextWrapper ctx;
-	private NetworkConnMngr connMngr;
+    private NetworkManager networkManager;
 	private File rootDir;
 
 	public AndroidSuite(ContextWrapper ctx) {
 		this.ctx = ctx;
-		connMngr = new NetworkConnMngr(ctx);
+        networkManager = new NetworkManager(ctx);
 		rootDir = CommonUtils.getDiskCacheDir(ctx);
 	}
 
@@ -47,23 +47,18 @@ public abstract class AndroidSuite extends LoginHandler {
 		return ctx;
 	}
 
-	public NetworkConnMngr getNetworkConnectionManager() {
-		return connMngr;
+    public NetworkManager getNetworkManager() {
+        return networkManager;
 	}
 
 	public File getCacheRoot() {
 		return rootDir;
 	}
 
-	public void release() {
-		connMngr.release();
-	}
-
 	// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@Override
 	public void startUp() {
-		connMngr.init();
 		super.startUp();
 	}
 

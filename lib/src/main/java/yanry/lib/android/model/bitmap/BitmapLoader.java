@@ -18,8 +18,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import yanry.lib.android.model.NetworkConnMngr;
-import yanry.lib.android.model.NetworkConnMngr.ConnectivityListener;
+import yanry.lib.android.model.NetworkManager;
 import yanry.lib.android.model.bitmap.access.FileBitmapAccess;
 import yanry.lib.android.model.bitmap.access.Level2BlobAccess;
 import yanry.lib.android.model.bitmap.access.Level2FileAccess;
@@ -42,7 +41,7 @@ import yanry.lib.java.util.FileUtil;
  * <p>
  * 2016年5月7日
  */
-public class BitmapLoader implements ConnectivityListener {
+public class BitmapLoader {
     FileBitmapAccess fileAccess;
     UriBitmapAccess uriAccess;
     UrlFileBitmapAccess urlFileAccess;
@@ -148,7 +147,7 @@ public class BitmapLoader implements ConnectivityListener {
     }
 
     public UrlFileBitmapAccess supportUrlInFile(FileHashMapper fileMapper,
-                                                final NetworkConnMngr conn, final boolean supportResume) {
+                                                final NetworkManager conn, final boolean supportResume) {
         lv2FileAccess = new Level2FileAccess(fileMapper) {
 
             @Override
@@ -160,7 +159,7 @@ public class BitmapLoader implements ConnectivityListener {
 
             @Override
             protected boolean isConnected() {
-                return conn == null || conn.isConnected();
+                return conn == null || conn.getInternetAvailability().getValue();
             }
 
             @Override
@@ -189,7 +188,7 @@ public class BitmapLoader implements ConnectivityListener {
         return urlFileAccess;
     }
 
-    public UrlBlobBitmapAccess supportUrlInBlob(final NetworkConnMngr conn, AndroidBaseDao dao,
+    public UrlBlobBitmapAccess supportUrlInBlob(final NetworkManager conn, AndroidBaseDao dao,
                                                 String table, String keyField, String blobField) {
         lv2BlobAccess = new Level2BlobAccess(dao, table, keyField, blobField);
         urlBlobAccess = new UrlBlobBitmapAccess() {
@@ -201,7 +200,7 @@ public class BitmapLoader implements ConnectivityListener {
 
             @Override
             protected boolean isConnected() {
-                return conn == null || conn.isConnected();
+                return conn == null || conn.getInternetAvailability().getValue();
             }
 
             @Override
@@ -277,18 +276,14 @@ public class BitmapLoader implements ConnectivityListener {
         return cache;
     }
 
-    @Override
-    public void onConnected(String typeName) {
+    /**
+     * 网络重连后继续加载。
+     */
+    public void resumeOnNetworkRecovered() {
         if (urlFileAccess != null) {
             urlFileAccess.flushTaskCache();
         } else if (urlBlobAccess != null) {
             urlBlobAccess.flushTaskCache();
         }
-    }
-
-    @Override
-    public void onDisconnect() {
-        // TODO Auto-generated method stub
-
     }
 }
