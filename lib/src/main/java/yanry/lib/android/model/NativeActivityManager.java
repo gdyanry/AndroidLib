@@ -6,6 +6,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.LinkedHashMap;
@@ -14,17 +16,21 @@ import java.util.Map;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.ValueHolder;
 import yanry.lib.java.model.watch.ValueHolderImpl;
-import yanry.lib.java.model.watch.ValueWatcher;
 
 /**
+ * 当前应用的activity管理器。
+ * <p>
  * Created by yanry on 2020/3/1.
  */
 public class NativeActivityManager implements Application.ActivityLifecycleCallbacks {
     private ValueHolderImpl<Activity> topActivity;
     private LinkedHashMap<Activity, ValueHolderImpl<Lifecycle.State>> activityStates;
 
-    public void init(Application application) {
+    public NativeActivityManager() {
         topActivity = new ValueHolderImpl<>();
+    }
+
+    public void init(Application application) {
         try {
             ActivityInfo[] activities = application.getPackageManager().getPackageInfo(application.getPackageName(), PackageManager.GET_ACTIVITIES).activities;
             int activityCount = activities == null ? 0 : activities.length;
@@ -36,20 +42,25 @@ public class NativeActivityManager implements Application.ActivityLifecycleCallb
         }
     }
 
-    public ValueHolderImpl<Activity> getTopActivity() {
+    @NonNull
+    public ValueHolder<Activity> getTopActivity() {
         return topActivity;
     }
 
-    public boolean addActivityStateWatcher(Activity activity, ValueWatcher<Lifecycle.State> watcher) {
-        ValueHolder<Lifecycle.State> activityState = activityStates.get(activity);
-        return activityState != null && activityState.addWatcher(watcher);
+    /**
+     * 查询监听指定activity状态。
+     *
+     * @param activity
+     * @return 当activity已经销毁时返回null。
+     */
+    @Nullable
+    public ValueHolder<Lifecycle.State> getActivityState(Activity activity) {
+        return activityStates.get(activity);
     }
 
-    public boolean removeActivityStateWatcher(Activity activity, ValueWatcher<Lifecycle.State> watcher) {
-        ValueHolder<Lifecycle.State> activityState = activityStates.get(activity);
-        return activityState != null && activityState.removeWatcher(watcher);
-    }
-
+    /**
+     * @return 顶部activity是否发生变化
+     */
     private boolean refreshTopActivity() {
         Activity currentTop = null;
         Lifecycle.State topState = null;
@@ -71,6 +82,7 @@ public class NativeActivityManager implements Application.ActivityLifecycleCallb
                 activityStates.put(activity, activityState);
             }
             if (activityState.setValue(state) != state && refreshTopActivity() && topActivity.getValue() == activity && state == Lifecycle.State.DESTROYED) {
+                // topActivity状态为DESTROYED时topActivity设为null
                 topActivity.setValue(null);
             }
         }
