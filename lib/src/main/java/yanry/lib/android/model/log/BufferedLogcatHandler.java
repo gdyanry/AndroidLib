@@ -21,7 +21,7 @@ public class BufferedLogcatHandler extends LogHandler {
     }
 
     @Override
-    protected void catches(Object tag, Exception e) {
+    protected void catches(Object tag, Throwable e) {
         Log.e(bufferedLogcat.getLogcatTag(), e.getMessage(), e);
     }
 }

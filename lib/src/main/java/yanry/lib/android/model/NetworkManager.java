@@ -39,7 +39,7 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
 
     @Override
     public void onAvailable(Network network) {
-        Logger.getDefault().dd("onAvailable: ", network);
+        Logger.getDefault().dd("on network available: ", network);
         updateNetworkState();
     }
 
@@ -58,7 +58,7 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
 
     @Override
     public void onLost(Network network) {
-        Logger.getDefault().dd("onLost: ", network);
+        Logger.getDefault().dd("on network lost: ", network);
         updateNetworkState();
     }
 }

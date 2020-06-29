@@ -48,7 +48,7 @@ public class LogcatHandler extends LogHandler {
     }
 
     @Override
-    protected void catches(Object tag, Exception e) {
+    protected void catches(Object tag, Throwable e) {
         /*
          * Log.wtf() and Log.e() both have the same priority, ERROR.
          *

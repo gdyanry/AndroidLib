@@ -22,12 +22,12 @@ import yanry.lib.java.model.watch.ValueHolderImpl;
  * <p>
  * Created by yanry on 2020/3/1.
  */
-public class NativeActivityManager implements Application.ActivityLifecycleCallbacks {
-    private ValueHolderImpl<Activity> topActivity;
+public class NativeActivityManager {
+    private TopActivityHolder topActivity;
     private LinkedHashMap<Activity, ValueHolderImpl<Lifecycle.State>> activityStates;
 
     public NativeActivityManager() {
-        topActivity = new ValueHolderImpl<>();
+        topActivity = new TopActivityHolder();
     }
 
     public void init(Application application) {
@@ -36,7 +36,7 @@ public class NativeActivityManager implements Application.ActivityLifecycleCallb
             int activityCount = activities == null ? 0 : activities.length;
             Logger.getDefault().dd("activity count: ", activityCount);
             activityStates = new LinkedHashMap<>(activityCount, 0.75f, true);
-            application.registerActivityLifecycleCallbacks(this);
+            application.registerActivityLifecycleCallbacks(topActivity);
         } catch (PackageManager.NameNotFoundException e) {
             Logger.getDefault().catches(e);
         }
@@ -58,69 +58,71 @@ public class NativeActivityManager implements Application.ActivityLifecycleCallb
         return activityStates.get(activity);
     }
 
-    /**
-     * @return 顶部activity是否发生变化
-     */
-    private boolean refreshTopActivity() {
-        Activity currentTop = null;
-        Lifecycle.State topState = null;
-        for (Map.Entry<Activity, ValueHolderImpl<Lifecycle.State>> entry : activityStates.entrySet()) {
-            ValueHolder<Lifecycle.State> state = entry.getValue();
-            if (topState == null || state.getValue().isAtLeast(topState)) {
-                topState = state.getValue();
-                currentTop = entry.getKey();
+    private class TopActivityHolder extends ValueHolderImpl<Activity> implements Application.ActivityLifecycleCallbacks {
+        /**
+         * @return 顶部activity是否发生变化
+         */
+        private boolean refreshTopActivity() {
+            Activity currentTop = null;
+            Lifecycle.State topState = null;
+            for (Map.Entry<Activity, ValueHolderImpl<Lifecycle.State>> entry : activityStates.entrySet()) {
+                ValueHolder<Lifecycle.State> state = entry.getValue();
+                if (topState == null || state.getValue().isAtLeast(topState)) {
+                    topState = state.getValue();
+                    currentTop = entry.getKey();
+                }
+            }
+            return topActivity.setValue(currentTop) != currentTop;
+        }
+
+        private void handleActivityState(Activity activity, Lifecycle.State state) {
+            if (activityStates != null) {
+                ValueHolderImpl<Lifecycle.State> activityState = activityStates.get(activity);
+                if (activityState == null) {
+                    activityState = new ValueHolderImpl<>(Lifecycle.State.INITIALIZED);
+                    activityStates.put(activity, activityState);
+                }
+                if (activityState.setValue(state) != state && refreshTopActivity() && topActivity.getValue() == activity && state == Lifecycle.State.DESTROYED) {
+                    // topActivity状态为DESTROYED时topActivity设为null
+                    topActivity.setValue(null);
+                }
             }
         }
-        return topActivity.setValue(currentTop) != currentTop;
-    }
 
-    private void handleActivityState(Activity activity, Lifecycle.State state) {
-        if (activityStates != null) {
-            ValueHolderImpl<Lifecycle.State> activityState = activityStates.get(activity);
-            if (activityState == null) {
-                activityState = new ValueHolderImpl<>(Lifecycle.State.INITIALIZED);
-                activityStates.put(activity, activityState);
-            }
-            if (activityState.setValue(state) != state && refreshTopActivity() && topActivity.getValue() == activity && state == Lifecycle.State.DESTROYED) {
-                // topActivity状态为DESTROYED时topActivity设为null
-                topActivity.setValue(null);
-            }
+        @Override
+        public final void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+            handleActivityState(activity, Lifecycle.State.CREATED);
         }
-    }
 
-    @Override
-    public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-        handleActivityState(activity, Lifecycle.State.CREATED);
-    }
+        @Override
+        public final void onActivityStarted(Activity activity) {
+            handleActivityState(activity, Lifecycle.State.STARTED);
+        }
 
-    @Override
-    public void onActivityStarted(Activity activity) {
-        handleActivityState(activity, Lifecycle.State.STARTED);
-    }
+        @Override
+        public final void onActivityResumed(Activity activity) {
+            handleActivityState(activity, Lifecycle.State.RESUMED);
+        }
 
-    @Override
-    public void onActivityResumed(Activity activity) {
-        handleActivityState(activity, Lifecycle.State.RESUMED);
-    }
+        @Override
+        public final void onActivityPaused(Activity activity) {
+            handleActivityState(activity, Lifecycle.State.STARTED);
+        }
 
-    @Override
-    public void onActivityPaused(Activity activity) {
-        handleActivityState(activity, Lifecycle.State.STARTED);
-    }
+        @Override
+        public final void onActivityStopped(Activity activity) {
+            handleActivityState(activity, Lifecycle.State.CREATED);
+        }
 
-    @Override
-    public void onActivityStopped(Activity activity) {
-        handleActivityState(activity, Lifecycle.State.CREATED);
-    }
+        @Override
+        public final void onActivitySaveInstanceState(Activity activity, Bundle outState) {
 
-    @Override
-    public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+        }
 
-    }
-
-    @Override
-    public void onActivityDestroyed(Activity activity) {
-        handleActivityState(activity, Lifecycle.State.DESTROYED);
-        activityStates.remove(activity);
+        @Override
+        public final void onActivityDestroyed(Activity activity) {
+            handleActivityState(activity, Lifecycle.State.DESTROYED);
+            activityStates.remove(activity);
+        }
     }
 }
