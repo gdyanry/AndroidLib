@@ -10,9 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import yanry.lib.java.interfaces.BiConsumer;
+import yanry.lib.java.model.Registry;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.ValueHolder;
 import yanry.lib.java.model.watch.ValueHolderImpl;
@@ -25,9 +28,11 @@ import yanry.lib.java.model.watch.ValueHolderImpl;
 public class NativeActivityManager {
     private TopActivityHolder topActivity;
     private LinkedHashMap<Activity, ValueHolderImpl<Lifecycle.State>> activityStates;
+    private HashMap<Lifecycle.Event, Registry<BiConsumer<Activity, Lifecycle.Event>>> eventDispatcher;
 
     public NativeActivityManager() {
         topActivity = new TopActivityHolder();
+        eventDispatcher = new HashMap<>();
     }
 
     public void init(Application application) {
@@ -58,6 +63,20 @@ public class NativeActivityManager {
         return activityStates.get(activity);
     }
 
+    public boolean registerActivityEventListener(Lifecycle.Event event, BiConsumer<Activity, Lifecycle.Event> listener) {
+        Registry<BiConsumer<Activity, Lifecycle.Event>> registry = eventDispatcher.get(event);
+        if (registry == null) {
+            registry = new Registry<>();
+            eventDispatcher.put(event, registry);
+        }
+        return registry.register(listener);
+    }
+
+    public boolean unregisterActivityEventListener(Lifecycle.Event event, BiConsumer<Activity, Lifecycle.Event> listener) {
+        Registry<BiConsumer<Activity, Lifecycle.Event>> registry = eventDispatcher.get(event);
+        return registry != null && registry.unregister(listener);
+    }
+
     private class TopActivityHolder extends ValueHolderImpl<Activity> implements Application.ActivityLifecycleCallbacks {
         /**
          * @return 顶部activity是否发生变化
@@ -75,43 +94,52 @@ public class NativeActivityManager {
             return topActivity.setValue(currentTop) != currentTop;
         }
 
-        private void handleActivityState(Activity activity, Lifecycle.State state) {
-            if (activityStates != null) {
-                ValueHolderImpl<Lifecycle.State> activityState = activityStates.get(activity);
-                if (activityState == null) {
-                    activityState = new ValueHolderImpl<>(Lifecycle.State.INITIALIZED);
-                    activityStates.put(activity, activityState);
-                }
-                if (activityState.setValue(state) != state && refreshTopActivity() && topActivity.getValue() == activity && state == Lifecycle.State.DESTROYED) {
-                    // topActivity状态为DESTROYED时topActivity设为null
-                    topActivity.setValue(null);
+        private void handleActivityEvent(Activity activity, Lifecycle.Event event, Lifecycle.State state) {
+            ValueHolderImpl<Lifecycle.State> activityState = activityStates.get(activity);
+            if (activityState == null) {
+                activityState = new ValueHolderImpl<>(Lifecycle.State.INITIALIZED);
+                activityStates.put(activity, activityState);
+            }
+            doDispatchEvent(activity, event);
+            doDispatchEvent(activity, Lifecycle.Event.ON_ANY);
+            if (activityState.setValue(state) != state && refreshTopActivity() && topActivity.getValue() == activity && state == Lifecycle.State.DESTROYED) {
+                // topActivity状态为DESTROYED时topActivity设为null
+                topActivity.setValue(null);
+            }
+        }
+
+        private void doDispatchEvent(Activity activity, Lifecycle.Event event) {
+            Registry<BiConsumer<Activity, Lifecycle.Event>> registry = eventDispatcher.get(event);
+            if (registry != null) {
+                for (BiConsumer<Activity, Lifecycle.Event> listener : registry.getCopy()) {
+                    listener.accept(activity, event);
                 }
             }
         }
 
         @Override
         public final void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-            handleActivityState(activity, Lifecycle.State.CREATED);
+            handleActivityEvent(activity, Lifecycle.Event.ON_CREATE, Lifecycle.State.CREATED);
         }
 
         @Override
         public final void onActivityStarted(Activity activity) {
-            handleActivityState(activity, Lifecycle.State.STARTED);
+            handleActivityEvent(activity, Lifecycle.Event.ON_START, Lifecycle.State.STARTED);
         }
 
         @Override
         public final void onActivityResumed(Activity activity) {
-            handleActivityState(activity, Lifecycle.State.RESUMED);
+            handleActivityEvent(activity, Lifecycle.Event.ON_RESUME, Lifecycle.State.RESUMED);
         }
 
         @Override
         public final void onActivityPaused(Activity activity) {
-            handleActivityState(activity, Lifecycle.State.STARTED);
+            handleActivityEvent(activity, Lifecycle.Event.ON_PAUSE, Lifecycle.State.STARTED);
         }
 
         @Override
         public final void onActivityStopped(Activity activity) {
-            handleActivityState(activity, Lifecycle.State.CREATED);
+            handleActivityEvent(activity, Lifecycle.Event.ON_STOP, Lifecycle.State.CREATED);
         }
 
         @Override
@@ -121,7 +149,7 @@ public class NativeActivityManager {
 
         @Override
         public final void onActivityDestroyed(Activity activity) {
-            handleActivityState(activity, Lifecycle.State.DESTROYED);
+            handleActivityEvent(activity, Lifecycle.Event.ON_DESTROY, Lifecycle.State.DESTROYED);
             activityStates.remove(activity);
         }
     }
