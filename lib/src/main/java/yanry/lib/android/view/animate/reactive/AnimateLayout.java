@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.java.model.Singletons;
@@ -22,6 +23,7 @@ import yanry.lib.java.model.log.LogLevel;
 public class AnimateLayout extends FrameLayout {
     private CacheTimer<AnimateView> dropTimer;
     private ArrayList<AnimateView> temp;
+    private AtomicInteger animateCount;
 
     public AnimateLayout(@NonNull Context context) {
         super(context);
@@ -41,6 +43,7 @@ public class AnimateLayout extends FrameLayout {
             }
         };
         temp = new ArrayList<>();
+        animateCount = new AtomicInteger();
     }
 
     /**
@@ -55,7 +58,8 @@ public class AnimateLayout extends FrameLayout {
             return false;
         }
         int index = 0;
-        for (int i = 0; i < getChildCount(); i++) {
+        int childCount = getChildCount();
+        for (int i = 0; i < childCount; i++) {
             View child = getChildAt(i);
             if (child instanceof AnimateView) {
                 AnimateView animateView = (AnimateView) child;
@@ -64,7 +68,7 @@ public class AnimateLayout extends FrameLayout {
                     temp.add(animateView);
                 } else {
                     if (segment == animateView.animateSegment) {
-                        segment.getLogger().ww("segment (", segment, ") is already showing.");
+                        segment.getLogger().concat(LogLevel.Warn, "segment (", segment, ") is already showing.");
                         temp.clear();
                         return false;
                     }
@@ -80,13 +84,13 @@ public class AnimateLayout extends FrameLayout {
         int size = temp.size();
         if (size > 0) {
             AnimateView selectedView = temp.get(size / 2);
-            segment.getLogger().concat(LogLevel.Verbose, "select available view ", selectedView, " out of ", size, " to render segment: ", segment);
+            segment.getLogger().concat(LogLevel.Verbose, "select available view ", selectedView, " out of ", size, "(", animateCount.get(), "/", childCount, ") to render segment: ", segment);
             selectedView.bind(segment);
             temp.clear();
         } else {
             AnimateView animateView = new AnimateView(getContext());
             addView(animateView, index, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView, " at index ", index, "/", getChildCount(), " to render segment: ", segment);
+            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView, " at index ", index, "/", childCount, "(animateCount=", animateCount.get(), ") to render segment: ", segment);
             animateView.bind(segment);
         }
         return true;
