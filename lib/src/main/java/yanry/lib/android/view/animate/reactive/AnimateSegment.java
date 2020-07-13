@@ -152,7 +152,7 @@ public abstract class AnimateSegment extends TimeController {
             Integer dataState = bindingData.getState().getValue();
             switch (dataState) {
                 case STATE_SHOWING:
-                    animateLayout.showAnimate(AnimateSegment.this);
+                    animateLayout.showAnimate(AnimateSegment.this, true);
                     break;
                 case STATE_DISMISS:
                 case STATE_DEQUEUE:
@@ -178,7 +178,7 @@ public abstract class AnimateSegment extends TimeController {
             switch (to.intValue()) {
                 case STATE_SHOWING:
                     if (animateLayout != null) {
-                        animateLayout.showAnimate(AnimateSegment.this);
+                        animateLayout.showAnimate(AnimateSegment.this, true);
                     }
                     break;
                 case STATE_DEQUEUE:

@@ -50,9 +50,10 @@ public class AnimateLayout extends FrameLayout {
      * 显示动画，需要在主线程中调用。
      *
      * @param segment
-     * @return 如果该动画已经在显示，则返回false，否则返回true。
+     * @param refreshIfShowing 如果该动画正在显示，是否刷新动画
+     * @return 如果该动画已经在显示且refreshIfShowing为false，则返回false，否则返回true。
      */
-    public boolean showAnimate(@NonNull AnimateSegment segment) {
+    public boolean showAnimate(@NonNull AnimateSegment segment, boolean refreshIfShowing) {
         if (segment.renderer != null && segment.renderer != this) {
             segment.getLogger().concat(LogLevel.Error, "segment (", segment, ") is showing in another layout: ", segment.renderer);
             return false;
@@ -68,9 +69,14 @@ public class AnimateLayout extends FrameLayout {
                     temp.add(animateView);
                 } else {
                     if (segment == animateView.animateSegment) {
-                        segment.getLogger().concat(LogLevel.Warn, "segment (", segment, ") is already showing.");
+                        segment.getLogger().concat(LogLevel.Debug, "segment (", segment, ") is already showing.");
                         temp.clear();
-                        return false;
+                        if (refreshIfShowing) {
+                            Singletons.get(UiScheduleRunner.class).run(animateView);
+                            return true;
+                        } else {
+                            return false;
+                        }
                     }
                     int zOrder = animateView.animateSegment.getZOrder();
                     if (zOrder > segment.getZOrder()) {
