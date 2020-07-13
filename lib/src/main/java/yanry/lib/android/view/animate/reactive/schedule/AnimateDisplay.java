@@ -21,6 +21,6 @@ public abstract class AnimateDisplay<D extends AnimateData> extends ReusableDisp
 
     @Override
     protected boolean isShowing(AnimateLayout view) {
-        return view.containsAnimate();
+        return view.getAnimateCount().getValue() > 0;
     }
 }

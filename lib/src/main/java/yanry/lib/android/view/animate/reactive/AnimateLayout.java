@@ -16,6 +16,8 @@ import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.cache.CacheTimer;
 import yanry.lib.java.model.log.LogLevel;
+import yanry.lib.java.model.watch.ValueHolder;
+import yanry.lib.java.model.watch.ValueHolderImpl;
 
 /**
  * Created by yanry on 2020/4/27.
@@ -23,7 +25,8 @@ import yanry.lib.java.model.log.LogLevel;
 public class AnimateLayout extends FrameLayout {
     private CacheTimer<AnimateView> dropTimer;
     private ArrayList<AnimateView> temp;
-    private AtomicInteger animateCount;
+    private AtomicInteger animateCounter;
+    private ValueHolderImpl<Integer> animateCount;
 
     public AnimateLayout(@NonNull Context context) {
         super(context);
@@ -43,7 +46,8 @@ public class AnimateLayout extends FrameLayout {
             }
         };
         temp = new ArrayList<>();
-        animateCount = new AtomicInteger();
+        animateCounter = new AtomicInteger();
+        animateCount = new ValueHolderImpl<>();
     }
 
     /**
@@ -90,13 +94,13 @@ public class AnimateLayout extends FrameLayout {
         int size = temp.size();
         if (size > 0) {
             AnimateView selectedView = temp.get(size / 2);
-            segment.getLogger().concat(LogLevel.Verbose, "select available view ", selectedView, " out of ", size, "(", animateCount.get(), "/", childCount, ") to render segment: ", segment);
+            segment.getLogger().concat(LogLevel.Verbose, "select available view ", selectedView.hashCode(), " out of ", size, "(", animateCounter.get(), "/", childCount, ") to render segment: ", segment);
             selectedView.bind(segment);
             temp.clear();
         } else {
             AnimateView animateView = new AnimateView(getContext());
             addView(animateView, index, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView, " at index ", index, "/", childCount, "(animateCount=", animateCount.get(), ") to render segment: ", segment);
+            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView.hashCode(), " at index ", index, "/", childCount, "(animateCount=", animateCounter.get(), ") to render segment: ", segment);
             animateView.bind(segment);
         }
         return true;
@@ -138,17 +142,8 @@ public class AnimateLayout extends FrameLayout {
         }
     }
 
-    public boolean containsAnimate() {
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            if (child instanceof AnimateView) {
-                AnimateView animateView = (AnimateView) child;
-                if (animateView.isShowing()) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    public ValueHolder<Integer> getAnimateCount() {
+        return animateCount;
     }
 
     @Override
@@ -178,6 +173,7 @@ public class AnimateLayout extends FrameLayout {
             segment.prepare();
             segment.addAnimateStateWatcher(this);
             segment.setAnimateState(AnimateSegment.ANIMATE_STATE_PLAYING);
+            animateCount.setValue(animateCounter.incrementAndGet());
         }
 
         private boolean isShowing() {
@@ -222,11 +218,12 @@ public class AnimateLayout extends FrameLayout {
                         Singletons.get(UiScheduleRunner.class).run(this);
                         break;
                     case AnimateSegment.ANIMATE_STATE_STOPPED:
+                        animateSegment.getLogger().concat(LogLevel.Verbose, "unbind segment from view ", hashCode(), ": ", animateSegment);
                         dropTimer.refresh(this);
                         Singletons.get(UiScheduleRunner.class).run(this);
                         animateSegment.removeAnimateStateWatcher(this);
                         this.animateSegment = null;
-                        animateSegment.getLogger().concat(LogLevel.Verbose, "unbind segment from view ", this, ": ", animateSegment);
+                        animateCount.setValue(animateCounter.decrementAndGet());
                         break;
                 }
             }
