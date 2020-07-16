@@ -181,8 +181,8 @@ public abstract class AndroidBaseDao extends BaseDao {
             try {
                 inTransaction(db);
                 db.setTransactionSuccessful();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+            } catch (Throwable e) {
+                Logger.getDefault().catches(e);
             } finally {
                 db.endTransaction();
             }
