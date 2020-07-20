@@ -78,21 +78,6 @@ public class NativeActivityManager {
     }
 
     private class TopActivityHolder extends ValueHolderImpl<Activity> implements Application.ActivityLifecycleCallbacks {
-        /**
-         * @return 顶部activity是否发生变化
-         */
-        private boolean refreshTopActivity() {
-            Activity currentTop = null;
-            Lifecycle.State topState = null;
-            for (Map.Entry<Activity, ValueHolderImpl<Lifecycle.State>> entry : activityStates.entrySet()) {
-                ValueHolder<Lifecycle.State> state = entry.getValue();
-                if (topState == null || state.getValue().isAtLeast(topState)) {
-                    topState = state.getValue();
-                    currentTop = entry.getKey();
-                }
-            }
-            return topActivity.setValue(currentTop) != currentTop;
-        }
 
         private void handleActivityEvent(Activity activity, Lifecycle.Event event, Lifecycle.State state) {
             ValueHolderImpl<Lifecycle.State> activityState = activityStates.get(activity);
@@ -102,9 +87,19 @@ public class NativeActivityManager {
             }
             doDispatchEvent(activity, event);
             doDispatchEvent(activity, Lifecycle.Event.ON_ANY);
-            if (activityState.setValue(state) != state && refreshTopActivity() && topActivity.getValue() == activity && state == Lifecycle.State.DESTROYED) {
+            if (activityState.setValue(state) != state) {
+                // 刷新topActivity
+                Activity currentTop = null;
+                Lifecycle.State topState = null;
+                for (Map.Entry<Activity, ValueHolderImpl<Lifecycle.State>> entry : activityStates.entrySet()) {
+                    ValueHolder<Lifecycle.State> state1 = entry.getValue();
+                    if (topState == null || state1.getValue().isAtLeast(topState)) {
+                        topState = state1.getValue();
+                        currentTop = entry.getKey();
+                    }
+                }
                 // topActivity状态为DESTROYED时topActivity设为null
-                topActivity.setValue(null);
+                topActivity.setValue(currentTop == activity && state == Lifecycle.State.DESTROYED ? null : currentTop);
             }
         }
 
