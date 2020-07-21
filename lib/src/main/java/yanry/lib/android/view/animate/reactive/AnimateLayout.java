@@ -47,7 +47,7 @@ public class AnimateLayout extends FrameLayout {
         };
         temp = new ArrayList<>();
         animateCounter = new AtomicInteger();
-        animateCount = new ValueHolderImpl<>();
+        animateCount = new ValueHolderImpl<>(0);
     }
 
     /**
