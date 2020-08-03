@@ -4,6 +4,7 @@ import android.graphics.Canvas;
 
 import androidx.annotation.NonNull;
 
+import yanry.lib.java.model.FlagsHolder;
 import yanry.lib.java.model.Registry;
 import yanry.lib.java.model.animate.TimeController;
 import yanry.lib.java.model.log.LogLevel;
@@ -22,6 +23,9 @@ public abstract class AnimateSegment extends TimeController {
     public static final int ANIMATE_STATE_PLAYING = 1;
     public static final int ANIMATE_STATE_PAUSED = 2;
     public static final int ANIMATE_STATE_STOPPED = 3;
+
+    public static final int BINDING_STOP_DISMISS = 1;
+    public static final int BINDING_DISMISS_STOP = 2;
 
     private int zOrder;
     private Logger logger;
@@ -142,11 +146,13 @@ public abstract class AnimateSegment extends TimeController {
         }
     }
 
-    public class ScheduleBinding implements ValueWatcher<Integer>, AnimateStateWatcher {
+    public class ScheduleBinding extends FlagsHolder implements ValueWatcher<Integer>, AnimateStateWatcher {
         private ShowData bindingData;
         private AnimateLayout animateLayout;
 
         public ScheduleBinding(ShowData bindingData, AnimateLayout animateLayout) {
+            super(false);
+            addFlag(BINDING_STOP_DISMISS | BINDING_DISMISS_STOP);
             this.bindingData = bindingData;
             this.animateLayout = animateLayout;
             Integer dataState = bindingData.getState().getValue();
@@ -156,7 +162,9 @@ public abstract class AnimateSegment extends TimeController {
                     break;
                 case STATE_DISMISS:
                 case STATE_DEQUEUE:
-                    AnimateSegment.this.stopAnimate();
+                    if (hasFlag(BINDING_DISMISS_STOP)) {
+                        setAnimateState(ANIMATE_STATE_STOPPED);
+                    }
                     break;
             }
             bindingData.getState().addWatcher(this);
@@ -183,7 +191,9 @@ public abstract class AnimateSegment extends TimeController {
                     break;
                 case STATE_DEQUEUE:
                 case STATE_DISMISS:
-                    setAnimateState(ANIMATE_STATE_STOPPED);
+                    if (hasFlag(BINDING_DISMISS_STOP)) {
+                        setAnimateState(ANIMATE_STATE_STOPPED);
+                    }
                     unbind();
                     break;
             }
@@ -193,7 +203,9 @@ public abstract class AnimateSegment extends TimeController {
         public void onAnimateStateChange(AnimateSegment animateSegment, int toState, int fromState) {
             if (animateState == ANIMATE_STATE_STOPPED) {
                 if (bindingData != null) {
-                    bindingData.dismiss(0);
+                    if (hasFlag(BINDING_STOP_DISMISS)) {
+                        bindingData.dismiss(0);
+                    }
                 }
                 unbind();
             }
