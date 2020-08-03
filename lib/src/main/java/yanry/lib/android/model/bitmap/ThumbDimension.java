@@ -11,7 +11,6 @@ import java.security.InvalidParameterException;
 
 import yanry.lib.android.model.bitmap.BitmapThumb.Decoder;
 import yanry.lib.android.util.BitmapUtil;
-import yanry.lib.java.entity.CheckedOutOfMemoryException;
 import yanry.lib.java.model.log.Logger;
 
 /**
@@ -82,7 +81,8 @@ public class ThumbDimension {
         if (opts == null) {
             opts = new Options();
         } else if (!BitmapUtil.checkMemory(opts, scale)) {
-            throw new CheckedOutOfMemoryException("not enough memory for bitmap creation");
+            Logger.getDefault().ee("not enough memory for bitmap creation");
+            return null;
         }
         opts.inJustDecodeBounds = false;
         if (type == FitType.RoundFar) {

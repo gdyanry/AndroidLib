@@ -12,7 +12,6 @@ import android.graphics.Matrix;
 import java.io.ByteArrayOutputStream;
 
 import yanry.lib.android.util.BitmapUtil;
-import yanry.lib.java.entity.CheckedOutOfMemoryException;
 import yanry.lib.java.model.log.Logger;
 
 /**
@@ -85,7 +84,8 @@ public class BitmapThumb {
             bitmap = validDimen.createBitmap(originDimen, decoder, opts, srcPath);
         } else {
             if (!BitmapUtil.checkMemory(opts, scale)) {
-                throw new CheckedOutOfMemoryException("not enough memory for bitmap creation");
+                Logger.getDefault().ee("not enough memory for bitmap creation");
+                return null;
             }
             opts.inJustDecodeBounds = false;
             bitmap = decoder.decode(opts);
