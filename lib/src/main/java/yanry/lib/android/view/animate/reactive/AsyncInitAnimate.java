@@ -38,7 +38,7 @@ public abstract class AsyncInitAnimate extends AnimateSegment implements Runnabl
             return doDraw(canvas);
         }
         getLogger().dd("initialization is slower than drawing: ", this);
-        return 0;
+        return 16;
     }
 
     @Override

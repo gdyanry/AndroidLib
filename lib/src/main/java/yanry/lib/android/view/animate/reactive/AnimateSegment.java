@@ -99,7 +99,7 @@ public abstract class AnimateSegment extends TimeController {
                 renderer = null;
             }
             onStateChange(animateState, oldState);
-            for (AnimateStateWatcher watcher : animateStateRegistry.getCopy()) {
+            for (AnimateStateWatcher watcher : animateStateRegistry.getList()) {
                 watcher.onAnimateStateChange(this, animateState, oldState);
             }
             return true;

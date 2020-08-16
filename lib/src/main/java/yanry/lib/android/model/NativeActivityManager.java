@@ -106,7 +106,7 @@ public class NativeActivityManager {
         private void doDispatchEvent(Activity activity, Lifecycle.Event event) {
             Registry<BiConsumer<Activity, Lifecycle.Event>> registry = eventDispatcher.get(event);
             if (registry != null) {
-                for (BiConsumer<Activity, Lifecycle.Event> listener : registry.getCopy()) {
+                for (BiConsumer<Activity, Lifecycle.Event> listener : registry.getList()) {
                     listener.accept(activity, event);
                 }
             }
