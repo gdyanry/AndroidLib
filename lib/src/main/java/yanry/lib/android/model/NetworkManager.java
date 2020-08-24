@@ -37,6 +37,20 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
         return internetAvailability;
     }
 
+    /**
+     * @param transportType 详见NetworkCapabilities.TRANSPORT_常量
+     * @return
+     */
+    public boolean hasTransport(int transportType) {
+        for (Network network : manager.getAllNetworks()) {
+            NetworkCapabilities networkCapabilities = manager.getNetworkCapabilities(network);
+            if (networkCapabilities.hasTransport(transportType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public void onAvailable(Network network) {
         Logger.getDefault().dd("on network available: ", network);

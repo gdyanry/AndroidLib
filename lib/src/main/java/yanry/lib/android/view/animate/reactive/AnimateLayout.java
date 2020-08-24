@@ -215,6 +215,7 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
 
         public AnimateView(Context context) {
             super(context);
+            setBackgroundResource(0);
         }
 
         private void bind(AnimateSegment segment) {
@@ -255,6 +256,7 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
             if (animateSegment != null) {
                 animateSegment.setAnimateState(AnimateSegment.ANIMATE_STATE_STOPPED);
             }
+            Singletons.get(UiScheduleRunner.class).cancel(this);
             super.onDetachedFromWindow();
         }
 
