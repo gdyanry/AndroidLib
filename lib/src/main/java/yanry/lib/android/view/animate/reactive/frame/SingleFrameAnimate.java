@@ -24,13 +24,18 @@ public abstract class SingleFrameAnimate extends AsyncInitAnimate implements Run
 
     @Override
     protected final void init() {
-        frame = decodeFrame();
+        if (frame == null) {
+            frame = decodeFrame();
+        }
     }
 
     @Override
     protected final long doDraw(Canvas canvas) {
+        init();
         if (frame != null) {
             drawFrame(canvas, frame);
+        } else {
+            getLogger().ee("decode frame failed for animate: ", this);
         }
         return 0;
     }
