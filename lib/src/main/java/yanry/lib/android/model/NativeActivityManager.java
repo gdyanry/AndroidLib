@@ -79,7 +79,7 @@ public class NativeActivityManager {
 
     private class TopActivityHolder extends ValueHolderImpl<Activity> implements Application.ActivityLifecycleCallbacks {
 
-        private void handleActivityEvent(Activity activity, Lifecycle.Event event, Lifecycle.State state) {
+        private synchronized void handleActivityEvent(Activity activity, Lifecycle.Event event, Lifecycle.State state) {
             ValueHolderImpl<Lifecycle.State> activityState = activityStates.get(activity);
             if (activityState == null) {
                 activityState = new ValueHolderImpl<>(Lifecycle.State.INITIALIZED);
@@ -143,7 +143,7 @@ public class NativeActivityManager {
         }
 
         @Override
-        public final void onActivityDestroyed(Activity activity) {
+        public final synchronized void onActivityDestroyed(Activity activity) {
             handleActivityEvent(activity, Lifecycle.Event.ON_DESTROY, Lifecycle.State.DESTROYED);
             activityStates.remove(activity);
         }
