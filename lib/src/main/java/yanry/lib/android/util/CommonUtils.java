@@ -151,6 +151,36 @@ public class CommonUtils {
                     View fieldView = (View) fieldObj;
                     if (fieldView == leakedView) {
                         field.set(inputMethodManager, null);
+                        Logger.getDefault().dd("fix memory leak from InputMethodManager: ", view, "=", fieldView);
+                    }
+                }
+            } catch (Exception e) {
+                Logger.getDefault().catches(e);
+            }
+        }
+    }
+
+    public static void fixInputMethodMemoryLeak(Activity activity) {
+        if (activity == null) {
+            return;
+        }
+        InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (inputMethodManager == null) {
+            return;
+        }
+        String[] viewArr = new String[]{"mCurRootView", "mServedView", "mNextServedView"};
+        for (String view : viewArr) {
+            try {
+                Field field = inputMethodManager.getClass().getDeclaredField(view);
+                if (!field.isAccessible()) {
+                    field.setAccessible(true);
+                }
+                Object fieldObj = field.get(inputMethodManager);
+                if (fieldObj != null && fieldObj instanceof View) {
+                    View fieldView = (View) fieldObj;
+                    if (fieldView.getContext() == activity) {
+                        field.set(inputMethodManager, null);
+                        Logger.getDefault().dd("fix memory leak from InputMethodManager: ", view, "=", fieldView);
                     }
                 }
             } catch (Exception e) {
