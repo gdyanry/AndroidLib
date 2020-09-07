@@ -11,8 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import yanry.lib.java.interfaces.BiConsumer;
 import yanry.lib.java.model.Registry;
@@ -27,7 +26,7 @@ import yanry.lib.java.model.watch.ValueHolderImpl;
  */
 public class NativeActivityManager {
     private TopActivityHolder topActivity;
-    private LinkedHashMap<Activity, ValueHolderImpl<Lifecycle.State>> activityStates;
+    private CopyOnWriteArrayList<ActivityStateHolder> activityStates;
     private HashMap<Lifecycle.Event, Registry<BiConsumer<Activity, Lifecycle.Event>>> eventDispatcher;
 
     public NativeActivityManager() {
@@ -40,7 +39,7 @@ public class NativeActivityManager {
             ActivityInfo[] activities = application.getPackageManager().getPackageInfo(application.getPackageName(), PackageManager.GET_ACTIVITIES).activities;
             int activityCount = activities == null ? 0 : activities.length;
             Logger.getDefault().dd("activity count: ", activityCount);
-            activityStates = new LinkedHashMap<>(activityCount, 0.75f, true);
+            activityStates = new CopyOnWriteArrayList<>();
             application.registerActivityLifecycleCallbacks(topActivity);
         } catch (PackageManager.NameNotFoundException e) {
             Logger.getDefault().catches(e);
@@ -60,7 +59,18 @@ public class NativeActivityManager {
      */
     @Nullable
     public ValueHolder<Lifecycle.State> getActivityState(Activity activity) {
-        return activityStates.get(activity);
+        return getActivityStateHolder(activity);
+    }
+
+    private ActivityStateHolder getActivityStateHolder(Activity activity) {
+        // 反向遍历，因为后添加的activity状态更容易改变
+        for (int i = activityStates.size() - 1; i >= 0; i--) {
+            ActivityStateHolder activityStateHolder = activityStates.get(i);
+            if (activityStateHolder.activity == activity) {
+                return activityStateHolder;
+            }
+        }
+        return null;
     }
 
     public boolean registerActivityEventListener(Lifecycle.Event event, BiConsumer<Activity, Lifecycle.Event> listener) {
@@ -80,10 +90,9 @@ public class NativeActivityManager {
     private class TopActivityHolder extends ValueHolderImpl<Activity> implements Application.ActivityLifecycleCallbacks {
 
         private synchronized void handleActivityEvent(Activity activity, Lifecycle.Event event, Lifecycle.State state) {
-            ValueHolderImpl<Lifecycle.State> activityState = activityStates.get(activity);
+            ActivityStateHolder activityState = getActivityStateHolder(activity);
             if (activityState == null) {
-                activityState = new ValueHolderImpl<>(Lifecycle.State.INITIALIZED);
-                activityStates.put(activity, activityState);
+                activityState = new ActivityStateHolder(activity);
             }
             doDispatchEvent(activity, event);
             doDispatchEvent(activity, Lifecycle.Event.ON_ANY);
@@ -91,11 +100,10 @@ public class NativeActivityManager {
                 // 刷新topActivity
                 Activity currentTop = null;
                 Lifecycle.State topState = null;
-                for (Map.Entry<Activity, ValueHolderImpl<Lifecycle.State>> entry : activityStates.entrySet()) {
-                    ValueHolder<Lifecycle.State> state1 = entry.getValue();
-                    if (topState == null || state1.getValue().isAtLeast(topState)) {
-                        topState = state1.getValue();
-                        currentTop = entry.getKey();
+                for (ActivityStateHolder stateHolder : activityStates) {
+                    if (topState == null || stateHolder.getValue().isAtLeast(topState)) {
+                        topState = stateHolder.getValue();
+                        currentTop = stateHolder.activity;
                     }
                 }
                 // topActivity状态为DESTROYED时topActivity设为null
@@ -146,6 +154,16 @@ public class NativeActivityManager {
         public final synchronized void onActivityDestroyed(Activity activity) {
             handleActivityEvent(activity, Lifecycle.Event.ON_DESTROY, Lifecycle.State.DESTROYED);
             activityStates.remove(activity);
+        }
+    }
+
+    private class ActivityStateHolder extends ValueHolderImpl<Lifecycle.State> {
+        private Activity activity;
+
+        public ActivityStateHolder(Activity activity) {
+            super(Lifecycle.State.INITIALIZED);
+            this.activity = activity;
+            activityStates.add(this);
         }
     }
 }
