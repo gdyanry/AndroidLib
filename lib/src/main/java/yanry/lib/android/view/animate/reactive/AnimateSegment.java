@@ -4,8 +4,10 @@ import android.graphics.Canvas;
 
 import androidx.annotation.NonNull;
 
+import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.java.model.FlagsHolder;
 import yanry.lib.java.model.Registry;
+import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.animate.TimeController;
 import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
@@ -146,7 +148,7 @@ public abstract class AnimateSegment extends TimeController {
         }
     }
 
-    public class ScheduleBinding extends FlagsHolder implements ValueWatcher<Integer>, AnimateStateWatcher {
+    public class ScheduleBinding extends FlagsHolder implements ValueWatcher<Integer>, AnimateStateWatcher, Runnable {
         private ShowData bindingData;
         private AnimateLayout animateLayout;
 
@@ -158,7 +160,7 @@ public abstract class AnimateSegment extends TimeController {
             Integer dataState = bindingData.getState().getValue();
             switch (dataState) {
                 case STATE_SHOWING:
-                    animateLayout.showAnimate(AnimateSegment.this, true);
+                    Singletons.get(UiScheduleRunner.class).run(this);
                     break;
                 case STATE_DISMISS:
                 case STATE_DEQUEUE:
@@ -185,9 +187,7 @@ public abstract class AnimateSegment extends TimeController {
         public void onValueChange(Integer to, Integer from) {
             switch (to.intValue()) {
                 case STATE_SHOWING:
-                    if (animateLayout != null) {
-                        animateLayout.showAnimate(AnimateSegment.this, true);
-                    }
+                    Singletons.get(UiScheduleRunner.class).run(this);
                     break;
                 case STATE_DEQUEUE:
                 case STATE_DISMISS:
@@ -208,6 +208,13 @@ public abstract class AnimateSegment extends TimeController {
                     }
                 }
                 unbind();
+            }
+        }
+
+        @Override
+        public void run() {
+            if (animateLayout != null) {
+                animateLayout.showAnimate(AnimateSegment.this, true);
             }
         }
     }
