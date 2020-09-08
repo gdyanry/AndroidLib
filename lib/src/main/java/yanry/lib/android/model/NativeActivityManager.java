@@ -153,7 +153,10 @@ public class NativeActivityManager {
         @Override
         public final synchronized void onActivityDestroyed(Activity activity) {
             handleActivityEvent(activity, Lifecycle.Event.ON_DESTROY, Lifecycle.State.DESTROYED);
-            activityStates.remove(activity);
+            ActivityStateHolder activityStateHolder = getActivityStateHolder(activity);
+            if (activityStateHolder != null) {
+                activityStates.remove(activityStateHolder);
+            }
         }
     }
 
