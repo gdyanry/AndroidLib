@@ -1,6 +1,7 @@
 package yanry.lib.android.view.animate.reactive;
 
 import android.graphics.Canvas;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 
@@ -129,6 +130,10 @@ public abstract class AnimateSegment extends TimeController {
         } else if (to == ANIMATE_STATE_PLAYING) {
             super.setPause(false);
         }
+    }
+
+    protected int getLayerType() {
+        return View.LAYER_TYPE_NONE;
     }
 
     /**

@@ -224,6 +224,7 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
             dropTimer.invalid(this);
             segment.renderer = AnimateLayout.this;
             this.animateSegment = segment;
+            setLayerType(segment.getLayerType(), null);
             segment.prepare();
             segment.addAnimateStateWatcher(this);
             segment.setAnimateState(AnimateSegment.ANIMATE_STATE_PLAYING);
