@@ -5,6 +5,7 @@ import androidx.annotation.IntDef;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * rongyu.yan
@@ -40,6 +41,10 @@ public class ActionSequence<T> {
             temp.clear();
         }
         return IRRELEVANT;
+    }
+
+    public List<T> getCurrentSequence() {
+        return temp;
     }
 
     public void reset() {

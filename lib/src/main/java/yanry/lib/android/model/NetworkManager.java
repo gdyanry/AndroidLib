@@ -8,6 +8,8 @@ import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.os.Build;
 
+import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.BooleanHolder;
 import yanry.lib.java.model.watch.BooleanHolderImpl;
@@ -19,14 +21,14 @@ import yanry.lib.java.model.watch.BooleanHolderImpl;
  * <p>
  * Created by yanry on 2020/6/17.
  */
-public class NetworkManager extends ConnectivityManager.NetworkCallback {
+public class NetworkManager {
     private ConnectivityManager manager;
     private BooleanHolderImpl internetAvailability;
 
     public NetworkManager(Context context) {
         manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         internetAvailability = new BooleanHolderImpl();
-        manager.registerNetworkCallback(new NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), this);
+        manager.registerNetworkCallback(new NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), new Callback());
     }
 
     public ConnectivityManager getConnectivityManager() {
@@ -35,6 +37,16 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
 
     public BooleanHolder getInternetAvailability() {
         return internetAvailability;
+    }
+
+    public NetworkInfo getActiveNetworkInfo() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Network activeNetwork = manager.getActiveNetwork();
+            if (activeNetwork != null) {
+                return manager.getNetworkInfo(activeNetwork);
+            }
+        }
+        return manager.getActiveNetworkInfo();
     }
 
     /**
@@ -51,28 +63,33 @@ public class NetworkManager extends ConnectivityManager.NetworkCallback {
         return false;
     }
 
-    @Override
-    public void onAvailable(Network network) {
-        Logger.getDefault().dd("on network available: ", network);
-        updateNetworkState();
-    }
+    private class Callback extends ConnectivityManager.NetworkCallback implements Runnable {
+        private int retryCount;
 
-    private void updateNetworkState() {
-        NetworkInfo networkInfo = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Network activeNetwork = manager.getActiveNetwork();
-            if (activeNetwork != null) {
-                networkInfo = manager.getNetworkInfo(activeNetwork);
-            }
-        } else {
-            networkInfo = manager.getActiveNetworkInfo();
+        @Override
+        public void onAvailable(Network network) {
+            Logger.getDefault().dd("on network available: ", network);
+            updateNetworkState();
         }
-        internetAvailability.setValue(networkInfo != null && networkInfo.isConnected());
-    }
 
-    @Override
-    public void onLost(Network network) {
-        Logger.getDefault().dd("on network lost: ", network);
-        updateNetworkState();
+        private void updateNetworkState() {
+            retryCount = 0;
+            Singletons.get(UiScheduleRunner.class).run(this);
+        }
+
+        @Override
+        public void onLost(Network network) {
+            Logger.getDefault().dd("on network lost: ", network);
+            updateNetworkState();
+        }
+
+        @Override
+        public void run() {
+            NetworkInfo networkInfo = getActiveNetworkInfo();
+            Logger.getDefault().dd("active network info(", retryCount, "): ", networkInfo);
+            if (!internetAvailability.setValue(networkInfo != null && networkInfo.isConnected()) && ++retryCount < 3) {
+                Singletons.get(UiScheduleRunner.class).schedule(this, 3000);
+            }
+        }
     }
 }

@@ -29,7 +29,7 @@ public abstract class AidlConnector<S extends IInterface> implements ServiceConn
     private BooleanHolderImpl isAlive;
 
     /**
-     * @param runner
+     * @param runner        用于连接断开时的调度重连
      * @param context
      * @param serviceIntent Identifies the service to connect to.  The Intent must
      *                      specify an explicit component name.
@@ -77,10 +77,20 @@ public abstract class AidlConnector<S extends IInterface> implements ServiceConn
         }
     }
 
+    /**
+     * 连接是否是活跃的，活跃特指调用{@link #connect(long)}之后，直到调用{@link #disconnect()}或者尝试连接失败前的状态。
+     *
+     * @return
+     */
     public BooleanHolder getIsAlive() {
         return isAlive;
     }
 
+    /**
+     * 服务是否可用，可用特指连接已成功连接上的状态。
+     *
+     * @return
+     */
     public BooleanHolder getAvailability() {
         return availability;
     }
