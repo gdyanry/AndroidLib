@@ -43,6 +43,7 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
     private boolean reverse;
     private boolean fillEnd;
     private int startIndex;
+    private boolean lockCurrentFrame;
 
     /**
      * @param source
@@ -62,7 +63,7 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
     }
 
     /**
-     * 设置预解码缓存帧数，默认为1。当出现解码速度跟不上显示速度的问题时可适当调高缓存值，同时要注意避免造成非必要的内存占用。
+     * 设置预解码缓存帧数，默认为1。当出现解码速度跟不上显示速度的问题时可适当调高缓存值，同时要注意避免造成非必要的内存占用。一般情况下不需要调用。
      *
      * @param cacheCapacity
      * @return
@@ -149,6 +150,15 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
     }
 
     /**
+     * 锁定当前帧，锁定后{@link #getCurrentFrame()}的值不会发生变化
+     *
+     * @param lock
+     */
+    public void lockCurrentFrame(boolean lock) {
+        this.lockCurrentFrame = lock;
+    }
+
+    /**
      * @param canvas
      * @param bitmap
      * @param index  当前帧序号。
@@ -164,22 +174,34 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
     }
 
     @Override
+    protected void onStateChange(int to, int from) {
+        super.onStateChange(to, from);
+        if (to == ANIMATE_STATE_STOPPED) {
+            cacheQueue.clear();
+            bmpLock.clear();
+            currentFrame.setValue(null);
+        }
+    }
+
+    @Override
     protected final long draw(Canvas canvas) {
-        Frame poll = cacheQueue.poll();
-        if (poll == null) {
-            if (isEnd()) {
-                // 若fillEnd为true则停留在最后一帧，否则结束动画
-                return fillEnd ? 0 : -1;
+        if (!lockCurrentFrame) {
+            Frame poll = cacheQueue.poll();
+            if (poll == null) {
+                if (isEnd()) {
+                    // 若fillEnd为true则停留在最后一帧，否则结束动画
+                    return fillEnd ? 0 : -1;
+                } else {
+                    getLogger().dd("decoding is slower than drawing: ", source, " - ", decodeCounter, '/', source.getFrameCount());
+                }
             } else {
-                getLogger().dd("decoding is slower than drawing: ", source, " - ", decodeCounter, '/', source.getFrameCount());
-            }
-        } else {
-            decoder.enqueue(this, false);
-            Frame previousFrame = currentFrame.setValue(poll);
-            if (!Objects.equals(previousFrame, poll) && previousFrame != null && previousFrame.isRecyclable()) {
-                // bitmap回收利用
-                bmpLock.get(previousFrame.getBitmap()).compareAndSet(BMP_STATE_IN_USE, BMP_STATE_TO_BE_IDLE);
-                decoder.enqueue(previousFrame, false);
+                decoder.enqueue(this, false);
+                Frame previousFrame = currentFrame.setValue(poll);
+                if (!Objects.equals(previousFrame, poll) && previousFrame != null && previousFrame.isRecyclable()) {
+                    // bitmap回收利用
+                    bmpLock.get(previousFrame.getBitmap()).compareAndSet(BMP_STATE_IN_USE, BMP_STATE_TO_BE_IDLE);
+                    decoder.enqueue(previousFrame, false);
+                }
             }
         }
         Frame frame = currentFrame.getValue();
@@ -205,7 +227,7 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
             }
             Frame current = currentFrame.getValue();
             if (current != null && current.getIndex() == decodeIndex) {
-                cacheQueue.offer(new Frame(current.getBitmap(), decodeIndex, current.isRecyclable() ? bmpLock : null));
+                getLogger().vv("skip repeated frame for ", source, " on index ", decodeIndex);
             } else if (decodeIndex >= 0 && decodeIndex < frameCount) {
                 Frame presetFrame = presetFrames.get(decodeIndex);
                 if (presetFrame == null) {

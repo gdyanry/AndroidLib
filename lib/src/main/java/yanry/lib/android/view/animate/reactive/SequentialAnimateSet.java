@@ -20,14 +20,14 @@ public class SequentialAnimateSet extends AnimateSegment implements AnimateState
 
     public SequentialAnimateSet insertSegment(AnimateSegment animateSegment) {
         segments.addFirst(animateSegment);
-        animateSegment.addAnimateStateWatcher(this);
+        animateSegment.getAnimateStateRegistry().register(this);
         return this;
     }
 
     public SequentialAnimateSet appendSegment(AnimateSegment... animateSegments) {
         for (AnimateSegment animateSegment : animateSegments) {
             segments.addLast(animateSegment);
-            animateSegment.addAnimateStateWatcher(this);
+            animateSegment.getAnimateStateRegistry().register(this);
         }
         return this;
     }

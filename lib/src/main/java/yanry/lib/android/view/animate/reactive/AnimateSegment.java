@@ -1,6 +1,7 @@
 package yanry.lib.android.view.animate.reactive;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -23,12 +24,27 @@ import static yanry.lib.java.model.schedule.ShowData.STATE_SHOWING;
  * 动画片段。
  */
 public abstract class AnimateSegment extends TimeController {
+    /**
+     * 动画播放中
+     */
     public static final int ANIMATE_STATE_PLAYING = 1;
+    /**
+     * 动画暂停中
+     */
     public static final int ANIMATE_STATE_PAUSED = 2;
+    /**
+     * 动画结束
+     */
     public static final int ANIMATE_STATE_STOPPED = 3;
 
-    public static final int BINDING_STOP_DISMISS = 1;
-    public static final int BINDING_DISMISS_STOP = 2;
+    /**
+     * 动画结束时关闭ShowData
+     */
+    public static final int BINDING_FLAG_STOP_DISMISS = 1;
+    /**
+     * ShowData关闭时结束动画
+     */
+    public static final int BINDING_FLAG_DISMISS_STOP = 2;
 
     private int zOrder;
     private Logger logger;
@@ -46,12 +62,8 @@ public abstract class AnimateSegment extends TimeController {
         return animateState;
     }
 
-    public boolean addAnimateStateWatcher(AnimateStateWatcher watcher) {
-        return animateStateRegistry.register(watcher);
-    }
-
-    public boolean removeAnimateStateWatcher(AnimateStateWatcher watcher) {
-        return animateStateRegistry.unregister(watcher);
+    public Registry<AnimateStateWatcher> getAnimateStateRegistry() {
+        return animateStateRegistry;
     }
 
     /**
@@ -82,6 +94,13 @@ public abstract class AnimateSegment extends TimeController {
         return setAnimateState(ANIMATE_STATE_STOPPED);
     }
 
+    /**
+     * 绑定动画和ShowData以实现二者的协同结束
+     *
+     * @param bindingData
+     * @param animateLayout
+     * @return
+     */
     public ScheduleBinding bindShowData(ShowData bindingData, AnimateLayout animateLayout) {
         if (renderer != null && renderer != animateLayout) {
             logger.concat(LogLevel.Error, "failed to bind animate segment(", this, ") to show data: ", bindingData);
@@ -132,6 +151,11 @@ public abstract class AnimateSegment extends TimeController {
         }
     }
 
+    /**
+     * 参考{@link View#setLayerType(int, Paint)}。子类可按需重写此方法。
+     *
+     * @return
+     */
     protected int getLayerType() {
         return View.LAYER_TYPE_NONE;
     }
@@ -159,7 +183,7 @@ public abstract class AnimateSegment extends TimeController {
 
         public ScheduleBinding(ShowData bindingData, AnimateLayout animateLayout) {
             super(false);
-            addFlag(BINDING_STOP_DISMISS | BINDING_DISMISS_STOP);
+            addFlag(BINDING_FLAG_STOP_DISMISS | BINDING_FLAG_DISMISS_STOP);
             this.bindingData = bindingData;
             this.animateLayout = animateLayout;
             Integer dataState = bindingData.getState().getValue();
@@ -169,23 +193,31 @@ public abstract class AnimateSegment extends TimeController {
                     break;
                 case STATE_DISMISS:
                 case STATE_DEQUEUE:
-                    if (hasFlag(BINDING_DISMISS_STOP)) {
+                    if (hasFlag(BINDING_FLAG_DISMISS_STOP)) {
                         setAnimateState(ANIMATE_STATE_STOPPED);
                     }
                     break;
             }
             bindingData.getState().addWatcher(this);
-            addAnimateStateWatcher(this);
+            getAnimateStateRegistry().register(this);
         }
 
         public void unbind() {
             if (bindingData != null) {
                 bindingData.getState().removeWatcher(this);
             }
-            removeAnimateStateWatcher(this);
+            getAnimateStateRegistry().unregister(this);
             bindingData = null;
             animateLayout = null;
             binding = null;
+        }
+
+        public ShowData getBindingData() {
+            return bindingData;
+        }
+
+        public AnimateSegment getAnimateSegment() {
+            return AnimateSegment.this;
         }
 
         @Override
@@ -196,7 +228,7 @@ public abstract class AnimateSegment extends TimeController {
                     break;
                 case STATE_DEQUEUE:
                 case STATE_DISMISS:
-                    if (hasFlag(BINDING_DISMISS_STOP)) {
+                    if (hasFlag(BINDING_FLAG_DISMISS_STOP)) {
                         setAnimateState(ANIMATE_STATE_STOPPED);
                     }
                     unbind();
@@ -208,7 +240,7 @@ public abstract class AnimateSegment extends TimeController {
         public void onAnimateStateChange(AnimateSegment animateSegment, int toState, int fromState) {
             if (animateState == ANIMATE_STATE_STOPPED) {
                 if (bindingData != null) {
-                    if (hasFlag(BINDING_STOP_DISMISS)) {
+                    if (hasFlag(BINDING_FLAG_STOP_DISMISS)) {
                         bindingData.dismiss(0);
                     }
                 }

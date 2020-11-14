@@ -226,7 +226,7 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
             this.animateSegment = segment;
             setLayerType(segment.getLayerType(), null);
             segment.prepare();
-            segment.addAnimateStateWatcher(this);
+            segment.getAnimateStateRegistry().register(this);
             segment.setAnimateState(AnimateSegment.ANIMATE_STATE_PLAYING);
             animateCount.setValue(animateCounter.incrementAndGet());
         }
@@ -278,7 +278,8 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
                         dropTimer.refresh(this);
                         drawingOrder.clear();
                         Singletons.get(UiScheduleRunner.class).run(this);
-                        animateSegment.removeAnimateStateWatcher(this);
+                        animateSegment.getAnimateStateRegistry().unregister(this);
+                        setLayerType(View.LAYER_TYPE_NONE, null);
                         this.animateSegment = null;
                         animateCount.setValue(animateCounter.decrementAndGet());
                         break;
