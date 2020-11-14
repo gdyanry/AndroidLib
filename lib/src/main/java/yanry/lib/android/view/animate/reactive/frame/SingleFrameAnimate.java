@@ -12,12 +12,17 @@ import yanry.lib.java.model.task.SingleThreadExecutor;
 public abstract class SingleFrameAnimate extends AsyncInitAnimate implements Runnable {
     private Drawable frame;
 
-    public SingleFrameAnimate(SingleThreadExecutor initExecutor) {
-        super(initExecutor);
+    public SingleFrameAnimate(SingleThreadExecutor decoder) {
+        super(decoder);
     }
 
-    protected void drawFrame(Canvas canvas, Drawable bitmap) {
-        bitmap.draw(canvas);
+    protected long drawFrame(Canvas canvas, Drawable frame) {
+        if (frame == null) {
+            getLogger().ee("decode frame failed for animate: ", this);
+        } else {
+            frame.draw(canvas);
+        }
+        return 0;
     }
 
     protected abstract Drawable decodeFrame();
@@ -31,12 +36,10 @@ public abstract class SingleFrameAnimate extends AsyncInitAnimate implements Run
 
     @Override
     protected final long doDraw(Canvas canvas) {
-        init();
-        if (frame != null) {
-            drawFrame(canvas, frame);
-        } else {
-            getLogger().ee("decode frame failed for animate: ", this);
+        if (frame == null) {
+            getLogger().ww("async decode frame failed for animate: ", this);
+            frame = decodeFrame();
         }
-        return 0;
+        return drawFrame(canvas, frame);
     }
 }
