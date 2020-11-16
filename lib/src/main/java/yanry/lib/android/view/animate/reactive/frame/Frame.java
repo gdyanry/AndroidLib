@@ -53,7 +53,10 @@ public class Frame implements Runnable {
     @Override
     public void run() {
         if (bmpLock != null) {
-            bmpLock.get(bitmap).compareAndSet(FrameAnimate.BMP_STATE_TO_BE_IDLE, FrameAnimate.BMP_STATE_IDLE);
+            AtomicInteger bmpState = bmpLock.get(bitmap);
+            if (bmpState != null) {
+                bmpState.compareAndSet(FrameAnimate.BMP_STATE_TO_BE_IDLE, FrameAnimate.BMP_STATE_IDLE);
+            }
         }
     }
 }

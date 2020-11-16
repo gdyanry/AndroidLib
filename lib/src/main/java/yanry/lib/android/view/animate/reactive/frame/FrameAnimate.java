@@ -29,13 +29,13 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
 
     private AnimateFrameSource source;
     private SingleThreadExecutor decoder;
-    private int cacheCapacity;
-    private BitmapFactory.Options options;
-    private ValueHolderImpl<Frame> currentFrame;
+    private int cacheCapacity = 1;
+    private BitmapFactory.Options options = new BitmapFactory.Options();
+    private ValueHolderImpl<Frame> currentFrame = new ValueHolderImpl<>();
 
-    private Queue<Frame> cacheQueue;
-    private SparseArray<Frame> presetFrames;
-    private HashMap<Bitmap, AtomicInteger> bmpLock;
+    private Queue<Frame> cacheQueue = new ConcurrentLinkedQueue<>();
+    private SparseArray<Frame> presetFrames = new SparseArray<>();
+    private BitmapLock bmpLock = new BitmapLock();
 
     private int decodeCounter;
 
@@ -52,13 +52,7 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
     public FrameAnimate(AnimateFrameSource source, SingleThreadExecutor decoder) {
         this.source = source;
         this.decoder = decoder;
-        this.cacheCapacity = 1;
-        this.cacheQueue = new ConcurrentLinkedQueue<>();
-        presetFrames = new SparseArray<>();
-        bmpLock = new HashMap<>();
-        options = new BitmapFactory.Options();
         options.inMutable = true;
-        currentFrame = new ValueHolderImpl<>();
         decoder.enqueue(this, false);
     }
 
@@ -170,6 +164,7 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
     protected void prepare() {
         super.prepare();
         decodeCounter = startIndex;
+        lockCurrentFrame(false);
         decoder.enqueue(this, true);
     }
 
@@ -178,8 +173,8 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
         super.onStateChange(to, from);
         if (to == ANIMATE_STATE_STOPPED) {
             cacheQueue.clear();
-            bmpLock.clear();
             currentFrame.setValue(null);
+            bmpLock.clear();
         }
     }
 
@@ -199,8 +194,11 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
                 Frame previousFrame = currentFrame.setValue(poll);
                 if (!Objects.equals(previousFrame, poll) && previousFrame != null && previousFrame.isRecyclable()) {
                     // bitmap回收利用
-                    bmpLock.get(previousFrame.getBitmap()).compareAndSet(BMP_STATE_IN_USE, BMP_STATE_TO_BE_IDLE);
-                    decoder.enqueue(previousFrame, false);
+                    AtomicInteger bmpState = bmpLock.get(previousFrame.getBitmap());
+                    if (bmpState != null) {
+                        bmpState.compareAndSet(BMP_STATE_IN_USE, BMP_STATE_TO_BE_IDLE);
+                        decoder.enqueue(previousFrame, false);
+                    }
                 }
             }
         }
@@ -260,6 +258,18 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
             if (cacheQueue.size() < cacheCapacity) {
                 decoder.enqueue(this, false);
             }
+        }
+    }
+
+    private class BitmapLock extends HashMap<Bitmap, AtomicInteger> implements Runnable {
+        @Override
+        public void clear() {
+            decoder.enqueue(this, false);
+        }
+
+        @Override
+        public void run() {
+            super.clear();
         }
     }
 }
