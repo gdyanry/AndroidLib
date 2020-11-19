@@ -63,6 +63,15 @@ public class SequentialAnimateSet extends AnimateSegment implements AnimateState
     }
 
     @Override
+    protected boolean supportExitAnimate() {
+        AnimateSegment animateSegment = segments.peekFirst();
+        if (animateSegment != null) {
+            return animateSegment.supportExitAnimate();
+        }
+        return false;
+    }
+
+    @Override
     protected long draw(Canvas canvas) {
         AnimateSegment first = segments.peekFirst();
         while (first != null) {

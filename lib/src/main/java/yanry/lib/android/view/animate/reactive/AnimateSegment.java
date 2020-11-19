@@ -38,6 +38,11 @@ public abstract class AnimateSegment extends TimeController {
     public static final int ANIMATE_STATE_STOPPED = 3;
 
     /**
+     * 动画正在结束
+     */
+    public static final int ANIMATE_STATE_STOPPING = 4;
+
+    /**
      * 动画结束时关闭ShowData
      */
     public static final int BINDING_FLAG_STOP_DISMISS = 1;
@@ -47,16 +52,12 @@ public abstract class AnimateSegment extends TimeController {
     public static final int BINDING_FLAG_DISMISS_STOP = 2;
 
     private int zOrder;
-    private Logger logger;
+    private Logger logger = Logger.getDefault();
     private int animateState;
-    private Registry<AnimateStateWatcher> animateStateRegistry;
+    private Registry<AnimateStateWatcher> animateStateRegistry = new Registry<>();
     AnimateLayout renderer;
     private ScheduleBinding binding;
-
-    public AnimateSegment() {
-        animateStateRegistry = new Registry<>();
-        logger = Logger.getDefault();
-    }
+    private long elapsedTimeOnStop;
 
     public int getAnimateState() {
         return animateState;
@@ -91,7 +92,14 @@ public abstract class AnimateSegment extends TimeController {
     }
 
     public boolean stopAnimate() {
-        return setAnimateState(ANIMATE_STATE_STOPPED);
+        if (animateState != ANIMATE_STATE_STOPPED) {
+            return setAnimateState(ANIMATE_STATE_STOPPING);
+        }
+        return false;
+    }
+
+    public long getExitElapsedTime() {
+        return elapsedTimeOnStop > 0 ? getElapsedTime() - elapsedTimeOnStop : -1;
     }
 
     /**
@@ -117,8 +125,11 @@ public abstract class AnimateSegment extends TimeController {
         int oldState = this.animateState;
         if (oldState != animateState) {
             this.animateState = animateState;
-            if (animateState == ANIMATE_STATE_STOPPED) {
+            if (animateState == ANIMATE_STATE_STOPPING) {
+                elapsedTimeOnStop = getElapsedTime();
+            } else if (animateState == ANIMATE_STATE_STOPPED) {
                 renderer = null;
+                elapsedTimeOnStop = 0;
             }
             onStateChange(animateState, oldState);
             for (AnimateStateWatcher watcher : animateStateRegistry.getList()) {
@@ -127,6 +138,14 @@ public abstract class AnimateSegment extends TimeController {
             return true;
         }
         return false;
+    }
+
+    long dispatchDraw(Canvas canvas) {
+        if (animateState == ANIMATE_STATE_STOPPING && !supportExitAnimate()) {
+            return -1;
+        } else {
+            return draw(canvas);
+        }
     }
 
     /**
@@ -161,6 +180,13 @@ public abstract class AnimateSegment extends TimeController {
     }
 
     /**
+     * @return 是否支持退场动画
+     */
+    protected boolean supportExitAnimate() {
+        return false;
+    }
+
+    /**
      * 绘制动画的当前帧。
      *
      * @param canvas 画布
@@ -170,10 +196,12 @@ public abstract class AnimateSegment extends TimeController {
 
     @Override
     public void setPause(boolean pause) {
-        if (animateState != ANIMATE_STATE_STOPPED) {
-            setAnimateState(pause ? ANIMATE_STATE_PAUSED : ANIMATE_STATE_PLAYING);
-        } else {
+        if (animateState == ANIMATE_STATE_STOPPED) {
             logger.concat(LogLevel.Warn, "fail to ", pause ? "pause" : "resume", " a stopped animate: ", this);
+        } else if (animateState == ANIMATE_STATE_STOPPING) {
+            logger.concat(LogLevel.Warn, "fail to ", pause ? "pause" : "resume", " a stopping animate: ", this);
+        } else {
+            setAnimateState(pause ? ANIMATE_STATE_PAUSED : ANIMATE_STATE_PLAYING);
         }
     }
 
@@ -193,8 +221,8 @@ public abstract class AnimateSegment extends TimeController {
                     break;
                 case STATE_DISMISS:
                 case STATE_DEQUEUE:
-                    if (hasFlag(BINDING_FLAG_DISMISS_STOP)) {
-                        setAnimateState(ANIMATE_STATE_STOPPED);
+                    if (hasFlag(BINDING_FLAG_DISMISS_STOP) && animateState != ANIMATE_STATE_STOPPED) {
+                        setAnimateState(ANIMATE_STATE_STOPPING);
                     }
                     break;
             }
@@ -228,8 +256,8 @@ public abstract class AnimateSegment extends TimeController {
                     break;
                 case STATE_DEQUEUE:
                 case STATE_DISMISS:
-                    if (hasFlag(BINDING_FLAG_DISMISS_STOP)) {
-                        setAnimateState(ANIMATE_STATE_STOPPED);
+                    if (hasFlag(BINDING_FLAG_DISMISS_STOP) && animateState != ANIMATE_STATE_STOPPED) {
+                        setAnimateState(ANIMATE_STATE_STOPPING);
                     }
                     unbind();
                     break;
@@ -238,7 +266,7 @@ public abstract class AnimateSegment extends TimeController {
 
         @Override
         public void onAnimateStateChange(AnimateSegment animateSegment, int toState, int fromState) {
-            if (animateState == ANIMATE_STATE_STOPPED) {
+            if (animateState == ANIMATE_STATE_STOPPING || animateState == ANIMATE_STATE_STOPPED) {
                 if (bindingData != null) {
                     if (hasFlag(BINDING_FLAG_STOP_DISMISS)) {
                         bindingData.dismiss(0);

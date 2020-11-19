@@ -240,8 +240,8 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
             if (animateSegment != null) {
                 int state = animateSegment.getAnimateState();
                 if (state != AnimateSegment.ANIMATE_STATE_STOPPED) {
-                    long nextFrameDelay = animateSegment.draw(canvas);
-                    if (nextFrameDelay > 0 && state == AnimateSegment.ANIMATE_STATE_PLAYING) {
+                    long nextFrameDelay = animateSegment.dispatchDraw(canvas);
+                    if (nextFrameDelay > 0 && (state == AnimateSegment.ANIMATE_STATE_PLAYING || state == AnimateSegment.ANIMATE_STATE_STOPPING)) {
                         Singletons.get(UiScheduleRunner.class).schedule(this, nextFrameDelay);
                     } else if (nextFrameDelay == 0) {
                         animateSegment.setAnimateState(AnimateSegment.ANIMATE_STATE_PAUSED);
@@ -271,6 +271,7 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
             if (animateSegment == this.animateSegment) {
                 switch (toState) {
                     case AnimateSegment.ANIMATE_STATE_PLAYING:
+                    case AnimateSegment.ANIMATE_STATE_STOPPING:
                         Singletons.get(UiScheduleRunner.class).run(this);
                         break;
                     case AnimateSegment.ANIMATE_STATE_STOPPED:
