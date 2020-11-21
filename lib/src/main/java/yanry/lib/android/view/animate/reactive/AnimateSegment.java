@@ -125,11 +125,21 @@ public abstract class AnimateSegment extends TimeController {
         int oldState = this.animateState;
         if (oldState != animateState) {
             this.animateState = animateState;
-            if (animateState == ANIMATE_STATE_STOPPING) {
-                elapsedTimeOnStop = getElapsedTime();
-            } else if (animateState == ANIMATE_STATE_STOPPED) {
-                renderer = null;
-                elapsedTimeOnStop = 0;
+            switch (animateState) {
+                case ANIMATE_STATE_PAUSED:
+                    super.setPause(true);
+                    break;
+                case ANIMATE_STATE_PLAYING:
+                    super.setPause(false);
+                    break;
+                case ANIMATE_STATE_STOPPED:
+                    renderer = null;
+                    elapsedTimeOnStop = 0;
+                    break;
+                case ANIMATE_STATE_STOPPING:
+                    super.setPause(false);
+                    elapsedTimeOnStop = getElapsedTime();
+                    break;
             }
             onStateChange(animateState, oldState);
             for (AnimateStateWatcher watcher : animateStateRegistry.getList()) {
@@ -163,11 +173,6 @@ public abstract class AnimateSegment extends TimeController {
      * @param from
      */
     protected void onStateChange(int to, int from) {
-        if (to == ANIMATE_STATE_PAUSED) {
-            super.setPause(true);
-        } else if (to == ANIMATE_STATE_PLAYING) {
-            super.setPause(false);
-        }
     }
 
     /**
