@@ -184,14 +184,7 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
             Frame poll = cacheQueue.poll();
             if (poll == null) {
                 if (isEnd()) {
-                    // 若fillEnd为true则停留在最后一帧
-                    if (fillEnd) {
-                        return 0;
-                    }
-                    if (!supportExitAnimate()) {
-                        // 结束动画
-                        return -1;
-                    }
+                    // 若fillEnd为true则停留在最后一帧，否则结束动画
                     return fillEnd ? 0 : -1;
                 } else {
                     getLogger().dd("decoding is slower than drawing: ", source, " - ", decodeCounter, '/', source.getFrameCount());
