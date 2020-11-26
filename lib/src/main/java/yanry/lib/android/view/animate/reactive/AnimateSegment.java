@@ -68,11 +68,14 @@ public abstract class AnimateSegment extends TimeController {
     }
 
     /**
-     * 设置该动画所在的z轴坐标，z值大的动画会覆盖在z值小的动画上面。
+     * 设置该动画所在的z轴坐标，z值大的动画会覆盖在z值小的动画上面，不能为负数。
      *
      * @param zOrder
      */
     public void setZOrder(int zOrder) {
+        if (zOrder < 0) {
+            throw new IllegalArgumentException("invalid z-order: " + zOrder);
+        }
         this.zOrder = zOrder;
     }
 

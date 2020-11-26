@@ -10,27 +10,25 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.cache.CacheTimer;
 import yanry.lib.java.model.log.LogLevel;
-import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.ValueHolder;
 import yanry.lib.java.model.watch.ValueHolderImpl;
 
 /**
  * Created by yanry on 2020/4/27.
  */
-public class AnimateLayout extends FrameLayout implements Comparator<View> {
+public class AnimateLayout extends FrameLayout {
     private CacheTimer<AnimateView> dropTimer;
-    private AtomicInteger animateCounter;
-    private ValueHolderImpl<Integer> animateCount;
-    private SparseIntArray drawingOrder;
+    private AtomicInteger animateCounter = new AtomicInteger();
+    private ValueHolderImpl<Integer> animateCount = new ValueHolderImpl<>(0);
+    private SparseIntArray drawingOrder = new SparseIntArray();
+    private LinkedList<AnimateView> availableTemp = new LinkedList<>();
 
     public AnimateLayout(@NonNull Context context) {
         super(context);
@@ -50,10 +48,6 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
                 removeView(tag);
             }
         };
-        animateCounter = new AtomicInteger();
-        animateCount = new ValueHolderImpl<>(0);
-        drawingOrder = new SparseIntArray();
-        setChildrenDrawingOrderEnabled(true);
     }
 
     /**
@@ -68,35 +62,59 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
             segment.getLogger().concat(LogLevel.Error, "segment (", segment, ") is showing in another layout: ", segment.renderer);
             return false;
         }
-        int index = 0;
+        int fromZOrder = 0;
+        int toZOrder = 0;
         int childCount = getChildCount();
-        AnimateView selectedView = null;
-        for (int i = 0; i < childCount; i++) {
+        int i = 0;
+        int zOrder = segment.getZOrder();
+        for (; i < childCount; i++) {
             View child = getChildAt(i);
             if (child instanceof AnimateView) {
                 AnimateView animateView = (AnimateView) child;
                 if (!animateView.isShowing()) {
-                    index = i;
-                    selectedView = animateView;
-                } else if (segment == animateView.animateSegment) {
-                    segment.getLogger().concat(LogLevel.Debug, "segment (", segment, ") is already showing.");
-                    if (refreshIfShowing) {
-                        Singletons.get(UiScheduleRunner.class).run(animateView);
-                        return true;
-                    } else {
-                        return false;
+                    availableTemp.add(animateView);
+                } else {
+                    if (segment == animateView.animateSegment) {
+                        segment.getLogger().concat(LogLevel.Debug, "segment (", segment, ") is already showing.");
+                        availableTemp.clear();
+                        if (refreshIfShowing) {
+                            Singletons.get(UiScheduleRunner.class).run(animateView);
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                    int order = animateView.animateSegment.getZOrder();
+                    if (order > zOrder) {
+                        toZOrder = order;
+                        break;
+                    } else if (order < zOrder) {
+                        fromZOrder = order;
+                        availableTemp.clear();
                     }
                 }
             }
         }
+        AnimateView selectedView = null;
+        int size = availableTemp.size();
+        if (size == 1) {
+            selectedView = availableTemp.get(0);
+        } else if (size > 1) {
+            if (toZOrder == 0) {
+                selectedView = availableTemp.get(Math.min(size - 1, zOrder - fromZOrder));
+            } else {
+                selectedView = availableTemp.get((zOrder - fromZOrder) * size / (toZOrder - fromZOrder));
+            }
+        }
         if (selectedView != null) {
-            segment.getLogger().concat(LogLevel.Verbose, "select available view ", selectedView.hashCode(), " at index ", index, "(", animateCounter.get(), "/", childCount, ",z=", segment.getZOrder(), ") to render segment: ", segment);
+            availableTemp.clear();
+            segment.getLogger().concat(LogLevel.Verbose, "select available view ", selectedView.hashCode(), " at index ", indexOfChild(selectedView), "(", animateCounter.get(), "/", childCount, ",z=", zOrder, ") to render segment: ", segment);
             selectedView.bind(segment);
             invalidate();
         } else {
             AnimateView animateView = new AnimateView(getContext());
-            addView(animateView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView.hashCode(), " at index ", childCount, "(animateCount=", animateCounter.get(), ",z=", segment.getZOrder(), ") to render segment: ", segment);
+            addView(animateView, i, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView.hashCode(), " at index ", i, "(", animateCounter.get(), "/", childCount, ",z=", zOrder, ") to render segment: ", segment);
             animateView.bind(segment);
         }
         return true;
@@ -155,63 +173,8 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
         super.onDetachedFromWindow();
     }
 
-    @Override
-    protected int getChildDrawingOrder(int childCount, int i) {
-        if (drawingOrder.size() != childCount) {
-            drawingOrder.clear();
-            ArrayList<View> temp = new ArrayList<>(childCount);
-            for (int j = 0; j < childCount; j++) {
-                temp.add(getChildAt(j));
-            }
-            Collections.sort(temp, this);
-            for (int j = 0; j < temp.size(); j++) {
-                View view = temp.get(j);
-                drawingOrder.put(indexOfChild(view), j);
-            }
-            Logger.getDefault().vv("drawing order: ", drawingOrder);
-        }
-        return drawingOrder.get(i);
-    }
-
-    @Override
-    public int compare(View o1, View o2) {
-        if (o1 instanceof AnimateView) {
-            if (o2 instanceof AnimateView) {
-                AnimateView animateView1 = (AnimateView) o1;
-                AnimateView animateView2 = (AnimateView) o2;
-                if (animateView1.animateSegment != null) {
-                    if (animateView2.animateSegment != null) {
-                        int zOrder1 = animateView1.animateSegment.getZOrder();
-                        int zOrder2 = animateView2.animateSegment.getZOrder();
-                        if (zOrder1 == zOrder2) {
-                            return (int) (animateView1.bindTime - animateView2.bindTime);
-                        } else {
-                            return zOrder1 - zOrder2;
-                        }
-                    } else {
-                        // 未绑定动画的放下面
-                        return 1;
-                    }
-                } else {
-                    if (animateView2.animateSegment != null) {
-                        return -1;
-                    } else {
-                        return 0;
-                    }
-                }
-            } else {
-                // 非AnimateView放下面
-                return 1;
-            }
-        } else {
-            // 非AnimateView放下面
-            return -1;
-        }
-    }
-
     private class AnimateView extends View implements Runnable, AnimateStateWatcher {
         private AnimateSegment animateSegment;
-        private long bindTime;
 
         public AnimateView(Context context) {
             super(context);
@@ -220,7 +183,6 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
 
         private void bind(AnimateSegment segment) {
             drawingOrder.clear();
-            bindTime = System.currentTimeMillis();
             dropTimer.invalid(this);
             segment.renderer = AnimateLayout.this;
             this.animateSegment = segment;
@@ -233,6 +195,18 @@ public class AnimateLayout extends FrameLayout implements Comparator<View> {
 
         private boolean isShowing() {
             return animateSegment != null && animateSegment.getAnimateState() != AnimateSegment.ANIMATE_STATE_STOPPED;
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            animateSegment.getLogger().dd(hashCode(), " onMeasure");
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
+
+        @Override
+        protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+            animateSegment.getLogger().dd(hashCode(), " onLayout");
+            super.onLayout(changed, left, top, right, bottom);
         }
 
         @Override
