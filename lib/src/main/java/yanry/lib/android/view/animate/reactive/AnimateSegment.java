@@ -38,7 +38,7 @@ public abstract class AnimateSegment extends TimeController {
     public static final int ANIMATE_STATE_STOPPED = 3;
 
     /**
-     * 动画正在结束
+     * 动画正在结束，只有当{@link #isSupportExitAnimate()}返回true时才会出现此状态
      */
     public static final int ANIMATE_STATE_STOPPING = 4;
 
@@ -95,8 +95,12 @@ public abstract class AnimateSegment extends TimeController {
     }
 
     public boolean stopAnimate() {
-        if (animateState != ANIMATE_STATE_STOPPED) {
-            return setAnimateState(ANIMATE_STATE_STOPPING);
+        if (isSupportExitAnimate()) {
+            if (animateState != ANIMATE_STATE_STOPPED) {
+                return setAnimateState(ANIMATE_STATE_STOPPING);
+            }
+        } else {
+            return setAnimateState(ANIMATE_STATE_STOPPED);
         }
         return false;
     }
@@ -153,14 +157,6 @@ public abstract class AnimateSegment extends TimeController {
         return false;
     }
 
-    long dispatchDraw(Canvas canvas) {
-        if (animateState == ANIMATE_STATE_STOPPING && !supportExitAnimate()) {
-            return -1;
-        } else {
-            return draw(canvas);
-        }
-    }
-
     /**
      * 准备开始绘制。
      */
@@ -190,7 +186,7 @@ public abstract class AnimateSegment extends TimeController {
     /**
      * @return 是否支持退场动画
      */
-    protected boolean supportExitAnimate() {
+    protected boolean isSupportExitAnimate() {
         return false;
     }
 
@@ -229,8 +225,8 @@ public abstract class AnimateSegment extends TimeController {
                     break;
                 case STATE_DISMISS:
                 case STATE_DEQUEUE:
-                    if (hasFlag(BINDING_FLAG_DISMISS_STOP) && animateState != ANIMATE_STATE_STOPPED) {
-                        setAnimateState(ANIMATE_STATE_STOPPING);
+                    if (hasFlag(BINDING_FLAG_DISMISS_STOP)) {
+                        stopAnimate();
                     }
                     break;
             }
@@ -264,8 +260,8 @@ public abstract class AnimateSegment extends TimeController {
                     break;
                 case STATE_DEQUEUE:
                 case STATE_DISMISS:
-                    if (hasFlag(BINDING_FLAG_DISMISS_STOP) && animateState != ANIMATE_STATE_STOPPED) {
-                        setAnimateState(ANIMATE_STATE_STOPPING);
+                    if (hasFlag(BINDING_FLAG_DISMISS_STOP)) {
+                        stopAnimate();
                     }
                     unbind();
                     break;

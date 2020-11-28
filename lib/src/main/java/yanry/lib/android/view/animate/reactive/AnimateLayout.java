@@ -3,7 +3,6 @@ package yanry.lib.android.view.animate.reactive;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
-import android.util.SparseIntArray;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -17,37 +16,33 @@ import yanry.lib.android.model.runner.UiScheduleRunner;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.cache.CacheTimer;
 import yanry.lib.java.model.log.LogLevel;
+import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.ValueHolder;
 import yanry.lib.java.model.watch.ValueHolderImpl;
 
 /**
+ * 动画布局，用于绘制{@link AnimateSegment}。
+ * <p>
  * Created by yanry on 2020/4/27.
  */
 public class AnimateLayout extends FrameLayout {
-    private CacheTimer<AnimateView> dropTimer;
+    private CacheTimer<AnimateView> dropTimer = new CacheTimer<AnimateView>(Singletons.get(UiScheduleRunner.class)) {
+        @Override
+        protected void onTimeout(AnimateView tag) {
+            Logger.getDefault().dd("remove animate view: ", tag.hashCode());
+            removeView(tag);
+        }
+    };
     private AtomicInteger animateCounter = new AtomicInteger();
     private ValueHolderImpl<Integer> animateCount = new ValueHolderImpl<>(0);
-    private SparseIntArray drawingOrder = new SparseIntArray();
     private LinkedList<AnimateView> availableTemp = new LinkedList<>();
 
     public AnimateLayout(@NonNull Context context) {
         super(context);
-        init();
     }
 
     public AnimateLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init();
-    }
-
-    private void init() {
-        dropTimer = new CacheTimer<AnimateView>(Singletons.get(UiScheduleRunner.class)) {
-            @Override
-            protected void onTimeout(AnimateView tag) {
-                drawingOrder.clear();
-                removeView(tag);
-            }
-        };
     }
 
     /**
@@ -182,7 +177,6 @@ public class AnimateLayout extends FrameLayout {
         }
 
         private void bind(AnimateSegment segment) {
-            drawingOrder.clear();
             dropTimer.invalid(this);
             segment.renderer = AnimateLayout.this;
             this.animateSegment = segment;
@@ -198,23 +192,11 @@ public class AnimateLayout extends FrameLayout {
         }
 
         @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            animateSegment.getLogger().dd(hashCode(), " onMeasure");
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        }
-
-        @Override
-        protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-            animateSegment.getLogger().dd(hashCode(), " onLayout");
-            super.onLayout(changed, left, top, right, bottom);
-        }
-
-        @Override
         protected void onDraw(Canvas canvas) {
             if (animateSegment != null) {
                 int state = animateSegment.getAnimateState();
                 if (state != AnimateSegment.ANIMATE_STATE_STOPPED) {
-                    long nextFrameDelay = animateSegment.dispatchDraw(canvas);
+                    long nextFrameDelay = animateSegment.draw(canvas);
                     if (nextFrameDelay > 0 && (state == AnimateSegment.ANIMATE_STATE_PLAYING || state == AnimateSegment.ANIMATE_STATE_STOPPING)) {
                         Singletons.get(UiScheduleRunner.class).schedule(this, nextFrameDelay);
                     } else if (nextFrameDelay == 0) {
@@ -251,7 +233,6 @@ public class AnimateLayout extends FrameLayout {
                     case AnimateSegment.ANIMATE_STATE_STOPPED:
                         animateSegment.getLogger().concat(LogLevel.Verbose, "unbind segment from view ", hashCode(), ": ", animateSegment);
                         dropTimer.refresh(this);
-                        drawingOrder.clear();
                         Singletons.get(UiScheduleRunner.class).run(this);
                         animateSegment.getAnimateStateRegistry().unregister(this);
                         setLayerType(View.LAYER_TYPE_NONE, null);

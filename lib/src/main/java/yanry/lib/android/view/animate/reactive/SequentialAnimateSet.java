@@ -63,10 +63,10 @@ public class SequentialAnimateSet extends AnimateSegment implements AnimateState
     }
 
     @Override
-    protected boolean supportExitAnimate() {
+    protected boolean isSupportExitAnimate() {
         AnimateSegment animateSegment = segments.peekFirst();
         if (animateSegment != null) {
-            return animateSegment.supportExitAnimate();
+            return animateSegment.isSupportExitAnimate();
         }
         return false;
     }
