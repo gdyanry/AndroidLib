@@ -87,7 +87,9 @@ public class NetworkManager {
         public void run() {
             NetworkInfo networkInfo = getActiveNetworkInfo();
             Logger.getDefault().dd("active network info(", retryCount, "): ", networkInfo);
-            if (!internetAvailability.setValue(networkInfo != null && networkInfo.isConnected()) && ++retryCount < 3) {
+            internetAvailability.setValue(networkInfo != null && networkInfo.isConnected());
+            // 多检测几次，防止判断错误
+            if (++retryCount < 3) {
                 Singletons.get(UiScheduleRunner.class).schedule(this, 3000);
             }
         }
