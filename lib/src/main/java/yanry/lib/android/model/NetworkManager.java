@@ -27,7 +27,9 @@ public class NetworkManager {
 
     public NetworkManager(Context context) {
         manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        internetAvailability = new BooleanHolderImpl();
+        NetworkInfo networkInfo = getActiveNetworkInfo();
+        Logger.getDefault().ii("active network info: ", networkInfo);
+        internetAvailability = new BooleanHolderImpl(networkInfo != null && networkInfo.isConnected());
         manager.registerNetworkCallback(new NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), new Callback());
     }
 
