@@ -45,7 +45,7 @@ public class BitmapUtil {
         return null;
     }
 
-    public static boolean checkMemory(Options opts, double scale) {
+    public static boolean checkMemory(Options opts, float scale) {
         return opts.outWidth * scale * opts.outHeight * scale * 4 < Runtime.getRuntime().maxMemory()
                 - Runtime.getRuntime().totalMemory();
     }

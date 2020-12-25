@@ -66,7 +66,7 @@ public class BitmapThumb {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         opts.inJustDecodeBounds = true;
         Bitmap bitmap = decoder.decode(opts);// 此时返回bm为空
-        double scale = 1;
+        float scale = 1;
         if (width != null || height != null) {
             // choose the right dimension to apply scaling
             ThumbDimension validDimen;
@@ -75,8 +75,8 @@ public class BitmapThumb {
             } else if (height == null) {
                 validDimen = width;
             } else {
-                double widthScale = width.getScale(opts.outWidth);
-                double heightScale = height.getScale(opts.outHeight);
+                float widthScale = width.getScale(opts.outWidth);
+                float heightScale = height.getScale(opts.outHeight);
                 validDimen = (useNearScale ^ (widthScale > heightScale)) ? height : width;
             }
             int originDimen = validDimen == width ? opts.outWidth : opts.outHeight;

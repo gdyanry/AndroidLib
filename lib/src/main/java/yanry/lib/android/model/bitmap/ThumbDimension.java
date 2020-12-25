@@ -57,14 +57,14 @@ public class ThumbDimension {
         return this;
     }
 
-    public double getScale(int originDimen) {
+    public float getScale(int originDimen) {
         switch (type) {
             case RoundFar:
-                return 1.0 / roundSampleSize((int) Math.ceil(originDimen * 1.0 / value), true);
+                return 1.0f / roundSampleSize((int) Math.ceil(originDimen * 1.0 / value), true);
             case RoundNear:
-                return 1.0 / roundSampleSize(originDimen / value, false);
+                return 1.0f / roundSampleSize(originDimen / value, false);
             default:
-                return value * 1.0 / originDimen;
+                return value * 1.0f / originDimen;
         }
     }
 
@@ -77,7 +77,7 @@ public class ThumbDimension {
      * @throws Exception
      */
     public Bitmap createBitmap(int originDimen, Decoder decoder, Options opts, String srcPath) throws Exception {
-        float scale = (float) getScale(originDimen);
+        float scale = getScale(originDimen);
         if (opts == null) {
             opts = new Options();
         } else if (!BitmapUtil.checkMemory(opts, scale)) {
@@ -94,7 +94,7 @@ public class ThumbDimension {
         // do matrix
         if (bitmap != null) {
             Matrix matrix = BitmapUtil.getRotateMatrix(srcPath);
-            if (type == FitType.Exact && value < originDimen) {
+            if (type == FitType.Exact && value < originDimen && opts.inSampleSize != originDimen * 1f / value) {
                 if (matrix == null) {
                     matrix = new Matrix();
                 }
@@ -102,9 +102,10 @@ public class ThumbDimension {
             }
             if (matrix != null) {
                 if (BitmapUtil.checkMemory(opts, scale)) {
+                    Logger.getDefault().dd("convert bitmap: ", matrix);
                     bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
                 } else {
-                    Logger.getDefault().e("not enough memory for bitmap translation");
+                    Logger.getDefault().ee("not enough memory for bitmap translation");
                 }
             }
         }
