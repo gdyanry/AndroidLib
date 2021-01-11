@@ -23,7 +23,7 @@ import android.view.inputmethod.InputMethodManager;
 import java.io.File;
 import java.lang.reflect.Field;
 
-import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.interfaces.BooleanSupplier;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
@@ -119,7 +119,7 @@ public class CommonUtils {
         if (!action.get()) {
             if (--tryTimes > 0) {
                 int finalTryTimes = tryTimes;
-                Singletons.get(UiScheduleRunner.class).postDelayed(() -> retryOnFail(finalTryTimes, interval, action, onFail), interval);
+                Singletons.get(UiRunner.class).postDelayed(() -> retryOnFail(finalTryTimes, interval, action, onFail), interval);
             } else {
                 onFail.run();
             }

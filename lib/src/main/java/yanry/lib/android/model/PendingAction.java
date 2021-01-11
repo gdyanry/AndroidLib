@@ -2,7 +2,7 @@ package yanry.lib.android.model;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.interfaces.BooleanSupplier;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
@@ -29,7 +29,7 @@ public abstract class PendingAction implements Runnable {
             Logger.getDefault().vv("setup fail, action is pending currently!");
         } else {
             mark = atomicInteger.incrementAndGet();
-            Singletons.get(UiScheduleRunner.class).schedule(this, timeout);
+            Singletons.get(UiRunner.class).schedule(this, timeout);
             Logger.getDefault().v("[%s]setup: %s.", mark, timeout);
         }
     }
@@ -38,7 +38,7 @@ public abstract class PendingAction implements Runnable {
         int tempNum = mark;
         if (mark == atomicInteger.get() && (ifStop == null || ifStop.get() && tempNum == atomicInteger.get())) {
             atomicInteger.incrementAndGet();
-            Singletons.get(UiScheduleRunner.class).removeCallbacks(this);
+            Singletons.get(UiRunner.class).removeCallbacks(this);
             Logger.getDefault().v("[%s]finish.", mark);
             onFinish(false);
         }

@@ -53,6 +53,11 @@ public class HandlerThreadRunner extends HandlerThread implements Runner, Execut
     }
 
     @Override
+    public void terminate() {
+        getLooper().quitSafely();
+    }
+
+    @Override
     public void execute(Runnable command) {
         handler.post(command);
     }

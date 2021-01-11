@@ -5,13 +5,15 @@ import android.os.Looper;
 
 import java.util.concurrent.Executor;
 
+import yanry.lib.java.model.log.LogLevel;
+import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.runner.Runner;
 
 /**
  * Created by yanry on 2019/12/11.
  */
-public class UiScheduleRunner extends Handler implements Runner, Executor {
-    public UiScheduleRunner() {
+public class UiRunner extends Handler implements Runner, Executor {
+    public UiRunner() {
         super(Looper.getMainLooper());
     }
 
@@ -34,6 +36,11 @@ public class UiScheduleRunner extends Handler implements Runner, Executor {
     @Override
     public void cancel(Runnable runnable) {
         removeCallbacks(runnable);
+    }
+
+    @Override
+    public void terminate() {
+        Logger.getDefault().concat(LogLevel.Warn, "ui runner is not supposed to be terminated.");
     }
 
     @Override

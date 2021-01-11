@@ -6,7 +6,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.model.FlagsHolder;
 import yanry.lib.java.model.Registry;
 import yanry.lib.java.model.Singletons;
@@ -221,7 +221,7 @@ public abstract class AnimateSegment extends TimeController {
             Integer dataState = bindingData.getState().getValue();
             switch (dataState) {
                 case STATE_SHOWING:
-                    Singletons.get(UiScheduleRunner.class).run(this);
+                    Singletons.get(UiRunner.class).run(this);
                     break;
                 case STATE_DISMISS:
                 case STATE_DEQUEUE:
@@ -256,7 +256,7 @@ public abstract class AnimateSegment extends TimeController {
         public void onValueChange(Integer to, Integer from) {
             switch (to.intValue()) {
                 case STATE_SHOWING:
-                    Singletons.get(UiScheduleRunner.class).run(this);
+                    Singletons.get(UiRunner.class).run(this);
                     break;
                 case STATE_DEQUEUE:
                 case STATE_DISMISS:

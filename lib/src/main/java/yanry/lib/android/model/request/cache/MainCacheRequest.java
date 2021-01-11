@@ -6,7 +6,7 @@ package yanry.lib.android.model.request.cache;
 import java.util.LinkedList;
 import java.util.List;
 
-import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.cache.http.DataSource;
 import yanry.lib.java.model.communication.base.RequestLiveListener;
@@ -60,7 +60,7 @@ public abstract class MainCacheRequest extends AbstractCacheRequest implements R
 	 * This can be call repeatedly.
 	 */
 	public void send() {
-		Singletons.get(UiScheduleRunner.class).run(this);
+		Singletons.get(UiRunner.class).run(this);
 	}
 
 	/**

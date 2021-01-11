@@ -12,7 +12,7 @@ import androidx.annotation.Nullable;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.cache.CacheTimer;
 import yanry.lib.java.model.log.LogLevel;
@@ -26,7 +26,7 @@ import yanry.lib.java.model.watch.ValueHolderImpl;
  * Created by yanry on 2020/4/27.
  */
 public class AnimateLayout extends FrameLayout {
-    private CacheTimer<AnimateView> dropTimer = new CacheTimer<AnimateView>(Singletons.get(UiScheduleRunner.class)) {
+    private CacheTimer<AnimateView> dropTimer = new CacheTimer<AnimateView>(Singletons.get(UiRunner.class)) {
         @Override
         protected void onTimeout(AnimateView tag) {
             Logger.getDefault().dd("remove animate view: ", tag.hashCode());
@@ -73,7 +73,7 @@ public class AnimateLayout extends FrameLayout {
                         segment.getLogger().concat(LogLevel.Debug, "segment (", segment, ") is already showing.");
                         availableTemp.clear();
                         if (refreshIfShowing) {
-                            Singletons.get(UiScheduleRunner.class).run(animateView);
+                            Singletons.get(UiRunner.class).run(animateView);
                             return true;
                         } else {
                             return false;
@@ -198,7 +198,7 @@ public class AnimateLayout extends FrameLayout {
                 if (state != AnimateSegment.ANIMATE_STATE_STOPPED) {
                     long nextFrameDelay = animateSegment.draw(canvas);
                     if (nextFrameDelay > 0 && (state == AnimateSegment.ANIMATE_STATE_PLAYING || state == AnimateSegment.ANIMATE_STATE_STOPPING)) {
-                        Singletons.get(UiScheduleRunner.class).schedule(this, nextFrameDelay);
+                        Singletons.get(UiRunner.class).schedule(this, nextFrameDelay);
                     } else if (nextFrameDelay == 0) {
                         animateSegment.setAnimateState(AnimateSegment.ANIMATE_STATE_PAUSED);
                     } else if (nextFrameDelay < 0) {
@@ -213,7 +213,7 @@ public class AnimateLayout extends FrameLayout {
             if (animateSegment != null) {
                 animateSegment.setAnimateState(AnimateSegment.ANIMATE_STATE_STOPPED);
             }
-            Singletons.get(UiScheduleRunner.class).cancel(this);
+            Singletons.get(UiRunner.class).cancel(this);
             super.onDetachedFromWindow();
         }
 
@@ -228,12 +228,12 @@ public class AnimateLayout extends FrameLayout {
                 switch (toState) {
                     case AnimateSegment.ANIMATE_STATE_PLAYING:
                     case AnimateSegment.ANIMATE_STATE_STOPPING:
-                        Singletons.get(UiScheduleRunner.class).run(this);
+                        Singletons.get(UiRunner.class).run(this);
                         break;
                     case AnimateSegment.ANIMATE_STATE_STOPPED:
                         animateSegment.getLogger().concat(LogLevel.Verbose, "unbind segment from view ", hashCode(), ": ", animateSegment);
                         dropTimer.refresh(this);
-                        Singletons.get(UiScheduleRunner.class).run(this);
+                        Singletons.get(UiRunner.class).run(this);
                         animateSegment.getAnimateStateRegistry().unregister(this);
                         setLayerType(View.LAYER_TYPE_NONE, null);
                         this.animateSegment = null;

@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
-import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.ValueHolder;
@@ -63,7 +63,7 @@ public class RemoteMediaHandler extends MediaController.Callback implements Medi
         if (controllers != null) {
             for (MediaController controller : controllers) {
                 if (Objects.equals(pkgName, controller.getPackageName())) {
-                    controller.registerCallback(this, Singletons.get(UiScheduleRunner.class));
+                    controller.registerCallback(this, Singletons.get(UiRunner.class));
                     newController = controller;
                     break;
                 }

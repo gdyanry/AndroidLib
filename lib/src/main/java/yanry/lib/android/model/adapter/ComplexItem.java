@@ -3,7 +3,7 @@
  */
 package yanry.lib.android.model.adapter;
 
-import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.model.Singletons;
 
 /**
@@ -42,7 +42,7 @@ public abstract class ComplexItem<T, H extends PositionHolder> implements Runnab
 	 * Invoke this in the data_state-change-callback methods if you have set callback on this item.
 	 */
 	public void notifyStateChange() {
-		Singletons.get(UiScheduleRunner.class).run(this);
+		Singletons.get(UiRunner.class).run(this);
 	}
 	
 	public boolean isActive() {

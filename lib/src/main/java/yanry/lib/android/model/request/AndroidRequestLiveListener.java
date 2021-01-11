@@ -3,7 +3,7 @@
  */
 package yanry.lib.android.model.request;
 
-import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.communication.base.RequestLiveListener;
 
@@ -46,7 +46,7 @@ public abstract class AndroidRequestLiveListener implements RequestLiveListener,
 	private synchronized void changeState(RequestState state, Object data) {
 		this.data = data;
 		lastState = state;
-		Singletons.get(UiScheduleRunner.class).run(this);
+		Singletons.get(UiRunner.class).run(this);
 	}
 
 	@Override

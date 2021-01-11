@@ -8,7 +8,7 @@ import android.net.NetworkInfo;
 import android.net.NetworkRequest;
 import android.os.Build;
 
-import yanry.lib.android.model.runner.UiScheduleRunner;
+import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.watch.BooleanHolder;
@@ -76,7 +76,7 @@ public class NetworkManager {
 
         private void updateNetworkState() {
             retryCount = 0;
-            Singletons.get(UiScheduleRunner.class).run(this);
+            Singletons.get(UiRunner.class).run(this);
         }
 
         @Override
@@ -92,7 +92,7 @@ public class NetworkManager {
             internetAvailability.setValue(networkInfo != null && networkInfo.isConnected());
             // 多检测几次，防止判断错误
             if (++retryCount < 3) {
-                Singletons.get(UiScheduleRunner.class).schedule(this, 3000);
+                Singletons.get(UiRunner.class).schedule(this, 3000);
             }
         }
     }
