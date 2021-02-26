@@ -27,8 +27,10 @@ import java.util.List;
 import java.util.UUID;
 
 import yanry.lib.android.model.PendingAction;
-import yanry.lib.android.util.CommonUtils;
+import yanry.lib.android.model.runner.UiRunner;
+import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.log.Logger;
+import yanry.lib.java.model.task.RetryAction;
 
 /**
  * @author rongyu.yan
@@ -134,10 +136,26 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
                 } else if (gatt.setCharacteristicNotification(characteristic, true)) {
                     if (data == null) {
                         Logger.getDefault().d("trying to read characteristic: %s.", characteristic.getUuid());
-                        CommonUtils.retryOnFail(RETRY_TIMES_ON_FAIL, RETRY_INTERVAL, () -> handleCharacteristic(gatt, characteristic, true), () -> {
-                            Logger.getDefault().e("read characteristic fail.");
-                            onConnectionError();
-                        });
+                        new RetryAction(Singletons.get(UiRunner.class), RETRY_TIMES_ON_FAIL) {
+                            @Override
+                            protected long tryAction(int remainingTry) {
+                                if (handleCharacteristic(gatt, characteristic, true)) {
+                                    return -1;
+                                }
+                                return RETRY_INTERVAL;
+                            }
+
+                            @Override
+                            protected void onFail() {
+                                Logger.getDefault().e("read characteristic fail.");
+                                onConnectionError();
+                            }
+
+                            @Override
+                            protected void execute(Runnable runnable) {
+                                runnable.run();
+                            }
+                        }.start();
                     } else {
                         Logger.getDefault().d("sending data (%s): %s", characteristicId.toString().substring(0, 3), data);
                         try {
@@ -165,10 +183,26 @@ public abstract class BleClient extends BluetoothGattCallback implements Bluetoo
     }
 
     private void writeCharacteristic(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
-        CommonUtils.retryOnFail(RETRY_TIMES_ON_FAIL, RETRY_INTERVAL, () -> handleCharacteristic(gatt, characteristic, false), () -> {
-            Logger.getDefault().e("write characteristic fail.");
-            onConnectionError();
-        });
+        new RetryAction(Singletons.get(UiRunner.class), RETRY_TIMES_ON_FAIL) {
+            @Override
+            protected long tryAction(int remainingTry) {
+                if (handleCharacteristic(gatt, characteristic, false)) {
+                    return -1;
+                }
+                return RETRY_INTERVAL;
+            }
+
+            @Override
+            protected void onFail() {
+                Logger.getDefault().e("write characteristic fail.");
+                onConnectionError();
+            }
+
+            @Override
+            protected void execute(Runnable runnable) {
+                runnable.run();
+            }
+        }.start();
     }
 
     private boolean handleCharacteristic(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, boolean isRead) {

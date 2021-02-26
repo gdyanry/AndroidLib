@@ -13,6 +13,9 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.telephony.TelephonyManager;
@@ -21,12 +24,16 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 
-import yanry.lib.android.model.runner.UiRunner;
-import yanry.lib.java.interfaces.BooleanSupplier;
-import yanry.lib.java.model.Singletons;
+import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
+import yanry.lib.java.util.HexUtil;
+import yanry.lib.java.util.IOUtil;
 
 /**
  * @author yanry
@@ -72,6 +79,45 @@ public class CommonUtils {
         return tm.getLine1Number();
     }
 
+    /**
+     * 获取mac地址（适配所有Android版本）
+     *
+     * @return
+     */
+    public static String getMac(Context context) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // Android 6.0 之前（不包括6.0）获取mac地址
+            // 必须的权限 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
+            WifiManager wifi = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+            WifiInfo info = wifi.getConnectionInfo();
+            if (info != null) {
+                return info.getMacAddress();
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            try {
+                return IOUtil.streamToString(Runtime.getRuntime().exec("cat /sys/class/net/wlan0/address").getInputStream(), "utf-8");
+            } catch (IOException e) {
+                Logger.getDefault().catches(e);
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            try {
+                Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+                if (networkInterfaces != null) {
+                    while (networkInterfaces.hasMoreElements()) {
+                        NetworkInterface networkInterface = networkInterfaces.nextElement();
+                        if ("wlan0".equalsIgnoreCase(networkInterface.getName())) {
+                            return HexUtil.bytesToHex(":", networkInterface.getHardwareAddress());
+                        }
+                    }
+                }
+            } catch (SocketException e) {
+                Logger.getDefault().catches(e);
+            }
+        }
+        Logger.getDefault().concat(LogLevel.Error, "fail to get mac address for sdk version: ", Build.VERSION.SDK_INT);
+        return null;
+    }
+
     public static int dip2px(float dipValue) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue,
                 Resources.getSystem().getDisplayMetrics());
@@ -112,17 +158,6 @@ public class CommonUtils {
             return getActivity(((ContextWrapper) context).getBaseContext());
         } else {
             return null;
-        }
-    }
-
-    public static void retryOnFail(int tryTimes, long interval, BooleanSupplier action, Runnable onFail) {
-        if (!action.get()) {
-            if (--tryTimes > 0) {
-                int finalTryTimes = tryTimes;
-                Singletons.get(UiRunner.class).postDelayed(() -> retryOnFail(finalTryTimes, interval, action, onFail), interval);
-            } else {
-                onFail.run();
-            }
         }
     }
 
