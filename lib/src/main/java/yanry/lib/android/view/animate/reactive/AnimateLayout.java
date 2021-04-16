@@ -1,6 +1,7 @@
 package yanry.lib.android.view.animate.reactive;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
@@ -215,6 +216,13 @@ public class AnimateLayout extends FrameLayout {
             }
             Singletons.get(UiRunner.class).cancel(this);
             super.onDetachedFromWindow();
+        }
+
+        @Override
+        protected void onConfigurationChanged(Configuration newConfig) {
+            if (animateSegment != null) {
+                animateSegment.onConfigurationChanged(newConfig);
+            }
         }
 
         @Override
