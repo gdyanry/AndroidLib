@@ -1,5 +1,6 @@
 package yanry.lib.android.view.animate.reactive;
 
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 
 import java.util.LinkedList;
@@ -63,12 +64,29 @@ public class SequentialAnimateSet extends AnimateSegment implements AnimateState
     }
 
     @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        AnimateSegment animateSegment = segments.peekFirst();
+        if (animateSegment != null) {
+            animateSegment.onConfigurationChanged(newConfig);
+        }
+    }
+
+    @Override
+    protected int getLayerType() {
+        AnimateSegment animateSegment = segments.peekFirst();
+        if (animateSegment != null) {
+            return animateSegment.getLayerType();
+        }
+        return super.getLayerType();
+    }
+
+    @Override
     protected boolean isSupportExitAnimate() {
         AnimateSegment animateSegment = segments.peekFirst();
         if (animateSegment != null) {
             return animateSegment.isSupportExitAnimate();
         }
-        return false;
+        return super.isSupportExitAnimate();
     }
 
     @Override

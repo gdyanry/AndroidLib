@@ -1,5 +1,6 @@
 package yanry.lib.android.view.animate.reactive;
 
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.view.View;
@@ -172,6 +173,19 @@ public abstract class AnimateSegment extends TimeController {
      * @param from
      */
     protected void onStateChange(int to, int from) {
+    }
+
+    /**
+     * Called when the current configuration of the resources being used
+     * by the application have changed.  You can use this to decide when
+     * to reload resources that can changed based on orientation and other
+     * configuration characteristics.  You only need to use this if you are
+     * not relying on the normal {@link android.app.Activity} mechanism of
+     * recreating the activity instance upon a configuration change.
+     *
+     * @param newConfig The new resource configuration.
+     */
+    protected void onConfigurationChanged(Configuration newConfig) {
     }
 
     /**
