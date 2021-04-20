@@ -54,8 +54,9 @@ public class AnimateLayout extends FrameLayout {
      * @return 如果该动画已经在显示且refreshIfShowing为false，则返回false，否则返回true。
      */
     public boolean showAnimate(@NonNull AnimateSegment segment, boolean refreshIfShowing) {
-        if (segment.renderer != null && segment.renderer != this) {
-            segment.getLogger().concat(LogLevel.Error, "segment (", segment, ") is showing in another layout: ", segment.renderer);
+        View boundView = segment.getAnimateView();
+        if (boundView != null && boundView.getParent() != this) {
+            segment.getLogger().concat(LogLevel.Error, "segment (", segment, ") is showing in another layout: ", boundView.getParent());
             return false;
         }
         int fromZOrder = 0;
@@ -169,7 +170,7 @@ public class AnimateLayout extends FrameLayout {
         super.onDetachedFromWindow();
     }
 
-    private class AnimateView extends View implements Runnable, AnimateStateWatcher {
+    class AnimateView extends View implements Runnable, AnimateStateWatcher {
         private AnimateSegment animateSegment;
 
         public AnimateView(Context context) {
@@ -179,10 +180,8 @@ public class AnimateLayout extends FrameLayout {
 
         private void bind(AnimateSegment segment) {
             dropTimer.invalid(this);
-            segment.renderer = AnimateLayout.this;
             this.animateSegment = segment;
-            setLayerType(segment.getLayerType(), null);
-            segment.prepare();
+            segment.prepare(this);
             segment.getAnimateStateRegistry().register(this);
             segment.setAnimateState(AnimateSegment.ANIMATE_STATE_PLAYING);
             animateCount.setValue(animateCounter.incrementAndGet());

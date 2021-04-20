@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.util.SparseArray;
+import android.view.View;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -161,8 +162,8 @@ public abstract class FrameAnimate extends AnimateSegment implements Runnable {
     protected abstract long drawBitmap(Canvas canvas, Bitmap bitmap, int index);
 
     @Override
-    protected void prepare() {
-        super.prepare();
+    protected void prepare(View animateView) {
+        super.prepare(animateView);
         decodeCounter = startIndex;
         lockCurrentFrame(false);
         decoder.enqueue(this, true);

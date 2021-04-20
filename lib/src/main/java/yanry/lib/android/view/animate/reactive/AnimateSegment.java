@@ -2,10 +2,10 @@ package yanry.lib.android.view.animate.reactive;
 
 import android.content.res.Configuration;
 import android.graphics.Canvas;
-import android.graphics.Paint;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import yanry.lib.android.model.runner.UiRunner;
 import yanry.lib.java.model.FlagsHolder;
@@ -56,12 +56,22 @@ public abstract class AnimateSegment extends TimeController {
     private Logger logger = Logger.getDefault();
     private int animateState;
     private Registry<AnimateStateWatcher> animateStateRegistry = new Registry<>();
-    AnimateLayout renderer;
+    private View animateView;
     private ScheduleBinding binding;
     private long elapsedTimeOnStop;
 
     public int getAnimateState() {
         return animateState;
+    }
+
+    /**
+     * 获取该动画片断绑定的View，在动画开始播放后以及结束播放之前不为null。
+     *
+     * @return
+     */
+    @Nullable
+    public View getAnimateView() {
+        return animateView;
     }
 
     public Registry<AnimateStateWatcher> getAnimateStateRegistry() {
@@ -118,7 +128,7 @@ public abstract class AnimateSegment extends TimeController {
      * @return
      */
     public ScheduleBinding bindShowData(ShowData bindingData, AnimateLayout animateLayout) {
-        if (renderer != null && renderer != animateLayout) {
+        if (animateView != null && animateView.getParent() != animateLayout) {
             logger.concat(LogLevel.Error, "failed to bind animate segment(", this, ") to show data: ", bindingData);
             return null;
         }
@@ -141,7 +151,6 @@ public abstract class AnimateSegment extends TimeController {
                     super.setPause(false);
                     break;
                 case ANIMATE_STATE_STOPPED:
-                    renderer = null;
                     elapsedTimeOnStop = 0;
                     break;
                 case ANIMATE_STATE_STOPPING:
@@ -153,6 +162,9 @@ public abstract class AnimateSegment extends TimeController {
             for (AnimateStateWatcher watcher : animateStateRegistry.getList()) {
                 watcher.onAnimateStateChange(this, animateState, oldState);
             }
+            if (animateState == ANIMATE_STATE_STOPPED) {
+                animateView = null;
+            }
             return true;
         }
         return false;
@@ -161,7 +173,8 @@ public abstract class AnimateSegment extends TimeController {
     /**
      * 准备开始绘制。
      */
-    protected void prepare() {
+    protected void prepare(View animateView) {
+        this.animateView = animateView;
         animateState = 0;
         seekTo(0);
     }
@@ -186,15 +199,6 @@ public abstract class AnimateSegment extends TimeController {
      * @param newConfig The new resource configuration.
      */
     protected void onConfigurationChanged(Configuration newConfig) {
-    }
-
-    /**
-     * 参考{@link View#setLayerType(int, Paint)}。子类可按需重写此方法。
-     *
-     * @return
-     */
-    protected int getLayerType() {
-        return View.LAYER_TYPE_NONE;
     }
 
     /**

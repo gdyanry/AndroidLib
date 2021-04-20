@@ -2,6 +2,7 @@ package yanry.lib.android.view.animate.reactive;
 
 import android.content.res.Configuration;
 import android.graphics.Canvas;
+import android.view.View;
 
 import java.util.LinkedList;
 
@@ -13,11 +14,7 @@ import yanry.lib.java.model.log.Logger;
  * Created by yanry on 2020/5/8.
  */
 public class SequentialAnimateSet extends AnimateSegment implements AnimateStateWatcher {
-    private LinkedList<AnimateSegment> segments;
-
-    public SequentialAnimateSet() {
-        segments = new LinkedList<>();
-    }
+    private LinkedList<AnimateSegment> segments = new LinkedList<>();
 
     public SequentialAnimateSet insertSegment(AnimateSegment animateSegment) {
         segments.addFirst(animateSegment);
@@ -56,10 +53,10 @@ public class SequentialAnimateSet extends AnimateSegment implements AnimateState
     }
 
     @Override
-    protected void prepare() {
+    protected void prepare(View animateView) {
         AnimateSegment animateSegment = segments.peekFirst();
         if (animateSegment != null) {
-            animateSegment.prepare();
+            animateSegment.prepare(animateView);
         }
     }
 
@@ -69,15 +66,6 @@ public class SequentialAnimateSet extends AnimateSegment implements AnimateState
         if (animateSegment != null) {
             animateSegment.onConfigurationChanged(newConfig);
         }
-    }
-
-    @Override
-    protected int getLayerType() {
-        AnimateSegment animateSegment = segments.peekFirst();
-        if (animateSegment != null) {
-            return animateSegment.getLayerType();
-        }
-        return super.getLayerType();
     }
 
     @Override
@@ -98,7 +86,7 @@ public class SequentialAnimateSet extends AnimateSegment implements AnimateState
                 segments.pollFirst();
                 first = segments.peekFirst();
                 if (first != null) {
-                    first.prepare();
+                    first.prepare(getAnimateView());
                 }
             } else {
                 return duration;

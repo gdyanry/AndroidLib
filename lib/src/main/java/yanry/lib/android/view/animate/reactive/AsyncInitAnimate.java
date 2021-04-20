@@ -1,6 +1,7 @@
 package yanry.lib.android.view.animate.reactive;
 
 import android.graphics.Canvas;
+import android.view.View;
 
 import yanry.lib.java.model.task.SingleThreadExecutor;
 
@@ -25,8 +26,8 @@ public abstract class AsyncInitAnimate extends AnimateSegment implements Runnabl
     protected abstract long doDraw(Canvas canvas);
 
     @Override
-    protected void prepare() {
-        super.prepare();
+    protected void prepare(View animateView) {
+        super.prepare(animateView);
         if (initState == 0) {
             initExecutor.enqueue(this, true);
         }
