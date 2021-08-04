@@ -30,13 +30,19 @@ public class AnimateLayout extends FrameLayout {
     private CacheTimer<AnimateView> dropTimer = new CacheTimer<AnimateView>(Singletons.get(UiRunner.class)) {
         @Override
         protected void onTimeout(AnimateView tag) {
-            Logger.getDefault().dd("remove animate view: ", tag.hashCode());
-            removeView(tag);
+            if (getAnimateViewCount() > animateViewMinCount) {
+                Logger.getDefault().dd("remove animate view: ", tag.hashCode());
+                removeView(tag);
+            } else {
+                refresh(tag);
+            }
         }
     };
     private AtomicInteger animateCounter = new AtomicInteger();
     private ValueHolderImpl<Integer> animateCount = new ValueHolderImpl<>(0);
     private LinkedList<AnimateView> availableTemp = new LinkedList<>();
+    private int animateViewMinCount;
+    private long animateViewCacheTimeout;
 
     public AnimateLayout(@NonNull Context context) {
         super(context);
@@ -44,6 +50,38 @@ public class AnimateLayout extends FrameLayout {
 
     public AnimateLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    /**
+     * 此方法需要在主线程中调用。
+     *
+     * @param animateViewMinCount     AnimateView的最低数量，多于此数量的AnimateView会被超时清理
+     * @param animateViewCacheTimeout AnimateView闲置缓存超时时间
+     */
+    public void init(int animateViewMinCount, long animateViewCacheTimeout) {
+        this.animateViewMinCount = animateViewMinCount;
+        this.animateViewCacheTimeout = animateViewCacheTimeout;
+        int viewsToAdd = animateViewMinCount - getAnimateViewCount();
+        while (viewsToAdd-- > 0) {
+            AnimateView animateView = new AnimateView(getContext());
+            addView(animateView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+            Logger.getDefault().dd("create animate view: ", animateView.hashCode());
+        }
+        if (isAttachedToWindow()) {
+            dropTimer.startTiming(animateViewCacheTimeout);
+        }
+    }
+
+    private int getAnimateViewCount() {
+        int count = 0;
+        int childCount = getChildCount();
+        while (childCount-- > 0) {
+            View child = getChildAt(childCount);
+            if (child != null && child instanceof AnimateView) {
+                count++;
+            }
+        }
+        return count;
     }
 
     /**
@@ -105,13 +143,13 @@ public class AnimateLayout extends FrameLayout {
         }
         if (selectedView != null) {
             availableTemp.clear();
-            segment.getLogger().concat(LogLevel.Verbose, "select available view ", selectedView.hashCode(), " at index ", indexOfChild(selectedView), "(", animateCounter.get(), "/", childCount, ",z=", zOrder, ") to render segment: ", segment);
+            segment.getLogger().concat(LogLevel.Verbose, "select available view ", selectedView.hashCode(), " at index ", indexOfChild(selectedView), "/", childCount, "(animCount=", animateCounter.get(), ",z=", zOrder, ") to render segment: ", segment);
             selectedView.bind(segment);
             invalidate();
         } else {
             AnimateView animateView = new AnimateView(getContext());
             addView(animateView, i, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView.hashCode(), " at index ", i, "(", animateCounter.get(), "/", childCount, ",z=", zOrder, ") to render segment: ", segment);
+            segment.getLogger().concat(LogLevel.Verbose, "create new view ", animateView.hashCode(), " at index ", i, "/", getChildCount(), "(animCount=", animateCounter.get(), ",z=", zOrder, ") to render segment: ", segment);
             animateView.bind(segment);
         }
         return true;
@@ -160,7 +198,9 @@ public class AnimateLayout extends FrameLayout {
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
-        dropTimer.startTiming(300000);
+        if (animateViewCacheTimeout > 0) {
+            dropTimer.startTiming(animateViewCacheTimeout);
+        }
     }
 
     @Override
