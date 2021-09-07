@@ -1,5 +1,9 @@
 package yanry.lib.android.view.animate.reactive;
 
+import static yanry.lib.java.model.schedule.ShowData.STATE_DEQUEUE;
+import static yanry.lib.java.model.schedule.ShowData.STATE_DISMISS;
+import static yanry.lib.java.model.schedule.ShowData.STATE_SHOWING;
+
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.view.View;
@@ -15,11 +19,7 @@ import yanry.lib.java.model.animate.TimeController;
 import yanry.lib.java.model.log.LogLevel;
 import yanry.lib.java.model.log.Logger;
 import yanry.lib.java.model.schedule.ShowData;
-import yanry.lib.java.model.watch.ValueWatcher;
-
-import static yanry.lib.java.model.schedule.ShowData.STATE_DEQUEUE;
-import static yanry.lib.java.model.schedule.ShowData.STATE_DISMISS;
-import static yanry.lib.java.model.schedule.ShowData.STATE_SHOWING;
+import yanry.lib.java.model.watch.IntWatcher;
 
 /**
  * 动画片段。
@@ -227,7 +227,7 @@ public abstract class AnimateSegment extends TimeController {
         }
     }
 
-    public class ScheduleBinding extends FlagsHolder implements ValueWatcher<Integer>, AnimateStateWatcher, Runnable {
+    public class ScheduleBinding extends FlagsHolder implements IntWatcher, AnimateStateWatcher, Runnable {
         private ShowData bindingData;
         private AnimateLayout animateLayout;
 
@@ -271,8 +271,8 @@ public abstract class AnimateSegment extends TimeController {
         }
 
         @Override
-        public void onValueChange(Integer to, Integer from) {
-            switch (to.intValue()) {
+        public void onValueChange(int to, int from) {
+            switch (to) {
                 case STATE_SHOWING:
                     Singletons.get(UiRunner.class).run(this);
                     break;

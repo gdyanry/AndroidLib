@@ -12,6 +12,7 @@ import yanry.lib.java.interfaces.BiConsumer;
 import yanry.lib.java.model.Singletons;
 import yanry.lib.java.model.schedule.ShowData;
 import yanry.lib.java.model.schedule.ViewDisplay;
+import yanry.lib.java.model.watch.IntWatcher;
 import yanry.lib.java.model.watch.ValueHolder;
 import yanry.lib.java.model.watch.ValueWatcher;
 
@@ -123,7 +124,7 @@ public abstract class ActivityDisplay<D extends ContextShowData, A extends Activ
         }
     }
 
-    private class StartActivityMark implements ValueWatcher<Integer> {
+    private class StartActivityMark implements IntWatcher {
         private D data;
 
         private StartActivityMark(D data) {
@@ -139,7 +140,7 @@ public abstract class ActivityDisplay<D extends ContextShowData, A extends Activ
         }
 
         @Override
-        public void onValueChange(Integer to, Integer from) {
+        public void onValueChange(int to, int from) {
             if (to == ShowData.STATE_DISMISS) {
                 release();
             }
