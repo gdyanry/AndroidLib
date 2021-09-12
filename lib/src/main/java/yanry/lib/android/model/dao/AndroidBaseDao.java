@@ -68,8 +68,8 @@ public abstract class AndroidBaseDao extends BaseDao {
                 }));
             }
         };
-        if (supportConcurrent && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            openHelper.setWriteAheadLoggingEnabled(true);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            openHelper.setWriteAheadLoggingEnabled(supportConcurrent);
         }
         dbFile = context.getDatabasePath(dbFileName);
         Logger.getDefault().d("instantiate dao: %s, %s bytes", dbFileName, dbFile.length());
