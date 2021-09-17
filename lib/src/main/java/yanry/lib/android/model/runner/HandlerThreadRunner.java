@@ -34,6 +34,7 @@ public class HandlerThreadRunner extends HandlerThread implements Runner, Execut
 
     @Override
     public void run(Runnable runnable) {
+        handler.removeCallbacks(runnable);
         if (Thread.currentThread().equals(this)) {
             runnable.run();
         } else {
